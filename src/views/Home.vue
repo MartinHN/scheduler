@@ -1,18 +1,31 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <div style=display:flex>
+<PeriodChooser/>
+    </div>
+
+    <WeekChooser />
   </div>
 </template>
 
-<script>
+<script  lang="ts">
 // @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
+import { Component, Prop, Vue } from 'vue-property-decorator'
+import WeekChooser from '@/components/WeekChooser.vue'
+import PeriodChooser from '@/components/PeriodChooser.vue'
 
-export default {
-  name: 'Home',
+@Component({
   components: {
-    HelloWorld
+    WeekChooser,
+    PeriodChooser
+
+  }
+})
+export default class HomeComp extends Vue {
+  private a=5
+  private range = { start: '', end: '' };
+  get calAttributes () {
+    return this.attributes.map(e => { return { key: e.name, hightlight: true, content: 'red' } })
   }
 }
 </script>
