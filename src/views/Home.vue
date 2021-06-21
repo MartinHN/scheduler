@@ -1,10 +1,12 @@
 <template>
-  <div class="home">
-    <div style=display:flex>
-<PeriodChooser/>
+  <div class="home" style="display:grid;grid-template-columns:1fr 8fr">
+    <div style=overflow-y>
+      <div type=radio v-for="z of zones" :key=z.id @click="selectedZone=z" :style="{background:selectedZone==z?'blue':''}">{{z}}</div>
     </div>
-
-    <WeekChooser />
+    <div style="display:grid;grid-template-rows:1fr auto">
+      <PeriodChooser v-if='selectedZone!="default"'/>
+       <WeekChooser />
+    </div>
   </div>
 </template>
 
@@ -24,8 +26,16 @@ import PeriodChooser from '@/components/PeriodChooser.vue'
 export default class HomeComp extends Vue {
   private a=5
   private range = { start: '', end: '' };
-  get calAttributes () {
-    return this.attributes.map(e => { return { key: e.name, hightlight: true, content: 'red' } })
-  }
+  private zones = ['default', 'mo'];
+private selectedZone = 'default';
 }
 </script>
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped>
+
+.active{
+  background:red
+}
+
+</style>

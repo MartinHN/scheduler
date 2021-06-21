@@ -2,7 +2,7 @@
 <template>
   <div>
    <h1> week </h1>
-     <span style="display:grid;grid-template:repeat(8,1fr)/1fr 3fr;font-size:1em">
+     <span style="display:grid;grid-template:2fr repeat(7,1fr)/1fr 3fr;font-size:1em">
    <div> default</div ><HoursChooser  v-model="defaultHours" @input=defaultChanged />
    <template v-for="i in Object.keys(days)"   >
 

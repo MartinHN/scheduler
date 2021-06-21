@@ -39,7 +39,7 @@ export default class HoursChooser extends Vue {
   }
 
   get nextDay () {
-    return this.isValid && (getSeconds(this.startS) > getSeconds(this.endS))
+    return this.isValid && (getSeconds(this.startS) > getSeconds(this.endS)) && getSeconds(this.endS) !== 0
   }
 
   get nextDayText () {
