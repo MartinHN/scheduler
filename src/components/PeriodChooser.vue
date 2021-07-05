@@ -1,7 +1,7 @@
 <template>
   <div >
-    <div style=display:flex>
-      <DatePicker  locale="fr" :max-date=endDate :value=startDate :attributes=attr @dayclick='dateClick("start",$event) ' >
+    <div style=display:flex;justify-content:space-evenly;>
+      <DatePicker  locale="fr" :max-date=value.end :value=value.start :attributes=attr @dayclick='dateClick("start",$event) ' >
         <template  v-slot="{ inputValue,inputEvents }">
          <input
               style=font-size:1em
@@ -23,7 +23,7 @@
           d="M14 5l7 7m0 0l-7 7m7-7H3"
         />
       </svg>
-      <DatePicker  locale="fr" :min-date=startDate  :value=endDate :attributes=attr @dayclick='dateClick("end",$event)' >
+      <DatePicker  locale="fr" :min-date=value.start  :value=value.end :attributes=attr @dayclick='dateClick("end",$event)' >
         <template  v-slot="{ inputValue,inputEvents }">
          <input
               style=font-size:1em
@@ -40,41 +40,48 @@
 <script  lang="ts">
 // @ is an alias to /src
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import { Calendar, DatePicker } from 'v-calendar'
+
+import { DatePicker } from 'v-calendar'
+
+interface DateRange {
+    start: Date,
+    end: Date
+}
 
 @Component({
   components: {
-
-    // Calendar
     DatePicker
   }
 })
 export default class PeriodComp extends Vue {
-  private a=5
-  private startDate = new Date()
-  private endDate = new Date()
-  get attr () {
-    return [{ key: 'myP', highlight: 'blue', dates: { start: this.startDate, end: this.endDate } }]
+  @Prop({ required: true })
+  private value !:DateRange
+
+  get attr ():any {
+    return [{ key: 'myP', highlight: 'blue', dates: { start: this.value.start, end: this.value.end } }]
   }
 
-  dateClick (id, e) {
+  private dateClick (id:any, e:any) {
+    // const newD = this.value // JSON.parse(JSON.stringify(this.value))// { start: this.value.start, end: this.value.end }
     if (id === 'start') {
-      if (e.date > this.endDate) {
+      if (e.date > this.value.end) {
         console.log('ignore')
         return
       }
-      this.startDate = e.date
+      this.value.start = e.date
     } else if (id === 'end') {
-      if (e.date < this.startDate) {
+      if (e.date < this.value.start) {
         console.log('ignore')
         return
       }
-      this.endDate = e.date
+      this.value.end = e.date
     } else console.error('invalid id')
 
-    // const tmp = this.startDate
-    // this.startDate = this.endDate
-    // this.endDate = tmp
+    // this.$emit('input', newD)
+
+  // const tmp = this.value.start
+  // this.value.start = this.value.end
+  // this.value.end = tmp
   }
 }
 </script>

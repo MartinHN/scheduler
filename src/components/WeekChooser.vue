@@ -1,19 +1,26 @@
 
 <template>
   <div>
-   <h1> week </h1>
-     <span style="display:grid;grid-template:2fr repeat(7,1fr)/1fr 3fr;font-size:1em">
-   <div> default</div ><HoursChooser  v-model="defaultHours" @input=defaultChanged />
-   <template v-for="i in Object.keys(days)"   >
 
-    <div :key="i.id"> {{i}}</div>
-    <div :key="i.id" style="display:grid;grid-template-columns:1fr auto">
-     <select v-model="days[i]" style=font-size:1.5em;>
-        <option  value="default" >default</option>
-        <option value="no">no</option>
-        <option value="HH:mm">custom</option>
-     </select>
-     <HoursChooser v-if="days[i]!='no' && days[i]!='default'" v-model=days[i] /></div>
+     <span style="display:grid;grid-template:1fr repeat(7,1fr)/1fr 3fr;font-size:1em;grid-gap:5px">
+
+   <template v-for="(v,i) in value"   >
+
+    <div :key="i.id"  >
+      <div> {{i}}</div>
+      <select   v-model="v.type" style=font-size:1em;>
+          <option  v-if='i!=="default"' value="default" >default</option>
+          <option value="no">no</option>
+          <option value="custom">custom</option>
+      </select>
+
+    </div>
+    <div :key="i.id"  :style="{display:'grid','grid-template-columns':'1fr auto',background:(v.type==='no'||(v.type==='default'&&value.default.type==='no'))?'red':''}">
+     <HoursChooser v-if="v.type==='custom'" v-model=v.hourRange />
+
+      <div v-else-if="v.type==='default'" style=align-self:center >{{(v.type==='default'&&value.default.type!=='no')?value.default.hourRange:'default'}}</div>
+
+    </div>
    </template>
      </span>
 
@@ -23,23 +30,57 @@
 <script lang="ts">
 
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import HoursChooser from '@/components/HoursChooser.vue'
+import HoursChooser, { HourRange, defaultHourRange } from '@/components/HoursChooser.vue'
 
+export interface DayType{
+    type:string,
+    hourRange:HourRange
+  }
+
+export function defaultDayType ():DayType {
+  return { type: 'default', hourRange: defaultHourRange() }
+}
+
+export interface WeekHours{
+  default:DayType
+  lundi:DayType
+  mardi:DayType
+  mercredi:DayType
+  jeudi:DayType
+  vendredi:DayType
+  samedi:DayType
+  dimanche:DayType
+}
+
+export function defaultDefaultDay () {
+  const res = defaultDayType()
+  res.type = 'custom'
+  return res
+}
+
+export function defaultWeekHour ():WeekHours {
+  return {
+    default: defaultDefaultDay(),
+    lundi: defaultDayType(),
+    mardi: defaultDayType(),
+    mercredi: defaultDayType(),
+    jeudi: defaultDayType(),
+    vendredi: defaultDayType(),
+    samedi: defaultDayType(),
+    dimanche: defaultDayType()
+  }
+}
 @Component({
   components: {
     HoursChooser
   }
 })
 export default class WeekChooser extends Vue {
-  private defaultHours = { start: 'HH:mm', end: 'HH:mm' }
-  private days = { lundi: 'default', mardi: 'default', mercredi: 'default', jeudi: 'default', vendredi: 'default', samedi: 'default', dimanche: 'default' }
+  @Prop({ required: true })
+  private value!:WeekHours
 
-  defaultChanged (e) {
+  defaultChanged (e:any):void {
     console.log('input', e)
-  }
-
-  setType (d, t) {
-    this.days[d] = t
   }
 }
 </script>
