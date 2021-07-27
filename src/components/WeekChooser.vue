@@ -10,7 +10,7 @@
       <div> {{i}}</div>
       <select   v-model="v.type" style=font-size:1em;>
           <option  v-if='i!=="default"' value="default" >default</option>
-          <option value="no">no</option>
+          <option value="no">off</option>
           <option value="custom">custom</option>
       </select>
 
