@@ -1,9 +1,10 @@
 <template>
   <div >
     <div style=display:flex;justify-content:space-evenly;>
-      <DatePicker  locale="fr" :max-date=value.end :value=value.start :attributes=attr @dayclick='dateClick("start",$event) ' >
+      <DatePicker  locale="fr" :max-date=value.end :value=value.start :attributes="getAttr('startInput')" @dayclick='dateClick("start",$event) ' >
         <template  v-slot="{ inputValue,inputEvents }">
          <input
+              id="startInput"
               style=font-size:1em
               :value="inputValue"
               v-on=inputEvents
@@ -23,9 +24,10 @@
           d="M14 5l7 7m0 0l-7 7m7-7H3"
         />
       </svg>
-      <DatePicker  locale="fr" :min-date=value.start  :value=value.end :attributes=attr @dayclick='dateClick("end",$event)' >
+      <DatePicker   locale="fr" :min-date=value.start  :value=value.end :attributes="getAttr('endInput')" @dayclick='dateClick("end",$event)' >
         <template  v-slot="{ inputValue,inputEvents }">
          <input
+              id="endInput"
               style=font-size:1em
               :value="inputValue"
               v-on=inputEvents
@@ -57,8 +59,8 @@ export default class PeriodComp extends Vue {
   @Prop({ required: true })
   private value !:DateRange
 
-  get attr ():any {
-    return [{ key: 'myP', highlight: 'blue', dates: { start: this.value.start, end: this.value.end } }]
+  getAttr (hint:string):any {
+    return [{ key: hint, highlight: 'blue', dates: { start: this.value.start, end: this.value.end } }]
   }
 
   private dateClick (id:any, e:any) {

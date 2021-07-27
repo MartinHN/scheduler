@@ -2,34 +2,40 @@
   <div>
     <DeviceList style='display:none' :deviceList=deviceList />
     <div class=header >
-      <div> {{!showGroups?"Time Zones":"Devices Group"}}</div>
-      <button @click='showGroups=!showGroups' :value=showGroups> show {{!showGroups?"Devices Group":"Time Zones"}}</button>
+      <div> {{!showGroups?"Time Agendas":"Devices Group"}}</div>
+      <button @click='showGroups=!showGroups' :value=showGroups> show {{!showGroups?"Devices Group":"Time Agendas"}}</button>
     </div>
     <div v-if=showGroups>
       <GroupList :connectedDevices=deviceList  />
     </div>
     <div v-else>
-      <ZonesList :currentZoneData="{zones}" @input=loadNewJSON />
+      <AgendasList :currentAgendaData="{agendas}" @input=loadNewJSON />
       <br>
       <div class="home" style="display: grid; grid-template-columns: 1fr 2fr;grid-gap:5px">
 
         <div style="overflow-y;outline-style: solid;outline-width:1px">
-      <span> <div @click=addZone>+</div>
-        <div @click=removeZone>-</div>
+      <span style=display:flex>
+
       </span>
+   <button  @click=addAgendaZone>add Agenda Exception</button>
+      <div style=height:5px />
+
+   <div style=display:flex v-for="z of agendasSorted" :key="z.id"  >
+       <div style=width:20%  v-if='z===selectedAgenda' >   <button :key="z.id" v-if='z!=="default"' @click=removeAgenda>X</button> </div>
         <button
             type="radio"
-            v-for="z of Object.keys(zones)"
             :key="z.id"
-            @click="selectedZone = z"
-            :class="{active:selectedZone===z}"
+            @click="selectedAgenda = z"
+            :class="{active:selectedAgenda===z}"
           >
             {{ z }}
           </button>
+   </div>
         </div>
-        <div style="display: grid; grid-template-rows: 1fr auto">
-          <PeriodChooser v-if="selectedZone != 'default'" v-model=zones[selectedZone].dates />
-          <WeekChooser v-model=zones[selectedZone].weekHours />
+        <div v-if=agendas[selectedAgenda] style="display: grid; grid-template-rows: 1fr auto">
+           <input v-if="selectedAgenda != 'default'" :value="selectedAgenda" @change="setAgendaName($event.target.value)"/>
+          <PeriodChooser v-if="selectedAgenda != 'default'" v-model=agendas[selectedAgenda].dates />
+          <WeekChooser v-model=agendas[selectedAgenda].weekHours />
         </div>
       </div>
     </div>
@@ -42,27 +48,27 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 import WeekChooser, { WeekHours, defaultWeekHour } from '@/components/WeekChooser.vue'
 
 import PeriodChooser from '@/components/PeriodChooser.vue'
-import ZonesList from '@/components/ZonesList.vue'
+import AgendasList from '@/components/AgendasList.vue'
 import GroupList from '@/components/GroupList.vue'
 import DeviceList from '@/components/DeviceList.vue'
 import { getJSON } from '@/API/API'
 import ws from '../ws'
 
-export interface Zone{
+export interface AgendaZone{
   name:string
   dates:{start:Date, end:Date}
   weekHours:WeekHours
 }
 
-export interface Zones {[id:string]: Zone}
+export interface AgendaZones {[id:string]: AgendaZone}
 
 export interface FileType{
-zones: Zones
+agendas: AgendaZones
 }
 
 const connection :any = {}
 
-function createZone (name:string):Zone {
+function createAgendaZone (name:string):AgendaZone {
   return {
     name,
     dates: {
@@ -78,7 +84,7 @@ const allowedWSData = ['deviceList'] as string[]
   components: {
     WeekChooser,
     PeriodChooser,
-    ZonesList,
+    AgendasList,
     GroupList,
     DeviceList
   }
@@ -86,21 +92,25 @@ const allowedWSData = ['deviceList'] as string[]
 export default class HomeComp extends Vue {
    a = 5;
 
-   zones :Zones= { default: createZone('default') };
-   selectedZone = 'default';
+   agendas :AgendaZones= { default: createAgendaZone('default') };
+   selectedAgenda = 'default';
    showGroups = false
   deviceList = [] as string[]
 
-  zoneFileNames :string[]=[]
+  agendaFileNames :string[]=[]
   mounted ():void {
     ws.init(this.newMessage, undefined)
-    getJSON('zoneNames').then(data => {
+    getJSON('agendaNames').then(data => {
       if (data !== undefined) {
-        Vue.set(this, 'zoneFileNames', data)
+        Vue.set(this, 'agendaFileNames', data)
       }
     })
     // allowedWSData = Object.keys(this).filter(e => !(e.startsWith('_') || e.startsWith('$')))
     // console.log('allowed data', allowedWSData)
+  }
+
+  get agendasSorted () {
+    return Object.keys(this.agendas).sort((a:string, b:string) => { return (this.agendas[a].dates.start.getTime && this.agendas[a].dates.start.getTime()) - (this.agendas[b].dates.start.getTime && this.agendas[b].dates.start.getTime()) })
   }
 
   newMessage (v:any):void {
@@ -111,18 +121,29 @@ export default class HomeComp extends Vue {
     }
   }
 
-  addZone ():void {
-    const res = prompt('new exception zone')
-    if (typeof (res) === 'string') { Vue.set(this.zones, res, createZone(res)) }
+  addAgendaZone ():void {
+    const res = prompt('new exception agenda')
+    if (typeof (res) === 'string') { Vue.set(this.agendas, res, createAgendaZone(res)); this.selectedAgenda = res }
   }
 
-  removeZone ():void {
-    Vue.delete(this.zones, this.selectedZone)
+  removeAgenda ():void {
+    // this.agendas[this.selectedAgenda] = (null as unknown as Agenda)
+    Vue.delete(this.agendas, this.selectedAgenda)
+    this.selectedAgenda = 'default'
   }
 
   loadNewJSON (f:FileType) : void{
     console.log('load new json file', f)
-    this.zones = f.zones
+    this.agendas = f.agendas
+  }
+
+  setAgendaName (n:string):void{
+    console.log(n)
+
+    console.log('setting agenda name', n)
+    Vue.set(this.agendas, n, this.agendas[this.selectedAgenda])
+    Vue.delete(this.agendas, this.selectedAgenda)
+    this.selectedAgenda = n
   }
 }
 </script>

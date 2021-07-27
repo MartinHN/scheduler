@@ -11,7 +11,7 @@
       <vue-timepicker
         v-model="value.start"
         @change="timeChanged"
-        :minute-interval="5"
+        :minute-interval="15"
         hide-clear-button
       ></vue-timepicker>
 
@@ -33,7 +33,7 @@
 
         v-model="value.end"
         @change="timeChanged"
-        :minute-interval="5"
+        :minute-interval="15"
         hide-clear-button
       ></vue-timepicker>
   </div>

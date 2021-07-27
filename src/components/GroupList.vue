@@ -12,14 +12,14 @@
 <div class=grouplist>
           <button style=width:100% v-for="v of allAvailableDevices" :key=v class=flash :class={active:selectedDevices.includes(v),notconnected:!connectedDevices.includes(v)} @click=toggleStateFor(v) >{{(connectedDevices.includes(v)?'':'(disconnected) ') +v}}</button>
 </div> <br>
-<div>  time zone to use </div>
+<div>  time agenda to use </div>
         <select style=width:100% v-model=currentFileName >
-          <option style=width:100% v-for="v of zoneFileNames" :key=v.id :value=v>{{v}}</option>
+          <option style=width:100% v-for="v of agendaFileNames" :key=v.id :value=v>{{v}}</option>
       </select>
       <br>
       <div>  saves and delete </div>
-         <button @click="addGroup" class=flash >add or save</button>
-      <button class=flash @click="eraseGroup">erase</button>
+         <button @click="addGroup" class=flash >save or add group</button>
+      <button class=flash @click="eraseGroup">erase group</button>
 
   </div>
 </template>
@@ -44,7 +44,7 @@ export default class GroupList extends Vue {
     connectedDevices!:string[]
 
     storedDevices:string[] = []
-    zoneFileNames:string[] = []
+    agendaFileNames:string[] = []
 
     currentGroupName = ''
 
@@ -112,9 +112,9 @@ export default class GroupList extends Vue {
     }
 
     async loadFileNames ():Promise<void> {
-      const data = await getJSON('zoneNames')
+      const data = await getJSON('agendaNames')
       if (data !== undefined) {
-        await Vue.set(this, 'zoneFileNames', data)
+        await Vue.set(this, 'agendaFileNames', data)
       }
     }
 
