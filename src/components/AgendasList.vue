@@ -17,7 +17,7 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 
-import { FileType, AgendaZones } from '@/views/Home.vue'
+import { FileType, AgendaZones } from '@/views/AgendasView.vue'
 import { getJSON, postJSON, deleteJSON } from '@/API/API'
 
 function replaceJSON (k : string, v : any) : any {
