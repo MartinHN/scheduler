@@ -1,24 +1,26 @@
 <template>
   <div class="deviceRow" >
-      <!-- <select style=width:100% v-model=currentDevice @change="selectDevice($event.target.value)">
-          <option style=width:100% v-for="v,k of deviceList" :key=v.id :value=v>{{v}} {{ k}}</option>
-      </select> -->
-      <div > {{ name}} </div>
 
-          <button style=width:100% :class={notconnected:!connected}  >{{(connected?'':'(disconnected) ') +name}}</button>
+          <button style=width:100% :class={notconnected:!connected,active:selected}  >{{(connected?'':'(disconnected) ') +name}}</button>
+          <button @click=setName> edit </button>
+          <button @click=setOnOff(true)> On </button>
+          <button @click=setOnOff(false)> Off </button>
+          <div>{{ip}}</div>
 
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
+import { getJSON, postJSON, deleteJSON } from '@/API/API'
 
 export interface Device{
   name:string;
+  ip:string;
 }
 
 export function newEmptyDevice (name:string):Device {
-  return { name }
+  return { name, ip: 'null' }
 }
 
 @Component({})
@@ -31,16 +33,32 @@ connected!:boolean;
 
 @Prop({ default: false })
 selected!:boolean;
+
+@Prop({ default: 'null' })
+ip!:string;
 // selectDevice (s:string) :void{
 //   this.$emit('input', s)
 // }
 
 getDevice ():Device {
-  return JSON.parse(JSON.stringify({ name: this.name }))
+  return { name: this.name, ip: this.ip }
 }
 
-save () :void{
-  this.$emit('input', this.getDevice())
+emitChange (k:string, v:any) :void{
+  const d = this.getDevice() as any
+  d[k] = v
+  this.$emit('input', d)
+}
+
+setName ():void {
+  const gn = prompt('group name', this.name)
+  if (gn) {
+    this.emitChange('name', gn)
+  }
+}
+
+setOnOff (b:boolean):void {
+  this.$emit('deviceEvent', { type: 'activate', value: b ? 1 : 0 })
 }
 }
 </script>
@@ -49,5 +67,6 @@ save () :void{
 .deviceRow{
   width:100%;
  background:black;
+ display:flex;
 }
 </style>

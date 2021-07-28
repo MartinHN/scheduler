@@ -42,7 +42,6 @@ import WeekChooser, { WeekHours, defaultWeekHour } from '@/components/WeekChoose
 import PeriodChooser from '@/components/PeriodChooser.vue'
 import AgendasList from '@/components/AgendasList.vue'
 import { getJSON } from '@/API/API'
-import ws from '../ws'
 
 export interface AgendaZone{
   name:string
@@ -69,7 +68,6 @@ function createAgendaZone (name:string):AgendaZone {
   }
 }
 
-const allowedWSData = ['deviceList'] as string[]
 @Component({
   components: {
     WeekChooser,
@@ -77,36 +75,23 @@ const allowedWSData = ['deviceList'] as string[]
     AgendasList
   }
 })
-export default class HomeComp extends Vue {
+export default class AgendasView extends Vue {
    a = 5;
 
    agendas :AgendaZones= { default: createAgendaZone('default') };
    selectedAgenda = 'default';
 
-  deviceList = [] as string[]
-
   agendaFileNames :string[]=[]
   mounted ():void {
-    ws.init(this.newMessage, undefined)
     getJSON('agendaNames').then(data => {
       if (data !== undefined) {
         Vue.set(this, 'agendaFileNames', data)
       }
     })
-    // allowedWSData = Object.keys(this).filter(e => !(e.startsWith('_') || e.startsWith('$')))
-    // console.log('allowed data', allowedWSData)
   }
 
   get agendasSorted () {
     return Object.keys(this.agendas).sort((a:string, b:string) => { return (this.agendas[a].dates.start.getTime && this.agendas[a].dates.start.getTime()) - (this.agendas[b].dates.start.getTime && this.agendas[b].dates.start.getTime()) })
-  }
-
-  newMessage (v:any):void {
-    console.log(v)
-
-    if (allowedWSData.includes(v.type)) { Vue.set(this, v.type, v.data) } else {
-      console.error('unkown msg', v, allowedWSData)
-    }
   }
 
   addAgendaZone ():void {

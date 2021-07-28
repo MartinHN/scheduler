@@ -61,6 +61,12 @@ const wrap = {
     }
     // return connection
   },
+  send (addr:string, args:any):void{
+    if (connection.readyState !== WebSocket.OPEN) {
+      console.error('ws not opened')
+    }
+    connection.send(JSON.stringify({ addr, args }))
+  },
   ws: connection
 }
 
