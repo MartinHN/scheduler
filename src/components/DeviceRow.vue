@@ -1,8 +1,8 @@
 <template>
   <div class="deviceRow" >
 
-          <button style=width:100% :class={notconnected:!connected,active:selected}  >{{(connected?'':'(disconnected) ') +name}}</button>
-          <button @click=setName> edit </button>
+          <button style=width:100% :class={notconnected:!connected,active:selected}  >{{(connected?'':'(disconnected) ') +deviceName}}</button>
+          <button @click=setName>{{niceName}} (edit) </button>
           <button @click=setOnOff(true)> On </button>
           <button @click=setOnOff(false)> Off </button>
           <div>{{ip}}</div>
@@ -15,18 +15,22 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 import { getJSON, postJSON, deleteJSON } from '@/API/API'
 
 export interface Device{
-  name:string;
+  deviceName:string;
+  niceName:string;
   ip:string;
 }
 
-export function newEmptyDevice (name:string):Device {
-  return { name, ip: 'null' }
+export function newEmptyDevice (deviceName:string):Device {
+  return { deviceName, ip: 'null', niceName: 'no name' }
 }
 
 @Component({})
 export default class DeviceRow extends Vue {
+@Prop({ required: true })
+deviceName!:string
+
 @Prop({ default: 'no name' })
-name!:string
+niceName!:string;
 
 @Prop({ default: false })
 connected!:boolean;
@@ -41,7 +45,7 @@ ip!:string;
 // }
 
 getDevice ():Device {
-  return { name: this.name, ip: this.ip }
+  return { deviceName: this.deviceName, ip: this.ip, niceName: this.niceName }
 }
 
 emitChange (k:string, v:any) :void{
@@ -51,9 +55,9 @@ emitChange (k:string, v:any) :void{
 }
 
 setName ():void {
-  const gn = prompt('group name', this.name)
+  const gn = prompt('device name', this.niceName)
   if (gn) {
-    this.emitChange('name', gn)
+    this.emitChange('niceName', gn)
   }
 }
 

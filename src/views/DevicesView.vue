@@ -3,9 +3,11 @@
       <div class=grouplist>
     <button @click=addDevice> Add Device </button>
     <button @click=removeDevice> Remove Device </button>
-    <DeviceRow style=width:100% v-for="v,k of knownDevices" :key=v.id :name=v.name  :connected=isDeviceConnected(k) :selected="selectedDevice==k" @click.native="selectedDevice=k" @input=deviceChanged(k,$event) @deviceEvent=newDeviceEvent(v.uuid,$event) />
+    <button @click=resetAll> Reset All Devices Device </button>
+
+    <DeviceRow style=width:100% v-for="v,k of knownDevices" :key=v.id :deviceName=v.deviceName :niceName=v.niceName :ip=v.ip :connected=isDeviceConnected(k) :selected="selectedDevice==k" @click.native="selectedDevice=k" @input=deviceChanged(k,$event) @deviceEvent=newDeviceEvent(v.deviceName,$event) />
     <div v-for="v of unregisteredDevice" :key=v.id>
-    {{v}}<button @click=registerDevice(v.name,v)> register </button>
+    {{v}}<button @click=registerDevice(v.deviceName,v)> register </button>
   </div>
   </div>
 </template>
@@ -45,7 +47,7 @@ export default class DeviceViewComp extends Vue {
   }
 
   get unregisteredDevice ():Device[] {
-    return this.deviceList.slice().filter(d => !this.isDeviceKnown(d.name))
+    return this.deviceList.slice().filter(d => !this.isDeviceKnown(d.deviceName))
   }
 
   async addDevice ():Promise<void> {
@@ -77,14 +79,14 @@ export default class DeviceViewComp extends Vue {
 
   isDeviceKnown (n:string):boolean {
     for (const d of Object.values(this.knownDevices)) {
-      if (d.name === n) { return true }
+      if (d.deviceName === n) { return true }
     }
     return false
   }
 
   isDeviceConnected (n:string):boolean {
     for (const d of Object.values(this.deviceList)) {
-      if (d.name === n) { return true }
+      if (d.deviceName === n) { return true }
     }
     return false
   }
@@ -107,6 +109,13 @@ export default class DeviceViewComp extends Vue {
 
   newDeviceEvent (deviceName:string, event:any):void {
     if (event.type) { ws.send('deviceEvent', { deviceName, event }) } else { console.error('invalid event', event) }
+  }
+
+  async resetAll ():Promise<void> {
+    if (confirm('areYiou Sureee')) {
+      await postJSON('resetRasps', {})
+      document.location.reload()
+    }
   }
 }
 </script>

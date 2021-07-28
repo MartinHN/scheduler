@@ -12,7 +12,7 @@ export async function getJSON (path:string):Promise<any> {
   const response = await fetch(`http://${deviceURL}:${devicePORT}/${path}`, requestOptions)
   if (!response.ok) { return {} }
   const data = await response.json()
-  console.log('got', data)
+  console.log('got', path, data)
   return data
 }
 
