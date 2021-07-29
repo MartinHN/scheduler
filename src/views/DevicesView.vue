@@ -3,7 +3,7 @@
       <div class=grouplist>
     <button @click=addDevice> Add Device </button>
     <button @click=removeDevice> Remove Device </button>
-    <button @click=resetAll> Reset All Devices Device </button>
+    <button @click=resetAll> Reset All Devices And Group</button>
 
     <DeviceRow style=width:100% v-for="v,k of knownDevices" :key=v.id :deviceName=v.deviceName :niceName=v.niceName :ip=v.ip :connected=isDeviceConnected(k) :selected="selectedDevice==k" @click.native="selectedDevice=k" @input=deviceChanged(k,$event) @deviceEvent=newDeviceEvent(v.deviceName,$event) />
     <div v-for="v of unregisteredDevice" :key=v.id>
