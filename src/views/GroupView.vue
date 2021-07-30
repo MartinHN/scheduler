@@ -8,22 +8,13 @@
 <script lang="ts">
 // @ is an alias to /src
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import WeekChooser, { WeekHours, defaultWeekHour } from '@/components/WeekChooser.vue'
 
-import PeriodChooser from '@/components/PeriodChooser.vue'
-import AgendasList from '@/components/AgendasList.vue'
 import GroupList from '@/components/GroupList.vue'
-import { getJSON } from '@/API/API'
 import ws from '../ws'
-
-const connection :any = {}
 
 const allowedWSData = ['deviceList'] as string[]
 @Component({
   components: {
-    WeekChooser,
-    PeriodChooser,
-    AgendasList,
     GroupList
   }
 })

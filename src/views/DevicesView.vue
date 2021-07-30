@@ -4,11 +4,20 @@
     <button @click=addDevice> Add Device </button>
     <button @click=removeDevice> Remove Device </button>
     <button @click=resetAll> Reset All Devices And Group</button>
-
-    <DeviceRow style=width:100% v-for="v,k of knownDevices" :key=v.id :deviceName=v.deviceName :niceName=v.niceName :ip=v.ip :connected=isDeviceConnected(k) :selected="selectedDevice==k" @click.native="selectedDevice=k" @input=deviceChanged(k,$event) @deviceEvent=newDeviceEvent(v.deviceName,$event) />
     <div v-for="v of unregisteredDevice" :key=v.id>
     {{v}}<button @click=registerDevice(v.deviceName,v)> register </button>
   </div>
+
+    <DeviceRow style=width:100% v-for="v,k of knownDevices" :key=v.id
+    :deviceName=v.deviceName
+    :niceName=v.niceName
+    :ip=v.ip
+    :connected=isDeviceConnected(k)
+    :selected="selectedDevice==k"
+    :rssi=v.rssi
+    @click.native="selectedDevice=k"
+    @input=deviceChanged(k,$event)
+    @deviceEvent=sendDeviceEvent(v.deviceName,$event) />
   </div>
 </template>
 
@@ -16,13 +25,13 @@
 // @ is an alias to /src
 import { Component, Prop, Vue } from 'vue-property-decorator'
 
-import DeviceRow, { newEmptyDevice, Device } from '@/components/DeviceRow.vue'
-
-import { getJSON, postJSON, deleteJSON } from '@/API/API'
+import DeviceRow from '@/components/DeviceRow.vue'
+import * as ServerAPI from '@/API/ServerAPI'
+import { newEmptyDevice, Device, DeviceDic, Groups } from '@/API/ServerAPI'
 import ws from '../ws'
 
 const connection :any = {}
-type DeviceDic = {[id:string]:Device};
+
 // interface Devices{knownDevices:DeviceDic}
 const allowedWSData = ['deviceList'] as string[]
 @Component({
@@ -31,19 +40,31 @@ const allowedWSData = ['deviceList'] as string[]
   }
 })
 export default class DeviceViewComp extends Vue {
+  // availableGroups = [] as Groups
   deviceList = [] as Device[]
   knownDevices = {} as DeviceDic
 
   selectedDevice=''
   mounted ():void {
-    ws.init(this.newMessage, undefined)
+    ws.init(this.newMessageFromWS, undefined)
     this.loadDevices()
     // allowedWSData = Object.keys(this).filter(e => !(e.startsWith('_') || e.startsWith('$')))
     // console.log('allowed data', allowedWSData)
   }
 
+  fetchDeviceInfo () {
+    for (const d of Object.values(this.deviceList)) {
+      this.sendDeviceEvent(d.deviceName, { type: 'rssi' })
+    }
+  }
+
   async loadDevices () :Promise<void> {
-    this.knownDevices = await getJSON('knownDevices')
+    const savedKnownDevices = ServerAPI.getKnownDeviceList()
+    this.knownDevices = {}
+    for (const [k, v] of Object.entries(savedKnownDevices)) {
+      Vue.set(this.knownDevices, v.deviceName, newEmptyDevice(v.deviceName, v))
+    }
+    setInterval(this.fetchDeviceInfo.bind(this), 2000)
   }
 
   get unregisteredDevice ():Device[] {
@@ -77,11 +98,15 @@ export default class DeviceViewComp extends Vue {
     this.save()
   }
 
-  isDeviceKnown (n:string):boolean {
+  getKnownDevice (n:string):Device| undefined {
     for (const d of Object.values(this.knownDevices)) {
-      if (d.deviceName === n) { return true }
+      if (d.deviceName === n) { return d }
     }
-    return false
+    return undefined
+  }
+
+  isDeviceKnown (n:string):boolean {
+    return this.getKnownDevice(n) !== undefined
   }
 
   isDeviceConnected (n:string):boolean {
@@ -91,11 +116,31 @@ export default class DeviceViewComp extends Vue {
     return false
   }
 
-  newMessage (v:any):void {
-    console.log('new device ws', v)
-
-    if (allowedWSData.includes(v.type)) { Vue.set(this, v.type, v.data) } else {
-      console.error('unkown msg', v, allowedWSData)
+  newMessageFromWS (v:any):void {
+    if (v.type && v.type === 'resp') {
+      const { deviceName, msg } = v
+      const dev = this.getKnownDevice(deviceName)
+      if (dev) {
+        const prop = msg.address.substr(1)
+        const value = msg.args[0]
+        const availableProps = Object.keys(dev) // ['rssi']
+        // console.log('new resp', prop, value)
+        if (availableProps.includes(prop)) {
+          (dev as any)[prop] = value
+        } else {
+          console.error('unknown prop', prop, availableProps)
+        }
+      } else {
+        console.error('unknown dev', deviceName)
+      }
+    } else {
+      console.log('new device list', v)
+      if (allowedWSData.includes(v.type)) {
+        const filled = v.data.map((d:Device) => newEmptyDevice(d.deviceName, d))
+        Vue.set(this, v.type, filled)
+      } else {
+        console.error('unkown msg', v, allowedWSData)
+      }
     }
   }
 
@@ -104,16 +149,16 @@ export default class DeviceViewComp extends Vue {
   }
 
   save () :void{
-    postJSON('knownDevices', JSON.parse(JSON.stringify(this.getDevices())))
+    ServerAPI.saveKnownDevices(this.getDevices())
   }
 
-  newDeviceEvent (deviceName:string, event:any):void {
+  sendDeviceEvent (deviceName:string, event:any):void {
     if (event.type) { ws.send('deviceEvent', { deviceName, event }) } else { console.error('invalid event', event) }
   }
 
   async resetAll ():Promise<void> {
     if (confirm('areYiou Sureee')) {
-      await postJSON('resetRasps', {})
+      await ServerAPI.resetDevicesAndGroups()
       document.location.reload()
     }
   }

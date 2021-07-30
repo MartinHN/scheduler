@@ -37,36 +37,13 @@
 <script lang="ts">
 // @ is an alias to /src
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import WeekChooser, { WeekHours, defaultWeekHour } from '@/components/WeekChooser.vue'
+import WeekChooser from '@/components/WeekChooser.vue'
 
 import PeriodChooser from '@/components/PeriodChooser.vue'
 import AgendasList from '@/components/AgendasList.vue'
-import { getJSON } from '@/API/API'
-
-export interface AgendaZone{
-  name:string
-  dates:{start:Date, end:Date}
-  weekHours:WeekHours
-}
-
-export interface AgendaZones {[id:string]: AgendaZone}
-
-export interface FileType{
-agendas: AgendaZones
-}
+import { WeekHours, defaultWeekHour, AgendaFile, createAgendaZone, AgendaZones, getAgendaNames } from '@/API/ServerAPI'
 
 const connection :any = {}
-
-function createAgendaZone (name:string):AgendaZone {
-  return {
-    name,
-    dates: {
-      start: new Date(),
-      end: new Date()
-    },
-    weekHours: defaultWeekHour()
-  }
-}
 
 @Component({
   components: {
@@ -83,7 +60,7 @@ export default class AgendasView extends Vue {
 
   agendaFileNames :string[]=[]
   mounted ():void {
-    getJSON('agendaNames').then(data => {
+    getAgendaNames().then(data => {
       if (data !== undefined) {
         Vue.set(this, 'agendaFileNames', data)
       }
@@ -105,7 +82,7 @@ export default class AgendasView extends Vue {
     this.selectedAgenda = 'default'
   }
 
-  loadNewJSON (f:FileType) : void{
+  loadNewJSON (f:AgendaFile) : void{
     console.log('load new json file', f)
     this.agendas = f.agendas
   }

@@ -27,16 +27,9 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 
-import { getJSON, postJSON, deleteJSON } from '@/API/API'
+import * as ServerAPI from '@/API/ServerAPI'
 
-export interface Group{
-  name:string
-  filename?:string
-  devices:string[]
-}
-export interface Groups{
-  [key:string] : Group
-}
+import { Group, Groups } from '@/API/ServerAPI'
 
 @Component({})
 export default class GroupList extends Vue {
@@ -90,7 +83,7 @@ export default class GroupList extends Vue {
     mounted (): void{ this.loadFileNames(); this.loadGroups() }
 
     async loadGroups () :Promise<void> {
-      this.groups = await getJSON('groups')
+      this.groups = await ServerAPI.getGroups()
       if (!this.currentGroupName) {
         console.log('forcing currentGroup name')
         this.loadGroupNamed(Object.keys(this.groups)[0])
@@ -112,7 +105,7 @@ export default class GroupList extends Vue {
     }
 
     async loadFileNames ():Promise<void> {
-      const data = await getJSON('agendaNames')
+      const data = ServerAPI.getAgendaNames()
       if (data !== undefined) {
         await Vue.set(this, 'agendaFileNames', data)
       }
@@ -140,7 +133,7 @@ export default class GroupList extends Vue {
     }
 
     async saveGroups ():Promise<void> {
-      await postJSON('groups', this.groups)
+      await ServerAPI.saveGroups(this.groups)
     }
 
   // async refreshGroups () :Promise<void> {

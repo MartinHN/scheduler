@@ -30,46 +30,10 @@
 <script lang="ts">
 
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import HoursChooser, { HourRange, defaultHourRange } from '@/components/HoursChooser.vue'
+import HoursChooser from '@/components/HoursChooser.vue'
 
-export interface DayType{
-    type:string,
-    hourRange:HourRange
-  }
+import { WeekHours } from '@/API/ServerAPI'
 
-export function defaultDayType ():DayType {
-  return { type: 'default', hourRange: defaultHourRange() }
-}
-
-export interface WeekHours{
-  default:DayType
-  lundi:DayType
-  mardi:DayType
-  mercredi:DayType
-  jeudi:DayType
-  vendredi:DayType
-  samedi:DayType
-  dimanche:DayType
-}
-
-export function defaultDefaultDay () {
-  const res = defaultDayType()
-  res.type = 'custom'
-  return res
-}
-
-export function defaultWeekHour ():WeekHours {
-  return {
-    default: defaultDefaultDay(),
-    lundi: defaultDayType(),
-    mardi: defaultDayType(),
-    mercredi: defaultDayType(),
-    jeudi: defaultDayType(),
-    vendredi: defaultDayType(),
-    samedi: defaultDayType(),
-    dimanche: defaultDayType()
-  }
-}
 @Component({
   components: {
     HoursChooser

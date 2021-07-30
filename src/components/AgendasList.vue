@@ -17,8 +17,8 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 
-import { FileType, AgendaZones } from '@/views/AgendasView.vue'
-import { getJSON, postJSON, deleteJSON } from '@/API/API'
+import { AgendaFile } from '@/API/ServerAPI'
+import * as ServerAPI from '@/API/ServerAPI'
 
 function replaceJSON (k : string, v : any) : any {
   if (v.type === 'default') {
@@ -27,7 +27,7 @@ function replaceJSON (k : string, v : any) : any {
   return v
 }
 
-function getPruned (v:FileType):any {
+function getPruned (v:AgendaFile):any {
   const agendas = JSON.parse(JSON.stringify(v.agendas, replaceJSON)) // as AgendaZones
   agendas.default.dates = undefined
 
@@ -36,11 +36,11 @@ function getPruned (v:FileType):any {
 @Component({})
 export default class AgendasList extends Vue {
     @Prop({ required: true })
-    currentAgendaData !: FileType;
+    currentAgendaData !: AgendaFile;
 
     currentAgendaName = ''
     agendaNames = new Array<string>()
-    localFiles : {[key: string] : FileType} = {};
+    localFiles : {[key: string] : AgendaFile} = {};
 
     // get prunedFileData ():any {
     //   return getPruned(this.currentAgendaData)
@@ -50,7 +50,7 @@ export default class AgendasList extends Vue {
     mounted (): void{ this.updateAvailableAgendas() }
 
     async updateAvailableAgendas (): Promise<void> {
-      const data = await getJSON('agendaNames')
+      const data = await ServerAPI.getAgendaNames()
       if (data !== undefined) {
         Vue.set(this, 'agendaNames', data)
       }
@@ -65,7 +65,7 @@ export default class AgendasList extends Vue {
     async saveAgendaToFile () : Promise<string[]> {
       const name = prompt('file name', this.currentAgendaName)
       if (name) {
-        await postJSON(`agendas?n=${name}`, this.currentAgendaData)
+        ServerAPI.saveAgenda(name, this.currentAgendaData)
         await this.updateAvailableAgendas()
         this.currentAgendaName = name
       }
@@ -75,8 +75,7 @@ export default class AgendasList extends Vue {
 
     async eraseAgendaFile ():Promise<void> {
       const name = this.currentAgendaName
-      await deleteJSON(`agendas?n=${name}`)
-
+      ServerAPI.deleteAgenda(name)
       this.updateAvailableAgendas()
       this.loadAgendaNamed(this.agendaNames[0])
     }
@@ -84,7 +83,7 @@ export default class AgendasList extends Vue {
     async loadAgendaNamed (name:string) :Promise<void> {
       if (!name) { console.error('nofile to load'); return }
       console.log('load', name)
-      const savedFile = await getJSON(`agendas?n=${name}`)
+      const savedFile = ServerAPI.getAgenda(name)
       if (savedFile) {
         this.$emit('input', savedFile)
         this.currentAgendaName = name
@@ -93,7 +92,7 @@ export default class AgendasList extends Vue {
 
     async saveAllAgendasToDevice ():Promise<void> {
       for (const [k, v] of Object.entries(this.localFiles)) {
-        await postJSON('agendas?n=' + k, v)
+        await ServerAPI.saveAgenda(k, v)
       }
       this.updateAvailableAgendas()
       //   console.log('save', JSON.parse(JSON.stringify(this.currentAgendaData, replaceJSON)))

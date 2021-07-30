@@ -43,7 +43,7 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import VueTimepicker from 'vue2-timepicker/src/vue-timepicker.vue'
-
+import { HourRange } from '@/API/ServerAPI'
 const isValidTimeString = (s: string):boolean => {
   return s.length > 0 && !s.includes('HH') // && !s.includes('mm')
 }
@@ -51,14 +51,6 @@ const isValidTimeString = (s: string):boolean => {
 const getSeconds = (s: string) => {
   const l = s.split(':')
   return parseInt(l[0]) * 60 * 60 + parseInt(l[1]) * 60
-}
-export interface HourRange {
-  start: string;
-  end: string;
-}
-
-export function defaultHourRange ():HourRange {
-  return { start: 'HH:00', end: 'HH:00' }
 }
 
 @Component({

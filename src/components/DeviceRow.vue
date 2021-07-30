@@ -5,24 +5,19 @@
           <button @click=setName>{{niceName}} (edit) </button>
           <button @click=setOnOff(true)> On </button>
           <button @click=setOnOff(false)> Off </button>
+          <select>
+            <option v-for="g of groupNames" :key=g.id >{{g}}</option>
+          </select>
           <div>{{ip}}</div>
+          <div :style="{color:rssi<-75?'red':'inherit'}">{{rssi}} dB</div>
 
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import { getJSON, postJSON, deleteJSON } from '@/API/API'
 
-export interface Device{
-  deviceName:string;
-  niceName:string;
-  ip:string;
-}
-
-export function newEmptyDevice (deviceName:string):Device {
-  return { deviceName, ip: 'null', niceName: 'no name' }
-}
+import { Device, newEmptyDevice } from '@/API/ServerAPI'
 
 @Component({})
 export default class DeviceRow extends Vue {
@@ -40,12 +35,23 @@ selected!:boolean;
 
 @Prop({ default: 'null' })
 ip!:string;
+
+@Prop({ default: -1 })
+rssi!:number;
+
+@Prop({ default: () => [] })
+groupNames!:string[];
 // selectDevice (s:string) :void{
 //   this.$emit('input', s)
 // }
 
+mounted () {
+  // ask actual state without args
+  this.$emit('deviceEvent', { type: 'activate' })
+}
+
 getDevice ():Device {
-  return { deviceName: this.deviceName, ip: this.ip, niceName: this.niceName }
+  return { deviceName: this.deviceName, ip: this.ip, niceName: this.niceName, rssi: this.rssi }
 }
 
 emitChange (k:string, v:any) :void{

@@ -37,7 +37,7 @@ const wrap = {
     connection = new WebSocket(wsAddr)
 
     connection.onmessage = function (event:MessageEvent) {
-      console.log('new from serv', event.data)
+      // console.log('new from serv', event.data)
       if (messageCB)messageCB(JSON.parse(event.data))
     }
 
