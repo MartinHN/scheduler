@@ -1,6 +1,7 @@
 <template>
 
       <div class=grouplist>
+        <input type='number' v-model=updateP />
     <button @click=addDevice> Add Device </button>
     <button @click=removeDevice> Remove Device </button>
     <button @click=resetAll> Reset All Devices And Group</button>
@@ -43,6 +44,7 @@ export default class DeviceViewComp extends Vue {
   // availableGroups = [] as Groups
   deviceList = [] as Device[]
   knownDevices = {} as DeviceDic
+  updateP = 2000
 
   selectedDevice=''
   mounted ():void {
@@ -50,12 +52,14 @@ export default class DeviceViewComp extends Vue {
     this.loadDevices()
     // allowedWSData = Object.keys(this).filter(e => !(e.startsWith('_') || e.startsWith('$')))
     // console.log('allowed data', allowedWSData)
+    setTimeout(this.fetchDeviceInfo.bind(this), this.updateP)
   }
 
-  fetchDeviceInfo () {
+  fetchDeviceInfo ():void {
     for (const d of Object.values(this.deviceList)) {
       this.sendDeviceEvent(d.deviceName, { type: 'rssi' })
     }
+    setTimeout(this.fetchDeviceInfo.bind(this), this.updateP)
   }
 
   async loadDevices () :Promise<void> {
@@ -64,7 +68,6 @@ export default class DeviceViewComp extends Vue {
     for (const [k, v] of Object.entries(savedKnownDevices)) {
       Vue.set(this.knownDevices, v.deviceName, newEmptyDevice(v.deviceName, v))
     }
-    setInterval(this.fetchDeviceInfo.bind(this), 2000)
   }
 
   get unregisteredDevice ():Device[] {

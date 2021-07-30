@@ -9,7 +9,7 @@
             <option v-for="g of groupNames" :key=g.id >{{g}}</option>
           </select>
           <div>{{ip}}</div>
-          <div :style="{color:rssi<-75?'red':'inherit'}">{{rssi}} dB</div>
+          <div :style="{background:!connected?'red':'inherit',color:rssi<-75?'red':'inherit'}">{{rssi}} dB</div>
 
   </div>
 </template>
