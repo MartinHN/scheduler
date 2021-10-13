@@ -98,25 +98,26 @@ export interface Device {
     niceName:string;
     ip:string;
     rssi:number;
+    uuid:string;
 }
 
 export function newEmptyDevice (deviceName:string, fields?:any):Device {
   fields = fields || {}
-  return { deviceName, ip: fields.ip || 'null', niceName: fields.niceName || 'no name', rssi: fields.niceName || -1 }
+  return { deviceName, ip: fields.ip || 'null', niceName: fields.niceName || 'no name', rssi: fields.niceName || -1, uuid: 'auto' + (Math.random() * 10e6) }
 }
 
 export type DeviceDic = {[id:string]:Device};
 
-export async function saveKnownDevices (deviceList:DeviceDic):Promise<void> {
-  postJSON('knownDevices', JSON.parse(JSON.stringify(deviceList)))
+export async function saveKnownDevices (knownDeviceList:DeviceDic):Promise<void> {
+  postJSON('knownDevices', JSON.parse(JSON.stringify(knownDeviceList)))
 }
 
 export async function resetDevicesAndGroups () :Promise<void> {
   await postJSON('resetRasps', {})
 }
 
-export async function getKnownDeviceList () :Promise<Device[]> {
-  return await getJSON('knownDevices') as Device[]
+export async function getKnownDeviceList () :Promise<DeviceDic> {
+  return await getJSON('knownDevices') as DeviceDic
 }
 
 /// ///////////

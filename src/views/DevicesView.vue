@@ -11,6 +11,7 @@
 
     <DeviceRow style=width:100% v-for="v,k of knownDevices" :key=v.id
     :deviceName=v.deviceName
+    :uuid = v.uuid
     :niceName=v.niceName
     :ip=v.ip
     :connected=isDeviceConnected(k)
@@ -34,7 +35,7 @@ import ws from '../ws'
 const connection :any = {}
 
 // interface Devices{knownDevices:DeviceDic}
-const allowedWSData = ['deviceList'] as string[]
+const allowedWSData = ['connectedDeviceList'] as string[]
 @Component({
   components: {
     DeviceRow
@@ -42,13 +43,14 @@ const allowedWSData = ['deviceList'] as string[]
 })
 export default class DeviceViewComp extends Vue {
   // availableGroups = [] as Groups
-  deviceList = [] as Device[]
+  connectedDeviceList = [] as Device[]
   knownDevices = {} as DeviceDic
   updateP = 2000
 
   selectedDevice=''
   mounted ():void {
     ws.init(this.newMessageFromWS, undefined)
+
     this.loadDevices()
     // allowedWSData = Object.keys(this).filter(e => !(e.startsWith('_') || e.startsWith('$')))
     // console.log('allowed data', allowedWSData)
@@ -56,22 +58,24 @@ export default class DeviceViewComp extends Vue {
   }
 
   fetchDeviceInfo ():void {
-    for (const d of Object.values(this.deviceList)) {
+    for (const d of Object.values(this.connectedDeviceList)) {
       this.sendDeviceEvent(d.deviceName, { type: 'rssi' })
     }
     setTimeout(this.fetchDeviceInfo.bind(this), this.updateP)
   }
 
   async loadDevices () :Promise<void> {
-    const savedKnownDevices = ServerAPI.getKnownDeviceList()
-    this.knownDevices = {}
+    const savedKnownDevices = await ServerAPI.getKnownDeviceList()
+    const devs = {} as any
     for (const [k, v] of Object.entries(savedKnownDevices)) {
-      Vue.set(this.knownDevices, v.deviceName, newEmptyDevice(v.deviceName, v))
+      devs[v.deviceName] = newEmptyDevice(v.deviceName, v)
     }
+    console.log(devs)
+    Vue.set(this, 'knownDevices', devs)
   }
 
   get unregisteredDevice ():Device[] {
-    return this.deviceList.slice().filter(d => !this.isDeviceKnown(d.deviceName))
+    return this.connectedDeviceList.slice().filter(d => !this.isDeviceKnown(d.deviceName))
   }
 
   async addDevice ():Promise<void> {
@@ -113,7 +117,7 @@ export default class DeviceViewComp extends Vue {
   }
 
   isDeviceConnected (n:string):boolean {
-    for (const d of Object.values(this.deviceList)) {
+    for (const d of Object.values(this.connectedDeviceList)) {
       if (d.deviceName === n) { return true }
     }
     return false
@@ -134,7 +138,7 @@ export default class DeviceViewComp extends Vue {
           console.error('unknown prop', prop, availableProps)
         }
       } else {
-        console.error('unknown dev', deviceName)
+        console.error('unknown dev for resp', deviceName)
       }
     } else {
       console.log('new device list', v)

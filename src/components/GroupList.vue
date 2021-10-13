@@ -10,7 +10,7 @@
 <br>
 <div>  devices in group </div>
 <div class=grouplist>
-          <button style=width:100% v-for="v of allAvailableDevices" :key=v class=flash :class={active:selectedDevices.includes(v),notconnected:!connectedDevices.includes(v)} @click=toggleStateFor(v) >{{(connectedDevices.includes(v)?'':'(disconnected) ') +v}}</button>
+          <button style=width:100% v-for="v of allAvailableDevices" :key=v.id class=flash :class={active:selectedDevices.includes(v),notconnected:!connectedDevices.includes(v)} @click=toggleStateFor(v) >{{(connectedDevices.includes(v)?'':'(disconnected) ') +JSON.stringify(v)}}</button>
 </div> <br>
 <div>  time agenda to use </div>
         <select style=width:100% v-model=currentFileName >
@@ -29,29 +29,35 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 
 import * as ServerAPI from '@/API/ServerAPI'
 
-import { Group, Groups } from '@/API/ServerAPI'
+import { Group, Groups, Device } from '@/API/ServerAPI'
 
 @Component({})
 export default class GroupList extends Vue {
     @Prop({ required: true })
-    connectedDevices!:string[]
+    connectedDevices!:Device[]
 
-    storedDevices:string[] = []
+    storedDevices:Device[] = []
     agendaFileNames:string[] = []
 
     currentGroupName = ''
 
     groups:Groups={}
 
-    persistentDevices : string[] = []
+    persistentDevices : Device[] = []
     get currentGroup ():Group {
       return this.groups[this.currentGroupName] || {}
     }
 
-    get allAvailableDevices ():string[] {
-      console.log('update all available')
-      const newDs = Array.from(new Set(this.connectedDevices.concat(this.storedDevices || [])))
-      this.persistentDevices = Array.from(new Set(newDs.concat(this.persistentDevices)))
+    findInDevList (arr:Device[], el:Device):boolean {
+      return arr.find((e) => { return e.deviceName === el.deviceName && e.ip === el.ip }) !== undefined
+    }
+
+    get allAvailableDevices ():Device[] {
+      console.log('update all available', this.connectedDevices, this.storedDevices)
+      const newDs = this.connectedDevices.slice()
+      console.log('new', newDs)
+      this.storedDevices.forEach(e => { if (!this.findInDevList(this.connectedDevices, e)) { newDs.push(JSON.parse(JSON.stringify(e))) } })
+      Vue.set(this, 'persistentDevices', newDs)// Array.from(new Set(newDs.concat(this.persistentDevices)))
       return this.persistentDevices
     }
 
@@ -84,9 +90,10 @@ export default class GroupList extends Vue {
 
     async loadGroups () :Promise<void> {
       this.groups = await ServerAPI.getGroups()
-      if (!this.currentGroupName) {
-        console.log('forcing currentGroup name')
-        this.loadGroupNamed(Object.keys(this.groups)[0])
+      if (!this.currentGroupName && Object.keys(this.groups).length > 0) {
+        const firstName = Object.keys(this.groups)[0]
+        console.log('forcing currentGroup to', firstName)
+        this.loadGroupNamed(firstName)
       }
     }
 
@@ -105,15 +112,15 @@ export default class GroupList extends Vue {
     }
 
     async loadFileNames ():Promise<void> {
-      const data = ServerAPI.getAgendaNames()
+      const data = await ServerAPI.getAgendaNames()
       if (data !== undefined) {
         await Vue.set(this, 'agendaFileNames', data)
       }
     }
 
     loadGroupNamed (n:string) : void {
-      console.log('assingnging stored', this.groups[n].devices)
-      this.storedDevices = JSON.parse(JSON.stringify(this.groups[n].devices))
+      console.log('assigning stored', this.groups[n].devices)
+      this.storedDevices = JSON.parse(JSON.stringify(this.groups[n].devices)) as Device[]
       this.currentGroupName = n
     }
 

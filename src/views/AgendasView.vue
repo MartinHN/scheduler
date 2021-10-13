@@ -68,6 +68,7 @@ export default class AgendasView extends Vue {
   }
 
   get agendasSorted () {
+    if (!this.agendas) { return [] }
     return Object.keys(this.agendas).sort((a:string, b:string) => { return (this.agendas[a].dates.start.getTime && this.agendas[a].dates.start.getTime()) - (this.agendas[b].dates.start.getTime && this.agendas[b].dates.start.getTime()) })
   }
 

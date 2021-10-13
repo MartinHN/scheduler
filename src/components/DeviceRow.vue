@@ -24,6 +24,9 @@ export default class DeviceRow extends Vue {
 @Prop({ required: true })
 deviceName!:string
 
+@Prop({ required: true })
+uuid!:string;
+
 @Prop({ default: 'no name' })
 niceName!:string;
 
@@ -41,6 +44,7 @@ rssi!:number;
 
 @Prop({ default: () => [] })
 groupNames!:string[];
+
 // selectDevice (s:string) :void{
 //   this.$emit('input', s)
 // }
@@ -51,7 +55,7 @@ mounted () {
 }
 
 getDevice ():Device {
-  return { deviceName: this.deviceName, ip: this.ip, niceName: this.niceName, rssi: this.rssi }
+  return { deviceName: this.deviceName, ip: this.ip, niceName: this.niceName, rssi: this.rssi, uuid: this.uuid }
 }
 
 emitChange (k:string, v:any) :void{

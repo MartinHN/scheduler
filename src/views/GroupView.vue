@@ -1,6 +1,6 @@
 <template>
   <div>
-      <GroupList :connectedDevices=deviceList  />
+      <GroupList :connectedDevices=connectedDeviceList  />
 
   </div>
 </template>
@@ -12,14 +12,14 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 import GroupList from '@/components/GroupList.vue'
 import ws from '../ws'
 
-const allowedWSData = ['deviceList'] as string[]
+const allowedWSData = ['connectedDeviceList'] as string[]
 @Component({
   components: {
     GroupList
   }
 })
 export default class DeviceViewComp extends Vue {
-  deviceList = [] as string[]
+  connectedDeviceList = [] as string[]
 
   mounted ():void {
     ws.init(this.newMessage, undefined)
@@ -31,7 +31,10 @@ export default class DeviceViewComp extends Vue {
   newMessage (v:any):void {
     console.log(v)
 
-    if (allowedWSData.includes(v.type)) { Vue.set(this, v.type, v.data) } else {
+    if (allowedWSData.includes(v.type)) {
+      console.log('setting groupMsg', v)
+      Vue.set(this, v.type, v.data)
+    } else {
       console.error('unkown msg', v, allowedWSData)
     }
   }
