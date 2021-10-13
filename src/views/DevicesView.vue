@@ -14,12 +14,12 @@
     :uuid = v.uuid
     :niceName=v.niceName
     :ip=v.ip
-    :connected=isDeviceConnected(k)
+    :connected=isDeviceConnected(v.uuid)
     :selected="selectedDevice==k"
     :rssi=v.rssi
     @click.native="selectedDevice=k"
-    @input=deviceChanged(k,$event)
-    @deviceEvent=sendDeviceEvent(v.deviceName,$event) />
+   @input=deviceChanged(k,$event)
+    @deviceEvent=sendDeviceEvent(v.uuid,$event) />
   </div>
 </template>
 
@@ -48,18 +48,23 @@ export default class DeviceViewComp extends Vue {
   updateP = 2000
 
   selectedDevice=''
+  _fetchDev =undefined as any
   mounted ():void {
     ws.init(this.newMessageFromWS, undefined)
-
+    if (ws.isConnected())ws.send('server', { type: 'req', value: 'connectedDeviceList' })
     this.loadDevices()
     // allowedWSData = Object.keys(this).filter(e => !(e.startsWith('_') || e.startsWith('$')))
     // console.log('allowed data', allowedWSData)
-    setTimeout(this.fetchDeviceInfo.bind(this), this.updateP)
+    this._fetchDev = setTimeout(this.fetchDeviceInfo.bind(this), this.updateP)
+  }
+
+  destroyed ():void {
+    if (this._fetchDev) { clearTimeout(this._fetchDev) }
   }
 
   fetchDeviceInfo ():void {
     for (const d of Object.values(this.connectedDeviceList)) {
-      this.sendDeviceEvent(d.deviceName, { type: 'rssi' })
+      this.sendDeviceEvent(d.uuid, { type: 'rssi' })
     }
     setTimeout(this.fetchDeviceInfo.bind(this), this.updateP)
   }
@@ -75,7 +80,7 @@ export default class DeviceViewComp extends Vue {
   }
 
   get unregisteredDevice ():Device[] {
-    return this.connectedDeviceList.slice().filter(d => !this.isDeviceKnown(d.deviceName))
+    return this.connectedDeviceList.slice().filter(d => !this.isDeviceKnown(d.uuid))
   }
 
   async addDevice ():Promise<void> {
@@ -105,28 +110,29 @@ export default class DeviceViewComp extends Vue {
     this.save()
   }
 
-  getKnownDevice (n:string):Device| undefined {
+  getKnownDevice (uuid:string):Device| undefined {
     for (const d of Object.values(this.knownDevices)) {
-      if (d.deviceName === n) { return d }
+      if (d.uuid === uuid) { return d }
     }
     return undefined
   }
 
-  isDeviceKnown (n:string):boolean {
-    return this.getKnownDevice(n) !== undefined
+  isDeviceKnown (uuid:string):boolean {
+    return this.getKnownDevice(uuid) !== undefined
   }
 
-  isDeviceConnected (n:string):boolean {
+  isDeviceConnected (uuid:string):boolean {
     for (const d of Object.values(this.connectedDeviceList)) {
-      if (d.deviceName === n) { return true }
+      if (d.uuid === uuid) { return true }
     }
     return false
   }
 
   newMessageFromWS (v:any):void {
     if (v.type && v.type === 'resp') {
-      const { deviceName, msg } = v
-      const dev = this.getKnownDevice(deviceName)
+      const { uuid, deviceName, msg } = v
+      let dev = this.getKnownDevice(uuid)
+      if (!dev)dev = this.connectedDeviceList.find(e => e.uuid === uuid)
       if (dev) {
         const prop = msg.address.substr(1)
         const value = msg.args[0]
@@ -138,16 +144,14 @@ export default class DeviceViewComp extends Vue {
           console.error('unknown prop', prop, availableProps)
         }
       } else {
-        console.error('unknown dev for resp', deviceName)
+        console.error('unknown dev for resp', uuid, deviceName)
       }
-    } else {
+    } else if (allowedWSData.includes(v.type)) {
       console.log('new device list', v)
-      if (allowedWSData.includes(v.type)) {
-        const filled = v.data.map((d:Device) => newEmptyDevice(d.deviceName, d))
-        Vue.set(this, v.type, filled)
-      } else {
-        console.error('unkown msg', v, allowedWSData)
-      }
+      const filled = v.data.map((d:Device) => newEmptyDevice(d.deviceName, d))
+      Vue.set(this, v.type, filled)
+    } else {
+      console.error('unkown msg', v, 'allowed are', allowedWSData)
     }
   }
 
@@ -159,8 +163,8 @@ export default class DeviceViewComp extends Vue {
     ServerAPI.saveKnownDevices(this.getDevices())
   }
 
-  sendDeviceEvent (deviceName:string, event:any):void {
-    if (event.type) { ws.send('deviceEvent', { deviceName, event }) } else { console.error('invalid event', event) }
+  sendDeviceEvent (uuid:string, event:any):void {
+    if (event.type) { ws.send('deviceEvent', { uuid, event }) } else { console.error('invalid event', event) }
   }
 
   async resetAll ():Promise<void> {
