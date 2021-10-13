@@ -29,6 +29,7 @@ const wrap = {
     messageCB = _messageCB
     this.start()
   },
+  isConnected ():boolean { return connection && (connection.readyState === WebSocket.OPEN) },
   start () :void {
     if (connection && (connection.readyState !== WebSocket.CLOSED)) { console.error('ws already strarted'); return }
     console.log('Starting connection to WebSocket Server')

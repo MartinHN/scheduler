@@ -21,13 +21,13 @@ import { Device, newEmptyDevice } from '@/API/ServerAPI'
 
 @Component({})
 export default class DeviceRow extends Vue {
-@Prop({ required: true })
+@Prop({ default: 'no deviceName' })
 deviceName!:string
 
 @Prop({ required: true })
 uuid!:string;
 
-@Prop({ default: 'no name' })
+@Prop({ default: 'no nicename' })
 niceName!:string;
 
 @Prop({ default: false })

@@ -23,7 +23,7 @@ export default class DeviceViewComp extends Vue {
 
   mounted ():void {
     ws.init(this.newMessage, undefined)
-
+    if (ws.isConnected())ws.send('server', { type: 'req', value: 'connectedDeviceList' })
     // allowedWSData = Object.keys(this).filter(e => !(e.startsWith('_') || e.startsWith('$')))
     // console.log('allowed data', allowedWSData)
   }
@@ -35,7 +35,7 @@ export default class DeviceViewComp extends Vue {
       console.log('setting groupMsg', v)
       Vue.set(this, v.type, v.data)
     } else {
-      console.error('unkown msg', v, allowedWSData)
+      console.error('unkown msg', v, 'allowed are', allowedWSData)
     }
   }
 }

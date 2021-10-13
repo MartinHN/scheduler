@@ -94,16 +94,16 @@ export async function deleteAgenda (name:string):Promise<void> {
 // Devices
 
 export interface Device {
+  uuid:string;
     deviceName:string;
     niceName:string;
     ip:string;
     rssi:number;
-    uuid:string;
 }
 
 export function newEmptyDevice (deviceName:string, fields?:any):Device {
   fields = fields || {}
-  return { deviceName, ip: fields.ip || 'null', niceName: fields.niceName || 'no name', rssi: fields.niceName || -1, uuid: 'auto' + (Math.random() * 10e6) }
+  return { deviceName, ip: fields.ip || 'null', niceName: fields.niceName || 'no niceName', rssi: fields.niceName || -1, uuid: fields.uuid || 'auto@' + Math.ceil(Math.random() * 10e6) }
 }
 
 export type DeviceDic = {[id:string]:Device};
