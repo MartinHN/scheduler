@@ -83,7 +83,7 @@ export default class AgendasList extends Vue {
     async loadAgendaNamed (name:string) :Promise<void> {
       if (!name) { console.error('nofile to load'); return }
       console.log('load', name)
-      const savedFile = ServerAPI.getAgenda(name)
+      const savedFile = await ServerAPI.getAgenda(name)
       if (savedFile) {
         this.$emit('input', savedFile)
         this.currentAgendaName = name

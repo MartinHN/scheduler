@@ -1,35 +1,32 @@
 <template>
 <div id=app>
-      <template v-if="shouldDisplayNav" >
-        <div  id="nav">
 
+      <template >
+        <nav v-if=shouldDisplayNav  id=nav >
           <router-link tag=button to="/">Home</router-link>
             <template v-if="shouldDisplayAdvanced" >
-
-            <router-link tag=button to="/AgendasView">Agendas</router-link>
+            <router-link tag=button class=customFont to="/AgendasView">Agendas</router-link>
             <router-link tag=button to="/DevicesView">Devices</router-link>
             <router-link tag=button to="/GroupView">Group</router-link>
             </template>
-    </div>
-      </template>
-  <router-view >
 
-  </router-view>
-</div>
+         </nav>
+      </template>
+  <router-view  ></router-view>
+
+      </div>
+
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { Route } from 'vue-router'
 
-@Component({
-  components: {
-
-  }
-})
+@Component({})
 export default class AppComp extends Vue {
   shouldDisplayNav = true
   shouldDisplayAdvanced = false
+
   mounted () {
     const fun = (to:Route, from:Route):any => {
       this.shouldDisplayNav = (to.name !== 'Home')
@@ -48,11 +45,9 @@ export default class AppComp extends Vue {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
 
-  /* display:flex;
-  flex-direction: column; */
+  display:flex;
+  flex-direction: column;
 
-   display:grid;
-   grid-template-rows: 50px auto;
   /* grid-auto-columns:auto; */
   min-height: 100vh;
 
@@ -60,18 +55,27 @@ export default class AppComp extends Vue {
 
 body{
 background: rgb(44, 44, 44);
-color:white
+color:white;
+margin:0;
 }
 #app *:not(.customFont){
   font-size:1em;
 }
 
 #nav {
+  transition-duration: 500ms;
+/* transition-property: margin-right; */
   /* padding: 5px; */
-  width:100vw;
+  position: sticky;
+  top :0px;
+  /* width:100vw; */
+
   display:flex;
-  justify-content: space-evenly;
+  flex-direction: row;
+  justify-content: flex-start;
   text-align: center;
+  background: black;
+  z-index: 100;
 }
 
 /* #nav div {
@@ -90,7 +94,13 @@ color:white
 
  background: rgb(255, 102, 0);
 }
-
+#nav button{
+  background: black;
+  color:white;
+   min-height:60px;
+   font-size: inherit;
+}
+  /* globals APP */
 button:not(.active){
 background: white;
 opacity: .7;

@@ -74,11 +74,11 @@ export function createAgendaZone (name:string):AgendaZone {
   }
 }
 
-export async function getAgendaNames () :Promise<void> {
+export async function getAgendaNames () :Promise<any> {
   return await getJSON('agendaNames')
 }
 
-export async function getAgenda (name:string) :Promise<void> {
+export async function getAgenda (name:string) :Promise<any> {
   return await getJSON(`agendas?n=${name}`)
 }
 
@@ -94,7 +94,7 @@ export async function deleteAgenda (name:string):Promise<void> {
 // Devices
 
 export interface Device {
-  uuid:string;
+    uuid:string;
     deviceName:string;
     niceName:string;
     ip:string;
@@ -103,13 +103,13 @@ export interface Device {
 
 export function newEmptyDevice (deviceName:string, fields?:any):Device {
   fields = fields || {}
-  return { deviceName, ip: fields.ip || 'null', niceName: fields.niceName || 'no niceName', rssi: fields.niceName || -1, uuid: fields.uuid || 'auto@' + Math.ceil(Math.random() * 10e6) }
+  return { deviceName, ip: fields.ip || 'null', niceName: fields.niceName || 'no niceName', rssi: fields.rssi || -1, uuid: fields.uuid || 'auto@' + Math.ceil(Math.random() * 10e6) }
 }
 
 export type DeviceDic = {[id:string]:Device};
 
-export async function saveKnownDevices (knownDeviceList:DeviceDic):Promise<void> {
-  postJSON('knownDevices', JSON.parse(JSON.stringify(knownDeviceList)))
+export async function saveKnownDevices (knownDevices:DeviceDic):Promise<void> {
+  postJSON('knownDevices', JSON.parse(JSON.stringify(knownDevices)))
 }
 
 export async function resetDevicesAndGroups () :Promise<void> {

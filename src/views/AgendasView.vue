@@ -27,7 +27,7 @@
         <div v-if=agendas[selectedAgenda] style="display: grid; grid-template-rows: 1fr auto">
            <input v-if="selectedAgenda != 'default'" :value="selectedAgenda" @change="setAgendaName($event.target.value)"/>
           <PeriodChooser v-if="selectedAgenda != 'default'" v-model=agendas[selectedAgenda].dates />
-          <WeekChooser v-model=agendas[selectedAgenda].weekHours />
+          <WeekChooser  v-model=agendas[selectedAgenda].weekHours />
         </div>
       </div>
     </div>
