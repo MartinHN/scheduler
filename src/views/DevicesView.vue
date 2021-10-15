@@ -10,11 +10,11 @@
     {{v}}<button @click=registerDevice(v.deviceName,v)> register </button>
   </div>
 
-    <DeviceRow style=width:100% v-for="v,k of knownDevices" :key=v.id
+    <DeviceRow style=width:100% v-for="v of sortedKnownDevices" :key=v.id
     :device=v
     :selected="selectedDeviceUUID==v.uuid"
     @click.native="selectedDeviceUUID=v.uuid"
-   @input=deviceChanged(k,$event)
+    @input=deviceChanged(v.uuid,$event)
     @deviceEvent=sendDeviceEvent(v.uuid,$event) />
   </div>
 </template>
@@ -79,6 +79,11 @@ export default class DeviceViewComp extends Vue {
     return this.selectedDevice?.deviceName
   }
 
+  get sortedKnownDevices () {
+    const getS = (a:Device):string => { return (a.group ? a.group : 'aaaa') + a.niceName }
+    return Object.values(this.knownDevices).sort((a, b) => { return getS(a).localeCompare(getS(b)) })
+  }
+
   async addDevice ():Promise<void> {
     const gn = prompt('device name', this.selectedDeviceName)
     if (gn) {
@@ -102,12 +107,7 @@ export default class DeviceViewComp extends Vue {
   }
 
   deviceChanged (k:string, newD:any) :void{
-    Vue.set(this.knownDevices, k, newD)
     this.save()
-  }
-
-  isDeviceKnown (uuid:string):boolean {
-    return this.knownDevices[uuid] !== undefined
   }
 
   save () :void{

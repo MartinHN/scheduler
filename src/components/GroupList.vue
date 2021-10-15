@@ -1,7 +1,9 @@
 <template>
   <div>
-
-<button v-for="v of groupList" :key=v.id @click=setSelected(g) >{{g}}</button>
+   <div style='display:flex' > <button @click=addGroup> Add Group </button>
+    <button @click=removeGroup> Remove Group </button>
+   </div>
+    <button v-for="v of groupList" :key=v.id @click=setSelected(v) :style="{background:(selectedGroupName===v.name)?'red':'inherit'}" >{{v.name}} ( {{devicesInGroup(v).length}} )</button>
   </div>
 </template>
 
@@ -10,28 +12,63 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 
 import { Device, DeviceDic, Groups, Group } from '@/API/ServerAPI'
+import * as ServerAPI from '@/API/ServerAPI'
+import { ServerModel } from '@/API/ServerModel'
 
 @Component({})
 export default class GroupListComp extends Vue {
   @Prop({ required: true })
   groups!:Groups
 
-  selected:Group| undefined = undefined
+  get sm ():ServerModel { return (this.$root as any).sm }
+  selected:Group| null = null
   mounted () :void{
-    this.setSelected(undefined)
+    this.setSelected(null)
   }
 
-  setSelected (g:Group|undefined) :void{
-    this.selected = g
-    this.$emit('input', g)
+  setSelected (g:Group|null) :void{
+    if (this.selected && (g === this.selected)) { this.selected = null } else { this.selected = g }
+    this.$emit('input', this.selected)
+  }
+
+  get selectedGroupName () {
+    return this.selected?.name
   }
 
   get groupList () :Group[] {
     return Array.from(Object.values(this.groups))
+  }
+
+  devicesInGroup (g:Group):Device[] {
+    return this.sm.devicesInGroup(g)
+  }
+
+  async addGroup ():Promise<void> {
+    const gn = prompt('group name', '')
+    if (gn) {
+      const group = ServerAPI.newEmptyGroup(gn)
+      await Vue.set(this.groups, gn, group)
+      this.selected = group
+      this.save()
+    }
+  }
+
+  async removeGroup (n:string):Promise<void> {
+    const gn = prompt('group name', this.selectedGroupName)
+    if (gn) {
+      await Vue.delete(this.groups, gn)
+      this.selected = null
+    }
+    this.save()
+  }
+
+  async save () {
+    ServerAPI.saveGroups(this.groups)
   }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+
 </style>

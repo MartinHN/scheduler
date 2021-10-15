@@ -9,9 +9,13 @@ export class ServerModel {
     knownDevices= {} as DeviceDic
     groups={} as Groups
 
+    agendaFileNames=[] as string[]
+
     constructor () {
       ws.init(this.newMessageFromWS.bind(this), undefined)
       this.loadDevices()
+      this.loadGroups()
+      this.loadAgendaNames()
       if (ws.isConnected())ws.send('server', { type: 'req', value: 'connectedDeviceList' })
     }
 
@@ -22,6 +26,17 @@ export class ServerModel {
         devs[v.uuid] = newEmptyDevice(v.deviceName, v)
       }
       this.knownDevices = devs
+    }
+
+    async loadGroups () :Promise<void> {
+      this.groups = await ServerAPI.getGroups()
+    }
+
+    async loadAgendaNames ():Promise<void> {
+      const data = await ServerAPI.getAgendaNames() as string[]
+      if (data !== undefined) {
+        this.agendaFileNames = data
+      }
     }
 
     newMessageFromWS (v:any):void {
@@ -41,7 +56,7 @@ export class ServerModel {
           if (availableProps.includes(prop)) {
             (dev as any)[prop] = value
           } else {
-            console.error('[ServerModel] unknown prop', prop, availableProps)
+            console.error('[ServerModel] unknown prop', prop, availableProps, msg)
           }
         } else {
           console.error('[ServerModel] unknown dev for resp', uuid, deviceName)
@@ -64,7 +79,16 @@ export class ServerModel {
       return false
     }
 
+    activateDevice (d:Device, b:boolean):void{
+      d.activate = b
+      this.sendDeviceEvent(d.uuid, { type: 'activate', value: b ? 1 : 0 })
+    }
+
     sendDeviceEvent (uuid:string, event:any):void {
       if (event.type) { ws.send('deviceEvent', { uuid, event }) } else { console.error('[ServerModel] invalid event', event) }
+    }
+
+    devicesInGroup (g:Group):Device[] {
+      return Object.values(this.knownDevices).filter(e => e.group === g.name)
     }
 }
