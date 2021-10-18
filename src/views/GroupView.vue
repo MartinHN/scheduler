@@ -5,6 +5,9 @@
       <div>
         <div  class=groupCtl>
         <div><h1>{{currentGroupName? currentGroupName : "All"}}</h1></div>
+        <select v-if=Object.keys(currentGroup).length v-model=currentGroup.filename @input=saveGroups >
+            <option v-for="d of availableAgendas" :key=d.id :value=d >{{d}}</option>
+        </select>
         <button @click=setGroupValue(true)> On Group </button>
         <button @click=setGroupValue(false)> Off Group </button>
         </div>
@@ -54,6 +57,10 @@ export default class GroupView extends Vue {
     return this.sortedKnownDevices.filter(d => { return d.group === this.currentGroupName })
   }
 
+  get availableAgendas () {
+    return this.sm.agendaFileNames
+  }
+
   mounted (): void{
 
     //     if (!this.currentGroupName && Object.keys(this.groups).length > 0) {
@@ -92,78 +99,10 @@ export default class GroupView extends Vue {
     console.log('settting group', b)
     this.displayedDevices.forEach(e => { this.sm.activateDevice(e, b) })
   }
-  // get allAvailableDevices ():Device[] {
-  //   console.log('update all available', this.connectedDeviceList, this.storedDevices)
-  //   const newDs = this.connectedDeviceList.slice()
-  //   console.log('new', newDs)
-  //   this.storedDevices.forEach(e => { if (!this.findInDevList(this.connectedDeviceList, e)) { newDs.push(JSON.parse(JSON.stringify(e))) } })
-  //   Vue.set(this, 'persistentDevices', newDs)// Array.from(new Set(newDs.concat(this.persistentDevices)))
-  //   return this.persistentDevices
-  // }
 
-  // get groupNames () :Array<string> {
-  //   return Array.from(Object.keys(this.groups))
-  // }
-
-  // get selectedDevices ():string[] {
-  //   return this.currentGroup?.devices || []
-  // }
-
-  // set selectedDevices (v:string[]) {
-  //   if (this.currentGroup?.name) {
-  //     console.log('sel dev', v)
-  //     Vue.set(this.currentGroup, 'devices', v)
-  //   } else console.error('no group loaded')
-  // }
-
-  // get currentFileName ():string {
-  //   return this.currentGroup?.filename || ''
-  // }
-
-  // set currentFileName (v:string) {
-  //   if (this.currentGroup) {
-  //     this.currentGroup.filename = v
-  //   }
-  // }
-
-  // toggleStateFor (v:string):void {
-  //   const old = this.selectedDevices.splice(0).map(e => '' + e)
-  //   const idx = old.indexOf('' + v)
-  //   // idx = -1
-  //   console.log('toggling state', v, JSON.stringify(old), idx)
-  //   if (idx >= 0) {
-  //     // Vue.delete(this.selectedDevices, )
-  //     old.splice(idx, 1)
-  //   } else {
-  //     old.push(v)
-  //   }
-  //   this.selectedDevices = old
-  // }
-
-  // loadGroupNamed (n:string) : void {
-  //   console.log('assigning stored', this.groups[n].devices)
-  //   this.storedDevices = JSON.parse(JSON.stringify(this.groups[n].devices)) as Device[]
-  //   this.currentGroupName = n
-  // }
-
-  // async addGroup ():Promise<void> {
-  //   const gn = prompt('group name', this.currentGroupName)
-  //   if (gn) {
-  //     await Vue.set(this.groups, gn, { name: gn, filename: this.currentGroup.filename, devices: this.selectedDevices })
-  //     this.loadGroupNamed(gn)
-  //   }
-  //   this.saveGroups()
-  // }
-
-  // eraseGroup ():void {
-  //   Vue.delete(this.groups, this.currentGroupName)
-  //   this.saveGroups()
-  //   this.loadGroupNamed(Object.keys(this.groups)[0])
-  // }
-
-  // async saveGroups ():Promise<void> {
-  //   await ServerAPI.saveGroups(this.groups)
-  // }
+  async saveGroups ():Promise<void> {
+    await ServerAPI.saveGroups(this.groups)
+  }
 }
 </script>
 

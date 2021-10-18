@@ -103,7 +103,10 @@ margin:0;
   /* globals APP */
 button:not(.active){
 background: white;
-opacity: .7;
+opacity: 1.0;
+  background: rgb(5, 5, 95);
+  color: aliceblue;
+  border: 1px solid rgb(0, 0, 0);
 }
 
 button.active{
@@ -113,7 +116,7 @@ button{
   font-size: 1em;
 
   border-radius: 5px;
-  min-height:30px;
+  min-height:50px;
   min-width:50px;
   margin-bottom:5px;
   width:100%

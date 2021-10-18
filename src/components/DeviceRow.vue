@@ -6,7 +6,7 @@
           <button @click=setOnOff(!device.activate) :style="{background:device.activate?'green':'gray'}" > Turn {{device.activate?"Off":"On"}} </button>
           <!-- <button @click=setOnOff(true)> On </button>
           <button @click=setOnOff(false)> Off </button> -->
-          <select  v-model=device.group @input='emitChange("group",$event.target.value)'>
+          <select  :value=device.group @input='emitChange("group",$event.target.value)'>
             <option v-for="g of groupNames" :key=g.id >{{g}}</option>
           </select>
           <div :style="{maxWidth:'70px',background:!connected?'red':'inherit',color:device.rssi<-75?'orange':'inherit'}">{{connected?''+device.rssi:"not conn"}} dB</div>

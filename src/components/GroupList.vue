@@ -3,7 +3,8 @@
    <div style='display:flex' > <button @click=addGroup> Add Group </button>
     <button @click=removeGroup> Remove Group </button>
    </div>
-    <button v-for="v of groupList" :key=v.id @click=setSelected(v) :style="{background:(selectedGroupName===v.name)?'red':'inherit'}" >{{v.name}} ( {{devicesInGroup(v).length}} )</button>
+   <button @click=setSelected() :style="{background:(!selected)?'red':''}" > show All </button>
+    <button v-for="v of groupList" :key=v.id @click=setSelected(v) :style="{background:(selectedGroupName===v.name)?'red':''}" >{{v.name}} ( {{devicesInGroup(v).length}} )</button>
   </div>
 </template>
 
@@ -63,6 +64,8 @@ export default class GroupListComp extends Vue {
   }
 
   async save () {
+    // re format
+    Object.values(this.groups).forEach((g) => { this.groups[g.name] = ServerAPI.newEmptyGroup(g.name, g) })
     ServerAPI.saveGroups(this.groups)
   }
 }

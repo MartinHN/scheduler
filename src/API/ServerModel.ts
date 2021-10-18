@@ -1,4 +1,4 @@
-import { Device, DeviceDic, Groups, newEmptyDevice, Group } from './ServerAPI'
+import { Device, DeviceDic, Groups, newEmptyDevice, Group, createDefaultAgenda } from './ServerAPI'
 import * as ServerAPI from '@/API/ServerAPI'
 import ws from '../ws'
 
@@ -11,12 +11,16 @@ export class ServerModel {
 
     agendaFileNames=[] as string[]
 
+    loadedAgenda = createDefaultAgenda();
+    _hasLoadedFirst=false;
+
     constructor () {
       ws.init(this.newMessageFromWS.bind(this), undefined)
       this.loadDevices()
       this.loadGroups()
       this.loadAgendaNames()
       if (ws.isConnected())ws.send('server', { type: 'req', value: 'connectedDeviceList' })
+      this.loadAgendaFromFile('default.json')
     }
 
     async loadDevices () :Promise<void> {
@@ -40,8 +44,8 @@ export class ServerModel {
     }
 
     newMessageFromWS (v:any):void {
-    // set specific device info
-    //   console.log('[ServerModel] new ws msg', v)
+      // set specific device info
+      //   console.log('[ServerModel] new ws msg', v)
       if (v.type && v.type === 'resp') {
         const { uuid, deviceName, msg } = v
         let dev = this.knownDevices[uuid] as any
@@ -61,7 +65,7 @@ export class ServerModel {
         } else {
           console.error('[ServerModel] unknown dev for resp', uuid, deviceName)
         }
-      // server infos
+        // server infos
       } else if (allowedWSData.includes(v.type)) {
         console.log('[ServerModel] new device list', v)
         const filled = v.data.map((d:Device) => newEmptyDevice(d.deviceName, d));
@@ -90,5 +94,22 @@ export class ServerModel {
 
     devicesInGroup (g:Group):Device[] {
       return Object.values(this.knownDevices).filter(e => e.group === g.name)
+    }
+
+    async loadAgendaFromFile (n:string):Promise<void> {
+      const newAg = await ServerAPI.getAgenda(n)
+      if (newAg && newAg.defaultWeek) {
+        console.log('dot agenda from server')
+        this.loadedAgenda = newAg
+        this.loadedAgenda.name = n.replace('.json', '')
+      } else {
+        console.error('cant load agenda', n)
+      }
+      this._hasLoadedFirst = true
+    }
+
+    async resetAgendas ():Promise<void> {
+      await ServerAPI.resetAgendas()
+      this.loadAgendaNames()
     }
 }

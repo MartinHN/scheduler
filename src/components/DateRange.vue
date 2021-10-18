@@ -1,7 +1,7 @@
 <template>
   <div >
     <div style=display:flex;justify-content:space-evenly;>
-      <DatePicker  locale="fr" :max-date=value.end :value=value.start :attributes="getAttr('startInput')" @dayclick='dateClick("start",$event) ' >
+      <DatePicker  locale="fr" :value=startDate :attributes="getAttr('startInput')" @dayclick='dateClick("start",$event) ' >
         <template  v-slot="{ inputValue,inputEvents }">
          <input
               id="startInput"
@@ -24,7 +24,7 @@
           d="M14 5l7 7m0 0l-7 7m7-7H3"
         />
       </svg>
-      <DatePicker   locale="fr" :min-date=value.start  :value=value.end :attributes="getAttr('endInput')" @dayclick='dateClick("end",$event)' >
+      <DatePicker   locale="fr" :min-date=startDate  :value=endDate :attributes="getAttr('endInput')" @dayclick='dateClick("end",$event)' >
         <template  v-slot="{ inputValue,inputEvents }">
          <input
               id="endInput"
@@ -44,10 +44,11 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 
 import { DatePicker } from 'v-calendar'
+import * as ServerAPI from '@/API/ServerAPI'
 
 interface DateRange {
-    start: Date,
-    end: Date
+    start: string,
+    end: string
 }
 
 @Component({
@@ -55,31 +56,45 @@ interface DateRange {
     DatePicker
   }
 })
-export default class PeriodComp extends Vue {
+export default class DateRangeComp extends Vue {
   @Prop({ required: true })
   private value !:DateRange
 
+  mounted () {
+    console.log(this.value, '>>>>', ServerAPI.dateDayFromString(this.value.start))
+  }
+
   getAttr (hint:string):any {
-    return [{ key: hint, highlight: 'blue', dates: { start: this.value.start, end: this.value.end } }]
+    return [{ key: hint, highlight: 'blue', dates: { start: this.startDate, end: this.endDate } }]
+  }
+
+  get startDate () {
+    return ServerAPI.dateDayFromString(this.value.start)
+  }
+
+  get endDate () {
+    return ServerAPI.dateDayFromString(this.value.end)
   }
 
   private dateClick (id:any, e:any) {
     // const newD = this.value // JSON.parse(JSON.stringify(this.value))// { start: this.value.start, end: this.value.end }
     if (id === 'start') {
-      if (e.date > this.value.end) {
-        console.log('ignore')
-        return
+      if (e.date > this.endDate) {
+        // console.log('ignore')
+        // return
+        this.value.end = ServerAPI.dateDayToString(e.date as Date)
       }
-      this.value.start = e.date
+      console.log('>>>>>>>' + e.date)
+      this.value.start = ServerAPI.dateDayToString(e.date as Date)
     } else if (id === 'end') {
-      if (e.date < this.value.start) {
+      if (e.date < this.startDate) {
         console.log('ignore')
         return
       }
-      this.value.end = e.date
+      this.value.end = ServerAPI.dateDayToString(e.date as Date)
     } else console.error('invalid id')
 
-    // this.$emit('input', newD)
+    this.$emit('input', this.value)
 
   // const tmp = this.value.start
   // this.value.start = this.value.end

@@ -6,10 +6,11 @@
     <button @click=removeDevice> Remove Device </button>
     <button @click=resetAll> Reset All Devices And Group</button>
    </div>
+   <br>
    <div v-for="v of unregisteredDevice" :key=v.id>
     {{v}}<button @click=registerDevice(v.deviceName,v)> register </button>
   </div>
-
+<br>
     <DeviceRow style=width:100% v-for="v of sortedKnownDevices" :key=v.id
     :device=v
     :selected="selectedDeviceUUID==v.uuid"

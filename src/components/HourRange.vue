@@ -1,9 +1,10 @@
 <template>
   <div class="hours">
-    <div style='display:grid;grid-template:15px 1fr / 1fr 1fr;'>
+    <div style='display:grid;grid-template:15px 1fr / 1fr 10px 1fr;'>
     <div>
       start
 </div>
+<div/>
     <div >
      to {{ nextDayText
       }}
@@ -15,8 +16,8 @@
         hide-clear-button
       ></vue-timepicker>
 
-          <!-- <svg
-      style=width:50px
+          <svg
+      style=width:30px
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
@@ -27,7 +28,7 @@
           stroke-width="2"
           d="M14 5l7 7m0 0l-7 7m7-7H3"
         />
-      </svg> -->
+      </svg>
 
       <vue-timepicker
 
@@ -58,12 +59,13 @@ const getSeconds = (s: string) => {
     VueTimepicker
   }
 })
-export default class HoursChooser extends Vue {
+export default class HourRangeComp extends Vue {
   @Prop({ required: true })
   public value!: HourRange;
 
   timeChanged (e:any): void {
-    // if (this.isValid) { this.$emit('input', { start: this.value.start, end: this.value.end }) }
+    // console.log('>>>>>', this.isValid)
+    if (this.isValid) { this.$emit('input', { start: this.value.start, end: this.value.end }) }
   }
 
   get isValid ():boolean {

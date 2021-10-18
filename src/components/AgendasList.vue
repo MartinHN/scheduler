@@ -1,12 +1,13 @@
 <template>
   <div class="group chooser" style='display:grid;grid-template-columns="1Fr 1Fr"'>
-      <select style=width:100% v-model=currentAgendaName @change="loadFromFile($event.target.value)">
+      <select style=width:100% :value=currentAgendaName @change="loadAgendaNamed($event.target.value)">
           <option style=width:100% v-for="v of agendaNames" :key=v.id :value=v>{{v}}</option>
       </select>
 
-            <div style="display:grid;grid-template-columns:repeat(2,1fr);grid-gap:5px">
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);grid-gap:5px">
       <button class=flash @click="saveAgendaToFile">save or Add Agenda</button>
       <button class=flash @click="eraseAgendaFile">erase Agenda</button>
+      <button class=flash @click="sm.resetAgendas()">reset All Agendas</button>
       <!-- <button @click="loadFromFile">load from File</button> -->
       <!-- <button @click="saveToDevice">save To Device</button>
       <button @click="loadFromDevice">load from Device</button> -->
@@ -17,8 +18,9 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 
-import { AgendaFile } from '@/API/ServerAPI'
+import { Agenda } from '@/API/ServerAPI'
 import * as ServerAPI from '@/API/ServerAPI'
+import { ServerModel } from '@/API/ServerModel'
 
 function replaceJSON (k : string, v : any) : any {
   if (v.type === 'default') {
@@ -27,76 +29,63 @@ function replaceJSON (k : string, v : any) : any {
   return v
 }
 
-function getPruned (v:AgendaFile):any {
-  const agendas = JSON.parse(JSON.stringify(v.agendas, replaceJSON)) // as AgendaZones
-  agendas.default.dates = undefined
-
-  return { agendas }
-}
 @Component({})
 export default class AgendasList extends Vue {
-    @Prop({ required: true })
-    currentAgendaData !: AgendaFile;
+  get currentAgendaName ():string {
+    console.log('>>>> get', this.sm.loadedAgenda?.name)
+    return this.sm.loadedAgenda?.name || ''
+  }
 
-    currentAgendaName = ''
-    agendaNames = new Array<string>()
-    localFiles : {[key: string] : AgendaFile} = {};
+  get sm ():ServerModel { return (this.$root as any).sm }
+  get agendaNames () :string[] {
+    return this.agendaFileNames.map(e => e.replace('.json', ''))
+  }
 
-    // get prunedFileData ():any {
-    //   return getPruned(this.currentAgendaData)
-    // //   return JSON.parse(JSON.stringify(this.currentAgendaData, replaceJSON))
-    // }
+  get agendaFileNames () :string[] {
+    return this.sm.agendaFileNames
+  }
 
-    mounted (): void{ this.updateAvailableAgendas() }
+  // get prunedFileData ():any {
+  //   return getPruned(this.currentAgendaData)
+  // //   return JSON.parse(JSON.stringify(this.currentAgendaData, replaceJSON))
+  // }
 
-    async updateAvailableAgendas (): Promise<void> {
-      const data = await ServerAPI.getAgendaNames()
-      if (data !== undefined) {
-        Vue.set(this, 'agendaNames', data)
-      }
+  mounted (): void{ this.loadFirstAvailableAgenda() }
 
-      if (!this.currentAgendaName) {
-        this.currentAgendaName = this.agendaNames[0]
-        console.log('forcing currentAgendaName', this.currentAgendaName)
-        this.loadAgendaNamed(this.currentAgendaName)
-      }
+  async loadFirstAvailableAgenda (): Promise<void> {
+    if (!this.currentAgendaName) {
+      const toLoad = this.agendaFileNames[0]
+      console.log('forcing currentAgendaName', toLoad)
+      this.loadAgendaNamed(toLoad)
+    }
+  }
+
+  async saveAgendaToFile () : Promise<string[]> {
+    const name = prompt('file name', this.currentAgendaName)
+    if (name) {
+      this.sm.loadedAgenda.name = name
+      await ServerAPI.saveAgenda(name, this.sm.loadedAgenda)
+      await this.sm.loadAgendaNames()
+      // this.loadAgendaNamed(name)
     }
 
-    async saveAgendaToFile () : Promise<string[]> {
-      const name = prompt('file name', this.currentAgendaName)
-      if (name) {
-        ServerAPI.saveAgenda(name, this.currentAgendaData)
-        await this.updateAvailableAgendas()
-        this.currentAgendaName = name
-      }
+    return []
+  }
 
-      return []
-    }
+  async eraseAgendaFile ():Promise<void> {
+    const name = this.currentAgendaName
+    ServerAPI.deleteAgenda(name)
+    this.loadFirstAvailableAgenda()
+    this.loadAgendaNamed(this.agendaNames[0])
+  }
 
-    async eraseAgendaFile ():Promise<void> {
-      const name = this.currentAgendaName
-      ServerAPI.deleteAgenda(name)
-      this.updateAvailableAgendas()
-      this.loadAgendaNamed(this.agendaNames[0])
-    }
-
-    async loadAgendaNamed (name:string) :Promise<void> {
-      if (!name) { console.error('nofile to load'); return }
-      console.log('load', name)
-      const savedFile = await ServerAPI.getAgenda(name)
-      if (savedFile) {
-        this.$emit('input', savedFile)
-        this.currentAgendaName = name
-      }
-    }
-
-    async saveAllAgendasToDevice ():Promise<void> {
-      for (const [k, v] of Object.entries(this.localFiles)) {
-        await ServerAPI.saveAgenda(k, v)
-      }
-      this.updateAvailableAgendas()
-      //   console.log('save', JSON.parse(JSON.stringify(this.currentAgendaData, replaceJSON)))
-    }
+  async loadAgendaNamed (name:string) :Promise<void> {
+    if (!name) { console.error('nofile to load'); return }
+    let fileName = name
+    if (!fileName.endsWith('.json')) { fileName = fileName + '.json' }
+    console.log('load Agenda ', fileName)
+    await this.sm.loadAgendaFromFile(fileName)
+  }
 }
 </script>
 

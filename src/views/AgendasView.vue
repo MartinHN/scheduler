@@ -1,100 +1,74 @@
 <template>
-  <div>
+<div>
 
-      <AgendasList :currentAgendaData="{agendas}" @input=loadNewJSON />
-      <br>
-      <div class="home" style="display: grid; grid-template-columns: 1fr 2fr;grid-gap:5px">
+    <AgendasList  />
+<br><br>
+    <AgendaEditor v-if=!!editedAgenda :agenda=editedAgenda @input=saveCurrent />
 
-        <div style="overflow-y;outline-style: solid;outline-width:1px">
-      <span style=display:flex>
-
-      </span>
-   <button  @click=addAgendaZone>add Agenda Exception</button>
-      <div style=height:5px />
-
-   <div style=display:flex v-for="z of agendasSorted" :key="z.id"  >
-       <div style=width:20%  v-if='z===selectedAgenda' >   <button :key="z.id" v-if='z!=="default"' @click=removeAgenda>X</button> </div>
-        <button
-            type="radio"
-            :key="z.id"
-            @click="selectedAgenda = z"
-            :class="{active:selectedAgenda===z}"
-          >
-            {{ z }}
-          </button>
-   </div>
-        </div>
-        <div v-if=agendas[selectedAgenda] style="display: grid; grid-template-rows: 1fr auto">
-           <input v-if="selectedAgenda != 'default'" :value="selectedAgenda" @change="setAgendaName($event.target.value)"/>
-          <PeriodChooser v-if="selectedAgenda != 'default'" v-model=agendas[selectedAgenda].dates />
-          <WeekChooser  v-model=agendas[selectedAgenda].weekHours />
-        </div>
-      </div>
-    </div>
+</div>
 
 </template>
 
 <script lang="ts">
 // @ is an alias to /src
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import WeekChooser from '@/components/WeekChooser.vue'
+import AgendaEditor from '@/components/AgendaEditor.vue'
 
-import PeriodChooser from '@/components/PeriodChooser.vue'
 import AgendasList from '@/components/AgendasList.vue'
-import { WeekHours, defaultWeekHour, AgendaFile, createAgendaZone, AgendaZones, getAgendaNames } from '@/API/ServerAPI'
-
-const connection :any = {}
+import { Agenda } from '@/API/ServerAPI'
+import { ServerModel } from '@/API/ServerModel'
+import * as ServerAPI from '@/API/ServerAPI'
 
 @Component({
   components: {
-    WeekChooser,
-    PeriodChooser,
+    AgendaEditor,
     AgendasList
   }
 })
 export default class AgendasView extends Vue {
-   a = 5;
+  get sm ():ServerModel { return (this.$root as any).sm }
+  get connectedDeviceList () { return this.sm.connectedDeviceList }
+  get knownDevices () { return this.sm.knownDevices }
+  get agendasNames () { return this.sm.agendaFileNames }
+  get editedAgenda ():Agenda|null{ return this.sm.loadedAgenda }
 
-   agendas :AgendaZones= { default: createAgendaZone('default') };
-   selectedAgenda = 'default';
+  get editedAgendaName ():string {
+    return this.editedAgenda?.name || 'none'
+  }
 
   agendaFileNames :string[]=[]
-  mounted ():void {
-    getAgendaNames().then(data => {
-      if (data !== undefined) {
-        Vue.set(this, 'agendaFileNames', data)
-      }
-    })
-  }
 
-  get agendasSorted () {
-    if (!this.agendas) { return [] }
-    return Object.keys(this.agendas).sort((a:string, b:string) => { return (this.agendas[a].dates.start.getTime && this.agendas[a].dates.start.getTime()) - (this.agendas[b].dates.start.getTime && this.agendas[b].dates.start.getTime()) })
-  }
-
-  addAgendaZone ():void {
-    const res = prompt('new exception agenda')
-    if (typeof (res) === 'string') { Vue.set(this.agendas, res, createAgendaZone(res)); this.selectedAgenda = res }
-  }
+  // get agendaNameSorted ():string[] {
+  //   if (!this.agendas) { return [] }
+  //   return Object.keys(this.agendas).sort((a:string, b:string) => { return (this.agendas[a].dates.start.getTime && this.agendas[a].dates.start.getTime()) - (this.agendas[b].dates.start.getTime && this.agendas[b].dates.start.getTime()) })
+  // }
 
   removeAgenda ():void {
-    // this.agendas[this.selectedAgenda] = (null as unknown as Agenda)
-    Vue.delete(this.agendas, this.selectedAgenda)
-    this.selectedAgenda = 'default'
-  }
-
-  loadNewJSON (f:AgendaFile) : void{
-    console.log('load new json file', f)
-    this.agendas = f.agendas
+    // this.agendas[this.editedAgenda] = (null as unknown as Agenda)
+    // Vue.delete(this.agendas, this.editedAgenda)
+    // this.editedAgenda = 'default'
   }
 
   setAgendaName (n:string):void{
-    console.log(n)
+    // console.log(n)
 
-    console.log('setting agenda name', n)
-    Vue.set(this.agendas, n, this.agendas[this.selectedAgenda])
-    Vue.delete(this.agendas, this.selectedAgenda)
-    this.selectedAgenda = n
+    // console.log('setting agenda name', n)
+    // Vue.set(this.agendas, n, this.agendas[this.editedAgenda])
+    // Vue.delete(this.agendas, this.editedAgenda)
+    // this.editedAgenda = n
+  }
+
+  saveCurrent () {
+    if (!this.sm._hasLoadedFirst) {
+      console.warn(' soon to save?') // bug with early change triggered
+      return
+    }
+    if (this.editedAgenda) {
+      console.log(this.editedAgenda)
+      ServerAPI.saveAgenda(this.editedAgenda.name + '.json', this.editedAgenda)
+    } else {
+      console.error('invalid agenda', this.editedAgenda)
+    }
   }
 }
 </script>
@@ -102,7 +76,4 @@ export default class AgendasView extends Vue {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 
-.header{
-  display:flex
-}
 </style>
