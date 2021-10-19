@@ -18,7 +18,7 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 
 import HourRangeComp from '@/components/HourRange.vue'
-import { WeekHours, defaultWeekHour, createAgendaException, getAgendaNames, Agenda, DayType } from '@/API/ServerAPI'
+import { DayType } from '@/API/ServerAPI'
 import * as ServerAPI from '@/API/ServerAPI'
 @Component({
   components: {

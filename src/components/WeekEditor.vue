@@ -4,7 +4,7 @@
 
       <div >
 
-        <DayEditor style=background:gray v-model=value.default  @input="$emit('input',value)" />
+        <DayEditor style=background:gray v-model=value.defaultDay  @input="$emit('input',value)" />
         <h1> Exceptions </h1>
               Add <select @click=addException($event.target.value) >
                  <option v-for="d of availableDays" :key=d.id >{{d}}</option>
@@ -12,7 +12,7 @@
             <div v-for="v of exceptionList" :key=v.id>
               <div class=exceptionTable>
                 <div>{{v.dayName}}</div>
-                <DayEditor  :value="v.dayValue" @input="$emit('input',value)" />
+                <DayEditor  :value="v" @input="$emit('input',value)" />
                 <button  @click=removeException(v.dayName) > - </button>
               </div>
             </div>
@@ -53,7 +53,9 @@ export default class WeekEditor extends Vue {
 
    async addException (d:string):Promise<void> {
      if (ServerAPI.dayNames.includes(d)) {
-       await Vue.set(this.value.exceptions, d, ServerAPI.defaultDayType())
+       const dd = ServerAPI.createDefaultDayType()
+       dd.dayName = d
+       await this.value.exceptions.push(dd)
      } else {
        console.error('invalid day name', d)
      }
@@ -61,14 +63,16 @@ export default class WeekEditor extends Vue {
    }
 
    async removeException (d:string) :Promise<void> {
-     if (ServerAPI.dayNames.includes(d) && Object.keys(this.value.exceptions).includes(d)) {
-       Vue.delete(this.value.exceptions, d)
+     if (ServerAPI.dayNames.includes(d)) {
+       const idx = this.value.exceptions.findIndex(e => e.dayName === d)
+       if (idx >= 0) { this.value.exceptions.splice(idx, 1) }
      } else {
        console.error('invalid day name', d)
      }
      this.$emit('input', this.value)
    }
 }
+
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

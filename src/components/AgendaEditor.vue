@@ -35,9 +35,7 @@ import WeekEditor from '@/components/WeekEditor.vue'
 import DayEditor from '@/components/DayEditor.vue'
 import DateRangeComp from '@/components/DateRange.vue'
 
-import { WeekHours, defaultWeekHour, createAgendaException, getAgendaNames, Agenda, AgendaException } from '@/API/ServerAPI'
-
-const connection :any = {}
+import { createAgendaException, Agenda, AgendaException } from '@/API/ServerAPI'
 
 @Component({
   components: {
