@@ -100,9 +100,12 @@ export default class DeviceViewComp extends Vue {
 
   async removeDevice (n:string):Promise<void> {
     const gn = prompt('device name', this.selectedDeviceName)
-    if (gn) {
-      await Vue.delete(this.knownDevices, gn)
+    const targetD = Object.values(this.knownDevices).find(e => e.deviceName === gn)
+    if (targetD) {
+      await Vue.delete(this.knownDevices, targetD.uuid)
       this.selectedDeviceUUID = ''
+    } else {
+      console.error('nothing to remove')
     }
     this.save()
   }

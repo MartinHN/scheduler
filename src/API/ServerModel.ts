@@ -88,6 +88,11 @@ export class ServerModel {
       this.sendDeviceEvent(d.uuid, { type: 'activate', value: b ? 1 : 0 })
     }
 
+    setDeviceNiceName (d:Device, nname:string):void{
+      d.niceName = nname
+      this.sendDeviceEvent(d.uuid, { type: 'niceName', value: nname })
+    }
+
     sendDeviceEvent (uuid:string, event:any):void {
       if (event.type) { ws.send('deviceEvent', { uuid, event }) } else { console.error('[ServerModel] invalid event', event) }
     }

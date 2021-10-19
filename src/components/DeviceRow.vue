@@ -31,6 +31,7 @@ export default class DeviceRow extends Vue {
   mounted () {
     // ask actual state without args
     this.sm.sendDeviceEvent(this.device.uuid, { type: 'activate' })
+    this.sm.sendDeviceEvent(this.device.uuid, { type: 'niceName' })
   }
 
   get sm ():ServerModel { return (this.$root as any).sm }
@@ -56,6 +57,7 @@ export default class DeviceRow extends Vue {
     const gn = prompt('device name', this.getDevice().niceName)
     if (gn) {
       this.emitChange('niceName', gn)
+      this.sm.setDeviceNiceName(this.device, gn)
     }
   }
 
