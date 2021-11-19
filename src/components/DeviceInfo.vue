@@ -1,18 +1,19 @@
 <template>
-  <div class="deviceRow" >
-
-          <button style=width:100% :class={notconnected:!connected,active:selected} @click=edit  >{{device.deviceName}} / {{device.niceName}}</button>
-          <button @click=setOnOff(!device.activate) :style="{background:device.activate?'green':'gray'}" > Turn {{device.activate?"Off":"On"}} </button>
-          <!-- <button @click=setOnOff(true)> On </button>
-          <button @click=setOnOff(false)> Off </button> -->
-
-          <select v-if="(groupNames && groupNames.length)"  :value=device.group @input='emitChange("group",$event.target.value)'>
+  <div class="deviceInfo"  >
+<span class=row>
+          <button @click=setName>{{device.niceName}} (edit) </button>
+          <select  :value=device.group @input='emitChange("group",$event.target.value)'>
             <option v-for="g of groupNames" :key=g.id >{{g}}</option>
           </select>
-          <div v-else style=background:red >
-            add Group first
-          </div>
           <div :style="{maxWidth:'70px',background:!connected?'red':'inherit',color:device.rssi<-75?'orange':'inherit'}">{{connected?''+device.rssi:"not conn"}} dB</div>
+</span>
+<div class=row>
+  <button :class="{active:selectedCap==c}" @click="selectedCap=c" v-for="c of device.caps || []" :key=c.id>{{c}}</button>
+</div>
+  <div v-if=selectedCap>
+    <component :is=selectedCap :device=device> </component>
+  </div>
+<!-- <div>{{JSON.stringify(device)}}</div> -->
 
   </div>
 </template>
@@ -22,16 +23,15 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 
 import { Device } from '@/API/ServerAPI'
 import { ServerModel } from '@/API/ServerModel'
+import OSCCap from './cap/OSCCap.vue'
 
-@Component({})
-export default class DeviceRow extends Vue {
-  @Prop({ default: false })
-  selected!:boolean;
-
+@Component({ components: { osc: OSCCap } })
+export default class DeviceInfo extends Vue {
   @Prop({ required: true })
   device!:Device;
 
-  mounted () {
+  selectedCap = ''
+  async mounted () {
     // ask actual state without args
     this.sm.sendDeviceEvent(this.device.uuid, { type: 'activate' })
     this.sm.sendDeviceEvent(this.device.uuid, { type: 'niceName' })
@@ -56,17 +56,13 @@ export default class DeviceRow extends Vue {
     this.$emit('input', d)
   }
 
-  edit ():void {
-    this.$emit('edit', this.getDevice())
+  setName ():void {
+    const gn = prompt('device name', this.getDevice().niceName)
+    if (gn) {
+      this.emitChange('niceName', gn)
+      this.sm.setDeviceNiceName(this.device, gn)
+    }
   }
-
-  // setName ():void {
-  //   const gn = prompt('device name', this.getDevice().niceName)
-  //   if (gn) {
-  //     this.emitChange('niceName', gn)
-  //     this.sm.setDeviceNiceName(this.device, gn)
-  //   }
-  // }
 
   setOnOff (b:boolean):void {
     this.sm.activateDevice(this.device, b)
@@ -75,10 +71,5 @@ export default class DeviceRow extends Vue {
 </script>
 
 <style scoped>
-.deviceRow{
-  width:100%;
- background:black;
- display:flex;
-}
 
 </style>

@@ -26,11 +26,7 @@ export default class HomeComp extends Vue {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-/*
-.fullpage{
-  display:flex;
-  min-height:100vh;
-} */
+
 .fullpage{
   height:100vh;
   display:grid;

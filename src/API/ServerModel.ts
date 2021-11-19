@@ -2,7 +2,7 @@ import { Device, DeviceDic, Groups, newEmptyDevice, Group, createDefaultAgenda }
 import * as ServerAPI from '@/API/ServerAPI'
 import ws from '../ws'
 
-const allowedWSData = ['connectedDeviceList'] as string[]
+const allowedWSData = ['isInaugurationMode'] as string[]
 
 export class ServerModel {
     connectedDeviceList=[] as Device[]
@@ -14,12 +14,22 @@ export class ServerModel {
     loadedAgenda = createDefaultAgenda();
     _hasLoadedFirst=false;
 
+    isInaugurationMode=false;
+
     constructor () {
-      ws.init(this.newMessageFromWS.bind(this), undefined)
+      ws.init(this.newMessageFromWS.bind(this), (isCon) => {
+        if (isCon) {
+          ws.send('server', { type: 'req', value: 'connectedDeviceList' })
+          ws.send('server', { type: 'req', value: 'isInaugurationMode' })
+        }
+      })
       this.loadDevices()
       this.loadGroups()
       this.loadAgendaNames()
-      if (ws.isConnected())ws.send('server', { type: 'req', value: 'connectedDeviceList' })
+      if (ws.isConnected()) {
+        ws.send('server', { type: 'req', value: 'connectedDeviceList' })
+        ws.send('server', { type: 'req', value: 'isInaugurationMode' })
+      }
       this.loadAgendaFromFile('default.json')
     }
 
@@ -66,16 +76,25 @@ export class ServerModel {
           console.error('[ServerModel] unknown dev for resp', uuid, deviceName)
         }
         // server infos
-      } else if (allowedWSData.includes(v.type)) {
+      } else if (v.type === 'connectedDeviceList') {
         console.log('[ServerModel] new device list', v)
         const filled = v.data.map((d:Device) => newEmptyDevice(d.deviceName, d));
         (this as any)[v.type] = filled
+      } else if (allowedWSData.includes(v.type)) {
+        console.log('[ServerModel] new allowed param', v);
+        (this as any)[v.type] = v.data
       } else {
         console.error('[ServerModel] unkown msg', v, 'allowed are', allowedWSData)
       }
     }
 
     /// ////////// Helpers
+
+    setInaugurationMode (b):void {
+      this.isInaugurationMode = b
+      ws.send('server', { type: 'isInaugurationMode', value: b ? 1 : 0 })
+    }
+
     isDeviceConnected (uuid:string):boolean {
       for (const d of Object.values(this.connectedDeviceList)) {
         if (d.uuid === uuid) { return true }

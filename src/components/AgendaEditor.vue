@@ -1,7 +1,7 @@
 <template>
   <div>
 
-      <div style="display:flex">
+      <div class=row>
         <button @click="showDefaultWeek=true"> Semaine par defaut </button>
         <button @click="showDefaultWeek=false"> Exceptions </button>
       </div>
@@ -15,7 +15,7 @@
         <template v-for="v of agenda.agendaExceptionList"  >
           <button :key=v.id @click=editName(v)> {{v.name}} (edit)</button>
           <DateRangeComp :key=v.id v-model=v.dates  @input="$emit('input',agenda)" />
-          <DayEditor :key=v.id v-model=v.dayValue />
+          <DayEditor :key=v.id v-model=v.dayValue @input="$emit('input',agenda)" />
           <button :key=v.id  @click=removeAgendaException(v.name)>-</button>
 
         </template>
@@ -89,7 +89,6 @@ export default class AgendaEditor extends Vue {
 .exceptionTable{
   background: black;
   border: 1px solid black;
-
   display:grid;
   grid-template-columns:1fr 3fr 6fr 1fr;
   grid-gap:1px 1px;

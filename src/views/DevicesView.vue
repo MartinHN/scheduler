@@ -2,7 +2,7 @@
 
       <div class=devLiust>
         <!-- <input type='number' v-model=updateP /> -->
-   <div style='display:flex' > <button @click=addDevice> Add Device </button>
+   <div class=row > <button @click=addDevice> Add Device </button>
     <button @click=removeDevice> Remove Device </button>
     <button @click=resetAll> Reset All Devices And Group</button>
    </div>
@@ -11,13 +11,22 @@
     {{v}}<button @click=registerDevice(v.deviceName,v)> register </button>
   </div>
 <br>
+<div :style='{"max-height":selectedDeviceUUID?"30vh":"90vh","overflow-y":"auto"}'>
     <DeviceRow style=width:100% v-for="v of sortedKnownDevices" :key=v.id
     :device=v
-    :selected="selectedDeviceUUID==v.uuid"
-    @click.native="selectedDeviceUUID=v.uuid"
+    @edit="showInfo(v.uuid)"
     @input=deviceChanged(v.uuid,$event)
     @deviceEvent=sendDeviceEvent(v.uuid,$event) />
+    </div>
+<div class=devinfo v-if="selectedDevice!==undefined" >
+  <span class=row>
+    <div @click="showInfo()">{{selectedDevice.deviceName}}  </div>
+  <div class=closeHeader @click="showInfo()"> X </div>
+  </span>
+  <DeviceInfo  :device=selectedDevice  />
+</div>
   </div>
+
 </template>
 
 <script lang="ts">
@@ -26,6 +35,7 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 
 import DeviceRow from '@/components/DeviceRow.vue'
+import DeviceInfo from '@/components/DeviceInfo.vue'
 import * as ServerAPI from '@/API/ServerAPI'
 import { newEmptyDevice, Device, DeviceDic, Groups } from '@/API/ServerAPI'
 
@@ -35,7 +45,8 @@ import { ServerModel } from '@/API/ServerModel'
 
 @Component({
   components: {
-    DeviceRow
+    DeviceRow,
+    DeviceInfo
   }
 })
 export default class DeviceViewComp extends Vue {
@@ -114,6 +125,15 @@ export default class DeviceViewComp extends Vue {
     this.save()
   }
 
+  toggleInfo (uuid:string) {
+    console.log('toggle info for ', uuid)
+    if (this.selectedDeviceUUID && this.selectedDeviceUUID.length) { this.selectedDeviceUUID = '' } else { this.selectedDeviceUUID = uuid }
+  }
+
+  showInfo (uuid = '') {
+    this.selectedDeviceUUID = uuid
+  }
+
   save () :void{
     ServerAPI.saveKnownDevices(this.knownDevices)
   }
@@ -130,16 +150,14 @@ export default class DeviceViewComp extends Vue {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 
-/*
-#appContainer{
-     display:grid;
-     grid-auto-columns: 1fr 3fr;
-
+.devinfo{
+  background: black;
+  position:fixed;
+  bottom: 0px;
+  min-height: 50vh;
+}
+.devinfo .closeHeader{
+  min-height: 50px;
 }
 
-#appContainer > :nth-child(2) {
-  grid-column:2;
-}
-
-*/
 </style>

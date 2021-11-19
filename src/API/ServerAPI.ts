@@ -38,6 +38,13 @@ export async function resetDevicesAndGroups () :Promise<void> {
 export async function getKnownDeviceList () :Promise<DeviceDic> {
   return await getJSON('knownDevices') as DeviceDic
 }
+export async function getCapForDevice (name:string, d:Device) :Promise<any> {
+  return await getJSON('cap/' + name, d)
+}
+
+export async function setCapForDevice (name:string, d:Device, data:any):Promise<void> {
+  await postJSON('post/cap/' + name, data, d)
+}
 
 /// ///////////
 // groups

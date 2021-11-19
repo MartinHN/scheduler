@@ -2,7 +2,7 @@
 <template>
   <div>
 
-      <div style="display:flex">
+      <div class=row>
             <HourRangeComp v-for="v of value.hourRangeList" :key=v.id :value="v" @input="$emit('input',value)" />
       <div v-if="value.hourRangeList.length==0" style="background:red">OFF</div>
        <button @click=addRange > + </button>
@@ -35,10 +35,12 @@ export default class DayEditor extends Vue {
 
    addRange () {
      this.value.hourRangeList.push(ServerAPI.defaultHourRange())
+     this.$emit('input', this.value)
    }
 
    removeRange () {
      this.value.hourRangeList.splice(-1, 1)
+     this.$emit('input', this.value)
    }
 }
 </script>

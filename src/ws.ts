@@ -46,7 +46,7 @@ const wrap = {
       setConnected(true)
       console.log(event)
       console.log('Successfully connected to the  websocket server...')
-      msg('hello')
+      // msg('hello')
       // console.log('sent')
     }
     connection.onclose = (ev: CloseEvent) => {

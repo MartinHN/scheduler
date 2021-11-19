@@ -3,7 +3,7 @@
     <div class=main>
       <GroupList class=grouplist :groups=groups @input=setSelectedGroup($event) />
       <div>
-        <div  class=groupCtl>
+        <div  class=row>
         <div><h1>{{currentGroupName? currentGroupName : "All"}}</h1></div>
         <select v-if=Object.keys(currentGroup).length v-model=currentGroup.filename @input=saveGroups >
             <option v-for="d of availableAgendas" :key=d.id :value=d >{{d}}</option>
@@ -118,7 +118,4 @@ export default class GroupView extends Vue {
   grid-template-columns:1fr 3fr;
 }
 
-.groupCtl{
-display:flex;
-}
 </style>

@@ -60,6 +60,7 @@ margin:0;
 }
 #app *:not(.customFont){
   font-size:1em;
+  box-sizing:border-box
 }
 
 #nav {
@@ -92,7 +93,7 @@ margin:0;
 */
 #nav .router-link-exact-active {
 
- background: rgb(255, 102, 0);
+ background: green;/*  rgb(255, 102, 0); */
 }
 #nav button{
   background: black;
@@ -107,10 +108,11 @@ opacity: 1.0;
   background: rgb(5, 5, 95);
   color: aliceblue;
   border: 1px solid rgb(0, 0, 0);
+
 }
 
 button.active{
-background: rgb(255, 102, 0);
+background: green;/*  rgb(255, 102, 0); */
 }
 button{
   font-size: 1em;
@@ -127,10 +129,17 @@ button{
   font-size:1em;
   border-radius: 5px;
   margin-bottom:5px;
+  min-width:200px;
 }
- div{
-  width:100%;
 
+/* #app img{
+  min-width : 50%;
+  min-height : 50%;
+  margin:auto;
+} */
+
+div{
+  width:100%;
 }
 
 input{
@@ -140,4 +149,15 @@ input{
   width:inherit;
 }
 
+.row{
+  display:flex;
+  flex-direction:row;
+  justify-content: space-evenly;
+}
+
+.col{
+  display:flex;
+  flex-direction:col;
+  justify-content: space-evenly;
+}
 </style>

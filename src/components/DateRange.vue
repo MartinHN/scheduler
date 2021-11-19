@@ -1,6 +1,6 @@
 <template>
   <div >
-    <div style=display:flex;justify-content:space-evenly;>
+    <div class=row style=justify-content:space-evenly;>
       <DatePicker  locale="fr" :value=startDate :attributes="getAttr('startInput')" @dayclick='dateClick("start",$event) ' >
         <template  v-slot="{ inputValue,inputEvents }">
          <input

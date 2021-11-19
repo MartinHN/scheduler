@@ -66,7 +66,7 @@ export default class AgendasList extends Vue {
       this.sm.loadedAgenda.name = name
       await ServerAPI.saveAgenda(name, this.sm.loadedAgenda)
       await this.sm.loadAgendaNames()
-      // this.loadAgendaNamed(name)
+      await this.loadAgendaNamed(name)
     }
 
     return []
