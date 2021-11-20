@@ -38,13 +38,22 @@ export default class OSCCapComp extends Vue {
   @Prop({ required: true })
   device!:Device;
 
+  @Prop({ required: true })
+  name!:string
+
   conf = getDefaultOSCCap()
 
-  async mounted () {
-    // ask actual state without args
-    // this.sm.sendDeviceEvent(this.device.uuid, { type: 'activate' })
-    // this.sm.sendDeviceEvent(this.device.uuid, { type: 'niceName' })
-    this.conf = getDefaultOSCCap(await getCapForDevice('osc', this.device))
+  @Watch('name')
+  nameCh () {
+    this.getConf()
+  }
+
+  mounted () {
+    this.getConf()
+  }
+
+  async getConf () {
+    this.conf = getDefaultOSCCap(await getCapForDevice(this.name, this.device))
   }
 
   get hasValidIp () {
@@ -86,7 +95,7 @@ export default class OSCCapComp extends Vue {
   }
 
   save () :void{
-    if (this.isValid) { setCapForDevice('osc', this.device, JSON.parse(JSON.stringify(this.conf))) } else { console.log('not saving osc not valid') }
+    if (this.isValid) { setCapForDevice(this.name, this.device, JSON.parse(JSON.stringify(this.conf))) } else { console.log('not saving osc not valid') }
   }
 }
 </script>

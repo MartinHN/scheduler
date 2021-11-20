@@ -11,7 +11,7 @@ export class ServerModel {
 
     agendaFileNames=[] as string[]
 
-    isAdminMode = false;
+    isAdminMode = true;
 
     loadedAgenda = createDefaultAgenda();
     _hasLoadedFirst=false;

@@ -9,10 +9,10 @@
 <div>{{localTime}}</div>
 </span>
 <div class=row>
-  <button :class="{active:selectedCap==c}" @click="selectedCap=c" v-for="c of validCaps"  :key=c.id>{{c}}</button>
+  <button :class="{active:selectedCapName==c}" @click="selectedCapName=c" v-for="c of validCapNames"  :key=c.id>{{c}}</button>
 </div>
-  <div v-if=selectedCap >
-    <component :is=selectedCap :device=device> </component>
+  <div v-if=selectedCapName >
+    <component :is=selectedCapComponentName :name=selectedCapName :port=selectedCapPort :device=device> </component>
   </div>
 <!-- <div>{{JSON.stringify(device)}}</div> -->
     </div>
@@ -28,16 +28,18 @@ import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 import { Device, getTimeInfoForDevice } from '@/API/ServerAPI'
 import { ServerModel } from '@/API/ServerModel'
 import OSCCap from './cap/OSCCap.vue'
+import HTMLCap from './cap/HTMLCap.vue'
 
-@Component({ components: { osc: OSCCap } })
+@Component({ components: { OSCCap, HTMLCap } })
 export default class DeviceInfo extends Vue {
   @Prop({ required: true })
   device!:Device;
 
   deviceTimeInfo= { localTime: '', utcTime: '' };
   _fetchTime =undefined as any
-  selectedCap = ''
-  async mounted () {
+  selectedCapName = '';
+
+  mounted () {
     // ask actual state without args
     this.sm.sendDeviceEvent(this.device.uuid, { type: 'activate' })
     this.sm.sendDeviceEvent(this.device.uuid, { type: 'niceName' })
@@ -50,7 +52,7 @@ export default class DeviceInfo extends Vue {
 
   @Watch('device')
   deviceChCb () {
-    this.selectedCap = ''
+    this.selectedCapName = ''
     this.refreshTime()
   }
 
@@ -72,8 +74,26 @@ export default class DeviceInfo extends Vue {
     return this.sm.isDeviceConnected(this.getDevice().uuid)
   }
 
-  get validCaps () {
-    return (this.device.caps || []).filter(e => e.length > 0)
+  get validCapNames () {
+    return Object.keys(this.device.caps)
+  }
+
+  get selectedCapInstance () {
+    return this.device.caps[this.selectedCapName]
+  }
+
+  get selectedCapType () {
+    return this.selectedCapInstance?.type
+  }
+
+  get selectedCapComponentName () {
+    if (this.selectedCapType === 'html') return 'HTMLCap'
+    if (this.selectedCapType === 'osc') return 'OSCCap'
+    console.error('invalid cap type', this.selectedCapType)
+  }
+
+  get selectedCapPort () {
+    return this.selectedCapInstance?.port
   }
 
   get groupNames () {
