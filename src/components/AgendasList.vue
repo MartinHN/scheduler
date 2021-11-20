@@ -1,17 +1,16 @@
 <template>
-  <div class="group chooser" style='display:grid;grid-template-columns="1Fr 1Fr"'>
+  <div class="group chooser row" >
       <select style=width:100% :value=currentAgendaName @change="loadAgendaNamed($event.target.value)">
           <option style=width:100% v-for="v of agendaNames" :key=v.id :value=v>{{v}}</option>
       </select>
 
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);grid-gap:5px">
-      <button class=flash @click="saveAgendaToFile">save or Add Agenda</button>
-      <button class=flash @click="eraseAgendaFile">erase Agenda</button>
-      <button class=flash @click="sm.resetAgendas()">reset All Agendas</button>
+      <button class="flash wmin" @click="saveAgendaToFile">sauver ou ajouter Agenda</button>
+      <button class="flash wmin" @click="eraseAgendaFile">effacer Agenda</button>
+
       <!-- <button @click="loadFromFile">load from File</button> -->
       <!-- <button @click="saveToDevice">save To Device</button>
       <button @click="loadFromDevice">load from Device</button> -->
-      </div>
+
   </div>
 </template>
 
@@ -90,4 +89,9 @@ export default class AgendasList extends Vue {
 </script>
 
     <!--Add "scoped" attribute to limit CSS to this component only-->
-<style scoped></style>
+<style scoped>
+.group{
+  justify-content: left;
+  gap: 10px;
+}
+</style>

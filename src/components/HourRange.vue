@@ -2,11 +2,11 @@
   <div class="hours">
     <div style='display:grid;grid-template:15px 1fr / 1fr 10px 1fr;'>
     <div>
-      start
+      début
 </div>
 <div/>
     <div >
-     to {{ nextDayText
+     fin {{ nextDayText
       }}
       </div>
       <vue-timepicker

@@ -6,8 +6,7 @@ const serverPort = fromPort.startsWith('808') ? '3003' : fromPort
 
 export async function getJSON (path:string, d?:Device):Promise<any> {
   const requestOptions = {
-    method: 'GET',
-    headers: { 'Content-Type': 'application/json' }
+    method: 'GET'
   }
   let url = serverURL
   let port = serverPort

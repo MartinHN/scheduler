@@ -1,10 +1,10 @@
 <template>
   <div>
-   <div class=row > <button @click=addGroup> Add Group </button>
-    <button @click=removeGroup> Remove Group </button>
+   <div class=row > <button @click=addGroup> Ajout Groupe </button>
+    <button @click=removeGroup> Effacer Groupe </button>
    </div>
-   <button @click=setSelected() :class="{active:!selected}" > show All </button>
-    <button v-for="v of groupList" :key=v.id @click=setSelected(v)  :class="{active:selectedGroupName===v.name}" >{{v.name}} ( {{devicesInGroup(v).length}} )</button>
+   <button @click=setSelected() :class="{active:!selected}" > Afficher tous </button>
+    <button v-for="v of groupList" :key=v.id @click=setSelected(v)  :class="{active:selectedGroupName===v.name}" class=tab >{{v.name}} ( {{devicesInGroup(v).length}} )</button>
   </div>
 </template>
 

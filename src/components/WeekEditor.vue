@@ -6,7 +6,7 @@
 
         <DayEditor style=background:gray v-model=value.defaultDay  @input="$emit('input',value)" />
         <h1> Exceptions </h1>
-              Add <select @change=addException($event.target.value) >
+              Ajout jour <select @change=addException($event.target.value) >
                  <option v-for="d of availableDays" :key=d.id >{{d}}</option>
                </select>
             <div v-for="v of exceptionList" :key=v.id>

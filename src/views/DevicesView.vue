@@ -4,7 +4,7 @@
         <!-- <input type='number' v-model=updateP /> -->
    <div class=row > <button @click=addDevice> Add Device </button>
     <button @click=removeDevice> Remove Device </button>
-    <button @click=resetAll> Reset All Devices And Group</button>
+
    </div>
    <br>
    <div v-for="v of unregisteredDevice" :key=v.id>
@@ -14,11 +14,12 @@
 <div :style='{"max-height":selectedDeviceUUID?"30vh":"90vh","overflow-y":"auto"}'>
     <DeviceRow style=width:100% v-for="v of sortedKnownDevices" :key=v.id
     :device=v
+    :selected="(selectedDeviceUUID===v.uuid) &&  sm.isAdminMode"
     @edit="showInfo(v.uuid)"
     @input=deviceChanged(v.uuid,$event)
     @deviceEvent=sendDeviceEvent(v.uuid,$event) />
     </div>
-<div class=devinfo v-if="selectedDevice!==undefined" >
+<div class=devinfo v-if="(selectedDevice!==undefined) && sm.isAdminMode" >
   <span class=row>
     <div @click="showInfo()">{{selectedDevice.deviceName}}  </div>
   <div class=closeHeader @click="showInfo()"> X </div>
@@ -74,8 +75,11 @@ export default class DeviceViewComp extends Vue {
 
   fetchDeviceInfo ():void {
     for (const d of Object.values(this.connectedDeviceList)) {
-      this.sendDeviceEvent(d.uuid, { type: 'rssi' })
+      if (this.sm.isAdminMode) {
+        this.sendDeviceEvent(d.uuid, { type: 'rssi' })
+      }
     }
+
     this._fetchDev = setTimeout(this.fetchDeviceInfo.bind(this), this.updateP)
   }
 
@@ -135,14 +139,7 @@ export default class DeviceViewComp extends Vue {
   }
 
   save () :void{
-    ServerAPI.saveKnownDevices(this.knownDevices)
-  }
-
-  async resetAll ():Promise<void> {
-    if (confirm('areYiou Sureee')) {
-      await ServerAPI.resetDevicesAndGroups()
-      document.location.reload()
-    }
+    ServerAPI.saveKnownDeviceDic(this.knownDevices)
   }
 }
 </script>

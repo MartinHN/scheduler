@@ -1,7 +1,7 @@
 <template>
   <div class="deviceRow" >
 
-          <button style=width:100% :class={notconnected:!connected,active:selected} @click=edit  >{{device.deviceName}} / {{device.niceName}}</button>
+          <button style=width:100% class=tab :class={notconnected:!connected,active:selected} @click=edit  > {{device.niceName}}</button>
           <button @click=setOnOff(!device.activate) :style="{background:device.activate?'green':'gray'}" > Turn {{device.activate?"Off":"On"}} </button>
           <!-- <button @click=setOnOff(true)> On </button>
           <button @click=setOnOff(false)> Off </button> -->
@@ -12,7 +12,7 @@
           <div v-else style=background:red >
             add Group first
           </div>
-          <div :style="{maxWidth:'70px',background:!connected?'red':'inherit',color:device.rssi<-75?'orange':'inherit'}">{{connected?''+device.rssi:"not conn"}} dB</div>
+          <div :style="{maxWidth:'70px',background:!connected?'red':'inherit',color:device.rssi<-75?'orange':'inherit'}">{{rssiTxt}}</div>
 
   </div>
 </template>
@@ -70,6 +70,17 @@ export default class DeviceRow extends Vue {
 
   setOnOff (b:boolean):void {
     this.sm.activateDevice(this.device, b)
+  }
+
+  get rssiTxt () {
+    if (!this.connected) {
+      return 'déconnecté'
+    }
+    if (this.sm.isAdminMode) {
+      return this.device.rssi + ' dB'
+    } else {
+      return 'connecté'
+    }
   }
 }
 </script>

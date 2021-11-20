@@ -5,12 +5,13 @@
       <div>
         <div  class=row>
         <div><h1>{{currentGroupName? currentGroupName : "All"}}</h1></div>
-        <select v-if=Object.keys(currentGroup).length v-model=currentGroup.filename @input=saveGroups >
+        <select v-if=Object.keys(currentGroup).length v-model=currentGroup.filename @input=saveGroups :class='{warn:!currentGroup.filename}'>
             <option v-for="d of availableAgendas" :key=d.id :value=d >{{d}}</option>
         </select>
         <button @click=setGroupValue(true)> On Group </button>
         <button @click=setGroupValue(false)> Off Group </button>
         </div>
+        <br>
         <DeviceRow v-for="v of displayedDevices" :key=v.id :device=v  @input=deviceChanged  />
       </div>
     </div>
@@ -75,7 +76,7 @@ export default class GroupView extends Vue {
   }
 
   save () :void{
-    ServerAPI.saveKnownDevices(this.sm.knownDevices)
+    ServerAPI.saveKnownDeviceDic(this.sm.knownDevices)
   }
 
   get currentGroup ():Group {
@@ -109,13 +110,17 @@ export default class GroupView extends Vue {
     <!--Add "scoped" attribute to limit CSS to this component only-->
 <style scoped>
  div.grouplist{
-     overflow-y: auto;
+     /* overflow-y: auto; */
     max-height: 700px;
+    position: sticky;
+    align-self: flex-start;
+    top:calc(var(--nav-header-h) - var(--btn-h));
 }
 
 .main{
   display:grid;
   grid-template-columns:1fr 3fr;
+  grid-gap: 15px;
 }
 
 </style>

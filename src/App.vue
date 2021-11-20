@@ -8,6 +8,7 @@
             <router-link tag=button class=customFont to="/AgendasView">Agendas</router-link>
             <router-link tag=button to="/DevicesView">Devices</router-link>
             <router-link tag=button to="/GroupView">Group</router-link>
+            <router-link tag=button to="/ConfigView" style=max-width:40px>Cfg</router-link>
             </template>
 
          </nav>
@@ -39,6 +40,12 @@ export default class AppComp extends Vue {
 </script>
 
 <style>
+
+* {
+  --nav-header-h: calc( max( 10px,8vh));
+  --btn-h: 50px;
+}
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -60,7 +67,8 @@ margin:0;
 }
 #app *:not(.customFont){
   font-size:1em;
-  box-sizing:border-box
+  box-sizing:border-box;
+
 }
 
 #nav {
@@ -77,6 +85,7 @@ margin:0;
   text-align: center;
   background: black;
   z-index: 100;
+  max-height:var(--nav-header-h)
 }
 
 /* #nav div {
@@ -98,7 +107,7 @@ margin:0;
 #nav button{
   background: black;
   color:white;
-   min-height:60px;
+   min-height:var(--nav-header-h);
    font-size: inherit;
 }
   /* globals APP */
@@ -111,6 +120,15 @@ opacity: 1.0;
 
 }
 
+button.tab:not(.active){
+background: white;
+opacity: 1.0;
+  background: rgb(0, 0, 0);
+  color: aliceblue;
+  border: 1px solid rgb(255, 255, 255);
+
+}
+
 button.active{
 background: green;/*  rgb(255, 102, 0); */
 }
@@ -118,7 +136,7 @@ button{
   font-size: 1em;
 
   border-radius: 5px;
-  min-height:50px;
+  min-height:var(--btn-h);
   min-width:50px;
   margin-bottom:5px;
   width:100%
@@ -130,6 +148,11 @@ button{
   border-radius: 5px;
   margin-bottom:5px;
   min-width:200px;
+  max-width:30vw;
+}
+
+#app input{
+background: white;
 }
 
 /* #app img{
@@ -140,6 +163,7 @@ button{
 
 div{
   width:100%;
+
 }
 
 input{
@@ -153,11 +177,20 @@ input{
   display:flex;
   flex-direction:row;
   justify-content: space-evenly;
+  align-items:center ;
 }
 
 .col{
   display:flex;
   flex-direction:col;
   justify-content: space-evenly;
+}
+
+.wmin{
+  max-width:150px;
+}
+
+.warn{
+  background: red;
 }
 </style>

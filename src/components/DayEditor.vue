@@ -3,7 +3,9 @@
   <div>
 
       <div class=row>
+        <div class=hours>
             <HourRangeComp v-for="v of value.hourRangeList" :key=v.id :value="v" @input="$emit('input',value)" />
+        </div>
       <div v-if="value.hourRangeList.length==0" style="background:red">OFF</div>
        <button @click=addRange > + </button>
        <button v-if="value.hourRangeList.length>0" @click=removeRange > - </button>
@@ -49,5 +51,9 @@ export default class DayEditor extends Vue {
 <style scoped>
 button{
   max-width:10px;
+}
+
+.hours{
+  flex-wrap: wrap;
 }
 </style>

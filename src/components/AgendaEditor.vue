@@ -2,10 +2,10 @@
   <div>
 
       <div class=row>
-        <button @click="showDefaultWeek=true"> Semaine par defaut </button>
-        <button @click="showDefaultWeek=false"> Exceptions </button>
+        <button @click="showDefaultWeek=true" class=tab :class='{active:showDefaultWeek}'> Semaine par defaut </button>
+        <button @click="showDefaultWeek=false" class=tab :class='{active:!showDefaultWeek}'> Exceptions </button>
       </div>
-
+<br>
       <div v-if=showDefaultWeek>
             <WeekEditor v-model=agenda.defaultWeek @input="$emit('input',agenda)" />
       </div>
@@ -16,7 +16,7 @@
           <button :key=v.id @click=editName(v)> {{v.name}} (edit)</button>
           <DateRangeComp :key=v.id v-model=v.dates  @input="$emit('input',agenda)" />
           <DayEditor :key=v.id v-model=v.dayValue @input="$emit('input',agenda)" />
-          <button :key=v.id  @click=removeAgendaException(v.name)>-</button>
+          <button :key=v.id  @click=removeAgendaException(v.name) style="background:red"> <img src="img/trash.svg"  /></button>
 
         </template>
                 </div>

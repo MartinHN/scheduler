@@ -1,7 +1,9 @@
 <template>
 <div>
-
-    <AgendasList  />
+  <br>
+<div class=row>
+   <div class=wmin> Liste des agendas </div><AgendasList  />
+</div>
 <br><br>
     <AgendaEditor v-if=!!editedAgenda :agenda=editedAgenda @input=saveCurrent />
 

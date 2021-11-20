@@ -27,7 +27,7 @@ export async function resetAgendas () :Promise<void> {
 /// ////////
 // Devices
 
-export async function saveKnownDevices (knownDevices:DeviceDic):Promise<void> {
+export async function saveKnownDeviceDic (knownDevices:DeviceDic):Promise<void> {
   postJSON('knownDevices', JSON.parse(JSON.stringify(knownDevices)))
 }
 
@@ -35,7 +35,7 @@ export async function resetDevicesAndGroups () :Promise<void> {
   await postJSON('resetRasps', {})
 }
 
-export async function getKnownDeviceList () :Promise<DeviceDic> {
+export async function getKnownDeviceDic () :Promise<DeviceDic> {
   return await getJSON('knownDevices') as DeviceDic
 }
 export async function getCapForDevice (name:string, d:Device) :Promise<any> {
@@ -44,6 +44,10 @@ export async function getCapForDevice (name:string, d:Device) :Promise<any> {
 
 export async function setCapForDevice (name:string, d:Device, data:any):Promise<void> {
   await postJSON('post/cap/' + name, data, d)
+}
+
+export async function getTimeInfoForDevice (d:Device) :Promise<any> {
+  return await getJSON('time', d)
 }
 
 /// ///////////

@@ -5,6 +5,7 @@ import AgendasView from '../views/AgendasView.vue'
 import DevicesView from '../views/DevicesView.vue'
 import InaugurationView from '../views/InaugurationView.vue'
 import GroupView from '../views/GroupView.vue'
+import ConfigView from '../views/ConfigView.vue'
 
 Vue.use(VueRouter)
 
@@ -28,6 +29,11 @@ const routes: Array<RouteConfig> = [
     path: '/GroupView',
     name: 'GroupView',
     component: GroupView
+  },
+  {
+    path: '/ConfigView',
+    name: 'ConfigView',
+    component: ConfigView
   },
   {
     path: '/InaugurationView',

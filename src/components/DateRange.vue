@@ -1,8 +1,10 @@
 <template>
   <div >
     <div class=row style=justify-content:space-evenly;>
+
       <DatePicker  locale="fr" :value=startDate :attributes="getAttr('startInput')" @dayclick='dateClick("start",$event) ' >
         <template  v-slot="{ inputValue,inputEvents }">
+          de
          <input
               id="startInput"
               style=font-size:1em
@@ -26,6 +28,7 @@
       </svg>
       <DatePicker   locale="fr" :min-date=startDate  :value=endDate :attributes="getAttr('endInput')" @dayclick='dateClick("end",$event)' >
         <template  v-slot="{ inputValue,inputEvents }">
+      à
          <input
               id="endInput"
               style=font-size:1em

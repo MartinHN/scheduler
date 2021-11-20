@@ -11,6 +11,8 @@ export class ServerModel {
 
     agendaFileNames=[] as string[]
 
+    isAdminMode = false;
+
     loadedAgenda = createDefaultAgenda();
     _hasLoadedFirst=false;
 
@@ -34,7 +36,7 @@ export class ServerModel {
     }
 
     async loadDevices () :Promise<void> {
-      const savedKnownDevices = await ServerAPI.getKnownDeviceList()
+      const savedKnownDevices = await ServerAPI.getKnownDeviceDic()
       const devs = {} as any
       for (const [k, v] of Object.entries(savedKnownDevices)) {
         devs[v.uuid] = newEmptyDevice(v.deviceName, v)
@@ -78,8 +80,9 @@ export class ServerModel {
         // server infos
       } else if (v.type === 'connectedDeviceList') {
         console.log('[ServerModel] new device list', v)
-        const filled = v.data.map((d:Device) => newEmptyDevice(d.deviceName, d));
-        (this as any)[v.type] = filled
+        const filled = v.data.map((d:Device) => newEmptyDevice(d.deviceName, d))
+        this.connectedDeviceList = filled
+        this.loadDevices()
       } else if (allowedWSData.includes(v.type)) {
         console.log('[ServerModel] new allowed param', v);
         (this as any)[v.type] = v.data
