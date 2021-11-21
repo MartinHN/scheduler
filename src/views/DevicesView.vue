@@ -11,7 +11,7 @@
     {{v}}<button @click=registerDevice(v.deviceName,v)> register </button>
   </div>
 <br>
-<div :style='{"max-height":selectedDeviceUUID?"30vh":"90vh","overflow-y":"auto"}'>
+<div :style='{"max-height":(selectedDeviceUUID&& sm.isAdminMode)?"30vh":"90vh","overflow-y":"auto"}'>
     <DeviceRow style=width:100% v-for="v of sortedKnownDevices" :key=v.id
     :device=v
     :selected="(selectedDeviceUUID===v.uuid) &&  sm.isAdminMode"
