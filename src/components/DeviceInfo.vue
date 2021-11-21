@@ -3,9 +3,12 @@
     <div v-if=sm.isDeviceConnected(device.uuid)>
 
 <span class=row>
-          <button @click=setName>{{device.niceName}} (edit) </button>
 
-<div>{{device.ip + ":" +device.port}}</div>
+    <button @click=setName>{{device.niceName}} (edit) </button>
+
+<div  >{{device.ip + ":" +device.port}}</div>
+<div @click=setHostName> {{ device.deviceName}} </div>
+<button @click=reboot class=warn> reboot </button>
 <div>{{localTime}}</div>
 </span>
 <div class=row>
@@ -44,9 +47,9 @@ export default class DeviceInfo extends Vue {
     this.sm.sendDeviceEvent(this.device.uuid, { type: 'activate' })
     this.sm.sendDeviceEvent(this.device.uuid, { type: 'niceName' })
     if (this._fetchTime) { clearTimeout(this._fetchTime) }
-    this._fetchTime = setInterval(async () => {
-      await this.refreshTime()
-    }, 5000)
+    // this._fetchTime = setInterval(async () => {
+    //   await this.refreshTime()
+    // }, 5000)
     this.refreshTime()
   }
 
@@ -115,6 +118,20 @@ export default class DeviceInfo extends Vue {
     if (gn) {
       this.emitChange('niceName', gn)
       this.sm.setDeviceNiceName(this.device, gn)
+    }
+  }
+
+  setHostName ():void {
+    const hn = prompt('set HostName ,\n !!!! Reboot after this !!!', this.device.deviceName)
+    if (hn) {
+      this.sm.setDeviceHostName(this.device, hn)
+    }
+  }
+
+  reboot () {
+    const hn = confirm('!!!! Reboot Device ???')
+    if (hn) {
+      this.sm.rebootDevice(this.device)
     }
   }
 }

@@ -12,7 +12,7 @@
           <div v-else style=background:red >
             add Group first
           </div>
-          <div :style="{maxWidth:'70px',background:!connected?'red':'inherit',color:device.rssi<-75?'orange':'inherit'}">{{rssiTxt}}</div>
+          <div :style="{maxWidth:'130px',background:!connected?'red':'inherit',color:device.rssi<-75?'orange':'inherit'}">{{rssiTxt}}</div>
 
   </div>
 </template>

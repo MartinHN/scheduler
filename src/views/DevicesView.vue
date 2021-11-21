@@ -2,11 +2,11 @@
 
       <div class=devLiust>
         <!-- <input type='number' v-model=updateP /> -->
-   <div class=row > <button @click=addDevice> Add Device </button>
+   <div class=row v-if=sm.isAdminMode >
+     <button @click=addDevice> Add Device </button>
     <button @click=removeDevice> Remove Device </button>
-
-   </div>
    <br>
+   </div>
    <div v-for="v of unregisteredDevice" :key=v.id>
     {{v}}<button @click=registerDevice(v.deviceName,v)> register </button>
   </div>

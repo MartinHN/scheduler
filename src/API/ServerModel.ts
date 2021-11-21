@@ -115,6 +115,15 @@ export class ServerModel {
       this.sendDeviceEvent(d.uuid, { type: 'niceName', value: nname })
     }
 
+    setDeviceHostName (d:Device, nname:string):void{
+      d.deviceName = nname
+      this.sendDeviceEvent(d.uuid, { type: 'hostName', value: nname })
+    }
+
+    rebootDevice (d:Device):void{
+      this.sendDeviceEvent(d.uuid, { type: 'reboot' })
+    }
+
     sendDeviceEvent (uuid:string, event:any):void {
       if (event.type) { ws.send('deviceEvent', { uuid, event }) } else { console.error('[ServerModel] invalid event', event) }
     }
