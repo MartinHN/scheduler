@@ -1,7 +1,7 @@
 <template>
   <div class="deviceRow" >
 
-          <button style=width:100% class=tab :class={notconnected:!connected,active:selected} @click=edit  > {{device.niceName}}</button>
+          <button style=width:100% class=tab :class={notconnected:!connected,active:selected} @click=edit  > {{device.deviceName + " / " +device.niceName}}</button>
           <button @click=setOnOff(!device.activate) :style="{background:device.activate?'green':'gray'}" > Turn {{device.activate?"Off":"On"}} </button>
           <!-- <button @click=setOnOff(true)> On </button>
           <button @click=setOnOff(false)> Off </button> -->

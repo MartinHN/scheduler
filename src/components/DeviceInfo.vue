@@ -1,7 +1,8 @@
 <template>
   <div class="deviceInfo"  >
-    <div v-if=sm.isDeviceConnected(device.uuid)>
-
+    <div v-if=!sm.isDeviceConnected(device.uuid)>
+   NotConnected
+    </div>
 <span class=row>
 
     <button @click=setName>{{device.niceName}} (edit) </button>
@@ -18,10 +19,7 @@
     <component :is=selectedCapComponentName :name=selectedCapName :port=selectedCapPort :device=device> </component>
   </div>
 <!-- <div>{{JSON.stringify(device)}}</div> -->
-    </div>
-    <div v-else class="notConnected customFont">
-      NotConnected
-    </div>
+
   </div>
 </template>
 

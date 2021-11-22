@@ -60,3 +60,12 @@ export async function saveGroups (groups:Groups):Promise<void> {
 export async function getGroups ():Promise<Groups> {
   return await getJSON('groups')
 }
+
+// state
+export async function saveState (state:{knownDevices:any, agendas:any, groups:any}):Promise<void> {
+  await postJSON('state', state)
+}
+
+export async function getState ():Promise<Groups> {
+  return await getJSON('state')
+}

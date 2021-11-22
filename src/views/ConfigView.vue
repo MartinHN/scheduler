@@ -3,12 +3,14 @@
       <button class=flash @click=resetAgendas >effacer tout Agendas</button>
           <button @click=resetAll> Reset All Devices And Group</button>
           <button @click='sm.isAdminMode=!sm.isAdminMode' :class={active:sm.isAdminMode} >AdminMode</button>
+          <button @click=downloadState  >Save settings</button><a id=downloadState style=display:none /><input type=file name=load @change="uploadState"/>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 
+import * as HTTPAPI from '@/API/HTTPAPI'
 import * as ServerAPI from '@/API/ServerAPI'
 
 import { Group, Groups, Device } from '@/API/ServerAPI'
@@ -40,6 +42,12 @@ export default class ConfigView extends Vue {
     ServerAPI.saveKnownDeviceDic(this.sm.knownDevices)
   }
 
+  get stateURL () {
+    const u = HTTPAPI.getSrvResURL('state')
+    console.log('state url is', u)
+    return u
+  }
+
   async resetAgendas ():Promise<void> {
     if (confirm('effacer tous les agendas?')) {
       await ServerAPI.resetDevicesAndGroups()
@@ -52,6 +60,30 @@ export default class ConfigView extends Vue {
       await ServerAPI.resetDevicesAndGroups()
       document.location.reload()
     }
+  }
+
+  async downloadState () {
+    const state = await ServerAPI.getState()
+    console.log('got state', state)
+    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(state))
+    const dob = document.getElementById('downloadState')
+    if (dob) {
+      dob.setAttribute('href', dataStr)
+      dob.setAttribute('download', 'state.json')
+      dob.click()
+    }
+  }
+
+  async uploadState (e) {
+    const file = e.target.files[0]
+    console.log('uploading state', file)
+    const fileReader = new FileReader()
+    fileReader.addEventListener('load', (event: any) => {
+      console.log('sending state')
+      ServerAPI.saveState(JSON.parse(event.target.result))
+    })
+    fileReader.readAsText(file)
+    // await ServerAPI.setState(a)
   }
 }
 </script>

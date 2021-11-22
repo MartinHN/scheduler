@@ -59,6 +59,7 @@ export default class DeviceViewComp extends Vue {
   _fetchDev =undefined as any
   mounted ():void {
     this._fetchDev = setTimeout(this.fetchDeviceInfo.bind(this), this.updateP)
+    this.sm.requestServerInfo()
   }
 
   get sm ():ServerModel { return (this.$root as any).sm }

@@ -21,18 +21,22 @@ export class ServerModel {
     constructor () {
       ws.init(this.newMessageFromWS.bind(this), (isCon) => {
         if (isCon) {
-          ws.send('server', { type: 'req', value: 'connectedDeviceList' })
-          ws.send('server', { type: 'req', value: 'isInaugurationMode' })
+          this.requestServerInfo()
         }
       })
       this.loadDevices()
       this.loadGroups()
       this.loadAgendaNames()
+      this.requestServerInfo()
+
+      this.loadAgendaFromFile('default.json')
+    }
+
+    requestServerInfo () :void{
       if (ws.isConnected()) {
         ws.send('server', { type: 'req', value: 'connectedDeviceList' })
         ws.send('server', { type: 'req', value: 'isInaugurationMode' })
       }
-      this.loadAgendaFromFile('default.json')
     }
 
     async loadDevices () :Promise<void> {

@@ -1,7 +1,7 @@
 <template>
   <div class="htmlCap"  >
     HTML
-<a :href=capURL> configuration </a>
+<a :href=capURL target=_blank > configuration </a>
   </div>
 </template>
 

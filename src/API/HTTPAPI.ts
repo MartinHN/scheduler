@@ -4,6 +4,10 @@ const serverURL = window.location.hostname
 const fromPort = window.location.port
 const serverPort = fromPort.startsWith('808') ? '3003' : fromPort
 
+export function getSrvResURL (path:string):string {
+  return `http://${serverURL}:${serverPort}/${path}`
+}
+
 export async function getJSON (path:string, d?:Device):Promise<any> {
   const requestOptions = {
     method: 'GET'
