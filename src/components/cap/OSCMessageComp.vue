@@ -19,7 +19,7 @@ export default class OSCMessageComp extends Vue {
   value!:OSCTrigMessage
 
   get isValid () {
-    return this.value.address && this.value.address.startsWith('/')
+    return this.value.address && (this.value.address.startsWith('/') || this.value.address.includes(':'))
   }
 
   setFromText (t) {
