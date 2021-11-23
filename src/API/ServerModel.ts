@@ -43,6 +43,11 @@ export class ServerModel {
       const savedKnownDevices = await ServerAPI.getKnownDeviceDic()
       const devs = {} as any
       for (const [k, v] of Object.entries(savedKnownDevices)) {
+        // const f = JSON.parse(JSON.stringify(v))
+        // // ignore live
+        // const liveP = ['activate', 'rssi']
+        // liveP.map(e => { if (f[e] !== undefined) delete f[e] })
+
         devs[v.uuid] = newEmptyDevice(v.deviceName, v)
       }
       this.knownDevices = devs
@@ -86,7 +91,7 @@ export class ServerModel {
         console.log('[ServerModel] new device list', v)
         const filled = v.data.map((d:Device) => newEmptyDevice(d.deviceName, d))
         this.connectedDeviceList = filled
-        this.loadDevices()
+        // this.loadDevices()
       } else if (allowedWSData.includes(v.type)) {
         console.log('[ServerModel] new allowed param', v);
         (this as any)[v.type] = v.data

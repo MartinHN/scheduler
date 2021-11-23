@@ -4,6 +4,8 @@
 <div class=row>
     <input v-model=conf.ip :class={invalid:!hasValidIp} @change=save />
     <input class=port type=number :value=conf.port :class={invalid:!hasValidPort} @change=setPort />
+    loopTime
+    <input class=port type=number :value=conf.loopTime  @change=setLoopTime />
 </div>
 <div class=col>
   <div>
