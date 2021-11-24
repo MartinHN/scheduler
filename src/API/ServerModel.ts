@@ -122,6 +122,7 @@ export class ServerModel {
     setDeviceNiceName (d:Device, nname:string):void{
       d.niceName = nname
       this.sendDeviceEvent(d.uuid, { type: 'niceName', value: nname })
+      ServerAPI.saveKnownDeviceDic(this.knownDevices)
     }
 
     setDeviceHostName (d:Device, nname:string):void{
