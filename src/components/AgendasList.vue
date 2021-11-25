@@ -72,10 +72,12 @@ export default class AgendasList extends Vue {
   }
 
   async eraseAgendaFile ():Promise<void> {
-    const name = this.currentAgendaName
-    ServerAPI.deleteAgenda(name)
-    this.loadFirstAvailableAgenda()
-    this.loadAgendaNamed(this.agendaNames[0])
+    const name = prompt("effacer l'agenda", this.currentAgendaName)
+    if (name) {
+      await this.sm.deleteAgenda(name)
+      await this.loadFirstAvailableAgenda()
+      this.loadAgendaNamed(this.agendaNames[0])
+    }
   }
 
   async loadAgendaNamed (name:string) :Promise<void> {

@@ -53,6 +53,6 @@ export async function deleteJSON (path:string, d?:Device):Promise<Response> {
     url = d.ip
     port = '' + d.port
   }
-  console.log('http', requestOptions.method)
+  console.log('http', requestOptions.method, path)
   return await fetch(`http://${url}:${port}/${path}`, requestOptions)
 }

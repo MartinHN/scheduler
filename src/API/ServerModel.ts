@@ -61,6 +61,8 @@ export class ServerModel {
       const data = await ServerAPI.getAgendaNames() as string[]
       if (data !== undefined) {
         this.agendaFileNames = data
+      } else {
+        console.error('no agenda names')
       }
     }
 
@@ -154,8 +156,18 @@ export class ServerModel {
       this._hasLoadedFirst = true
     }
 
+    async deleteAgenda (name:string):Promise<void> {
+      await ServerAPI.deleteAgenda(name)
+      await this.loadAgendaNames()
+      if (name === this.loadedAgenda?.name) {
+        console.warn('forcing reload agenda', name)
+        const newToLoad = this.agendaFileNames[0] || 'default.json'
+        this.loadAgendaFromFile(newToLoad)
+      }
+    }
+
     async resetAgendas ():Promise<void> {
       await ServerAPI.resetAgendas()
-      this.loadAgendaNames()
+      await this.loadAgendaNames()
     }
 }
