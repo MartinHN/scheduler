@@ -61,16 +61,19 @@ export default class AgendasView extends Vue {
   }
 
   saveCurrent () {
-    if (!this.sm._hasLoadedFirst) {
-      console.warn(' soon to save?') // bug with early change triggered
-      return
-    }
-    if (this.editedAgenda) {
-      console.log(this.editedAgenda)
-      ServerAPI.saveAgenda(this.editedAgenda.name + '.json', this.editedAgenda)
-    } else {
-      console.error('invalid agenda', this.editedAgenda)
-    }
+    // deffer for vue to be up to date
+    setTimeout(() => {
+      if (!this.sm._hasLoadedFirst) {
+        console.warn(' soon to save?') // bug with early change triggered
+        return
+      }
+      if (this.editedAgenda) {
+        console.log(this.editedAgenda)
+        ServerAPI.saveAgenda(this.editedAgenda.name + '.json', this.editedAgenda)
+      } else {
+        console.error('invalid agenda', this.editedAgenda)
+      }
+    }, 0)
   }
 }
 </script>

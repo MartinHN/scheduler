@@ -127,7 +127,10 @@ export default class DeviceViewComp extends Vue {
   }
 
   deviceChanged (k:string, newD:any) :void{
-    this.save()
+    // deffer for vue to be up to date
+    setTimeout(() => {
+      this.save()
+    }, 0)
   }
 
   toggleInfo (uuid:string) {

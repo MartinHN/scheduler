@@ -5,7 +5,7 @@
       <div>
         <div  class=row>
         <div><h1>{{currentGroupName? currentGroupName : "All"}}</h1></div>
-        <select v-if=Object.keys(currentGroup).length v-model=currentGroup.filename @input=saveGroups :class='{warn:!currentGroup.filename}'>
+        <select v-if=Object.keys(currentGroup).length v-model=currentGroup.agendaFileName @input=saveGroups :class='{warn:!currentGroup.agendaFileName}'>
             <option v-for="d of availableAgendas" :key=d.id :value=d >{{d}}</option>
         </select>
         <button @click=setGroupValue(true)> On Group </button>
@@ -76,7 +76,9 @@ export default class GroupView extends Vue {
   }
 
   save () :void{
-    ServerAPI.saveKnownDeviceDic(this.sm.knownDevices)
+    setTimeout(() => {
+      ServerAPI.saveKnownDeviceDic(this.sm.knownDevices)
+    }, 0)
   }
 
   get currentGroup ():Group {
@@ -101,8 +103,11 @@ export default class GroupView extends Vue {
     this.displayedDevices.forEach(e => { this.sm.activateDevice(e, b) })
   }
 
-  async saveGroups ():Promise<void> {
-    await ServerAPI.saveGroups(this.groups)
+  saveGroups (e) {
+    // deffer for vue to be up to date
+    setTimeout(() => {
+      ServerAPI.saveGroups(this.groups)
+    }, 0)
   }
 }
 </script>
