@@ -1,7 +1,7 @@
 <template>
   <div class="deviceRow" >
 
-          <button style=width:100% class=tab :class={notconnected:!connected,active:selected} @click=edit  > {{device.deviceName + " / " +device.niceName}}</button>
+          <button style=width:100% class=tab :class={notconnected:!connected,active:selected} @click=edit  > {{btnName}}</button>
           <button @click=setOnOff(!device.activate) :style="{background:device.activate?'green':'gray'}" > Turn {{device.activate?"Off":"On"}} </button>
           <!-- <button @click=setOnOff(true)> On </button>
           <button @click=setOnOff(false)> Off </button> -->
@@ -58,6 +58,14 @@ export default class DeviceRow extends Vue {
 
   edit ():void {
     this.$emit('edit', this.getDevice())
+  }
+
+  get btnName () :string {
+    let dN = this.device.deviceName
+    if (dN.endsWith('.local')) {
+      dN = dN.split('.local')[0]
+    }
+    return dN + ' / ' + this.device.niceName
   }
 
   // setName ():void {
