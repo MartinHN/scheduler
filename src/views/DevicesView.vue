@@ -5,6 +5,7 @@
    <div class=row v-if=sm.isAdminMode >
      <button @click=addDevice> Add Device </button>
     <button @click=removeDevice> Remove Device </button>
+    <button @click=syncAllDeviceTimes> Sync horloges </button>
    <br>
    </div>
    <div v-for="v of unregisteredDevice" :key=v.id>
@@ -70,6 +71,12 @@ export default class DeviceViewComp extends Vue {
 
   destroyed ():void {
     this.sm.setDNSActive(false)
+  }
+
+  syncAllDeviceTimes () {
+    if (confirm('synchronize tout horloge')) {
+      this.sm.syncAllDeviceTimes()
+    }
   }
 
   get unregisteredDevice ():Device[] {

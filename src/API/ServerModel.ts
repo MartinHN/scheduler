@@ -132,8 +132,31 @@ export class ServerModel {
       ServerAPI.saveKnownDeviceDic(this.knownDevices)
     }
 
-    setDeviceTimeStr (d:Device, nname:string):void{
-      this.sendDeviceEvent(d.uuid, { type: 'setTimeStr', value: nname })
+    dateToStr (dd:Date): string {
+      const d = new Date(dd)
+      let month = '' + (d.getMonth() + 1)
+      const year = '' + d.getFullYear()
+      let day = '' + d.getDate()
+      let hours = '' + d.getHours()
+      let min = '' + d.getMinutes()
+      let sec = '' + d.getSeconds()
+      if (month.length < 2) { month = '0' + month }
+      if (day.length < 2) { day = '0' + day }
+      if (hours.length < 2) { hours = '0' + hours }
+      if (min.length < 2) { min = '0' + min }
+      if (sec.length < 2) { sec = '0' + sec }
+
+      return day + '/' + month + '/' + year + ' ' + hours + ':' + min + ':' + sec
+    }
+
+    syncAllDeviceTimes () {
+      for (const d of Object.values(this.knownDevices)) {
+        this.setDeviceTimeStr(d, new Date())
+      }
+    }
+
+    setDeviceTimeStr (d:Device, dat:Date):void{
+      this.sendDeviceEvent(d.uuid, { type: 'setTimeStr', value: this.dateToStr(dat) })
     }
 
     setDeviceHostName (d:Device, nname:string):void{
