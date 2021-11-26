@@ -2,7 +2,7 @@ import { Device, DeviceDic, Groups, newEmptyDevice, Group, createDefaultAgenda }
 import * as ServerAPI from '@/API/ServerAPI'
 import ws from '../ws'
 
-const allowedWSData = ['isInaugurationMode'] as string[]
+const allowedWSData = ['isInaugurationMode', 'isAgendaDisabled'] as string[]
 
 export class ServerModel {
     connectedDeviceList=[] as Device[]
@@ -17,6 +17,7 @@ export class ServerModel {
     _hasLoadedFirst=false;
 
     isInaugurationMode=false;
+    isAgendaDisabled = false;
 
     constructor () {
       ws.init(this.newMessageFromWS.bind(this), (isCon) => {
@@ -36,6 +37,7 @@ export class ServerModel {
       if (ws.isConnected()) {
         ws.send('server', { type: 'req', value: 'connectedDeviceList' })
         ws.send('server', { type: 'req', value: 'isInaugurationMode' })
+        ws.send('server', { type: 'req', value: 'isAgendaDisabled' })
       }
     }
 
@@ -108,6 +110,11 @@ export class ServerModel {
     setInaugurationMode (b):void {
       this.isInaugurationMode = b
       ws.send('server', { type: 'isInaugurationMode', value: b ? 1 : 0 })
+    }
+
+    setAgendaDisabled (b:boolean) {
+      this.isAgendaDisabled = b
+      ws.send('server', { type: 'isAgendaDisabled', value: b ? 1 : 0 })
     }
 
     setDNSActive (b):void {

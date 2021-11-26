@@ -1,5 +1,6 @@
 <template>
   <div class="group chooser row" >
+    <button :class={active:sm.isAgendaDisabled} :value=sm.isAgendaDisabled @click=sm.setAgendaDisabled(!sm.isAgendaDisabled)>  Agenda inactif  </button>
       <select style=width:100% :value=currentAgendaName @change="loadAgendaNamed($event.target.value)">
           <option style=width:100% v-for="v of agendaNames" :key=v.id :value=v>{{v}}</option>
       </select>
