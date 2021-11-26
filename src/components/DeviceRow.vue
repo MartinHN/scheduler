@@ -40,6 +40,7 @@ export default class DeviceRow extends Vue {
     this.sm.sendDeviceEvent(this.device.uuid, { type: 'activate' })
     this.sm.sendDeviceEvent(this.device.uuid, { type: 'niceName' })
     this.fetchDeviceInfo()
+    this.connected = true
   }
 
   destroyed ():void {
