@@ -67,11 +67,13 @@ export default class DeviceInfo extends Vue {
     const year = '' + d.getFullYear()
     let day = '' + d.getDate()
     let hours = '' + d.getHours()
-    const min = '' + d.getMinutes()
-    const sec = '' + d.getSeconds()
+    let min = '' + d.getMinutes()
+    let sec = '' + d.getSeconds()
     if (month.length < 2) { month = '0' + month }
     if (day.length < 2) { day = '0' + day }
     if (hours.length < 2) { hours = '0' + hours }
+    if (min.length < 2) { min = '0' + min }
+    if (sec.length < 2) { sec = '0' + sec }
 
     return day + '/' + month + '/' + year + ' ' + hours + ':' + min + ':' + sec
   }
@@ -87,6 +89,7 @@ export default class DeviceInfo extends Vue {
     const ds = this.formatDate(new Date())
     console.log('sending date', ds)
     this.sm.setDeviceTimeStr(this.device, ds)
+    this.refreshTime()
   }
 
   get localTime () {

@@ -133,7 +133,7 @@ export class ServerModel {
     }
 
     setDeviceTimeStr (d:Device, nname:string):void{
-      this.sendDeviceEvent(d.uuid, { type: 'timeStr', value: nname })
+      this.sendDeviceEvent(d.uuid, { type: 'setTimeStr', value: nname })
     }
 
     setDeviceHostName (d:Device, nname:string):void{
