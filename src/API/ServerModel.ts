@@ -127,6 +127,10 @@ export class ServerModel {
       ServerAPI.saveKnownDeviceDic(this.knownDevices)
     }
 
+    setDeviceTimeStr (d:Device, nname:string):void{
+      this.sendDeviceEvent(d.uuid, { type: 'timeStr', value: nname })
+    }
+
     setDeviceHostName (d:Device, nname:string):void{
       d.deviceName = nname
       this.sendDeviceEvent(d.uuid, { type: 'hostName', value: nname })
