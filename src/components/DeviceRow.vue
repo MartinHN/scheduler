@@ -31,16 +31,22 @@ export default class DeviceRow extends Vue {
   @Prop({ required: true })
   device!:Device;
 
+  updateP = 3000;
+  lastAsked = new Date();
+  _fetchDev =undefined as any
+  connected = false;
   mounted () {
     // ask actual state without args
     this.sm.sendDeviceEvent(this.device.uuid, { type: 'activate' })
     this.sm.sendDeviceEvent(this.device.uuid, { type: 'niceName' })
+    this.fetchDeviceInfo()
+  }
+
+  destroyed ():void {
+    if (this._fetchDev) { clearTimeout(this._fetchDev) }
   }
 
   get sm ():ServerModel { return (this.$root as any).sm }
-  get connected () :boolean {
-    return this.sm.isDeviceConnected(this.getDevice().uuid)
-  }
 
   get groupNames () {
     return Object.keys(this.sm.groups)
@@ -66,6 +72,20 @@ export default class DeviceRow extends Vue {
       dN = dN.split('.local')[0]
     }
     return dN + ' / ' + this.device.niceName
+  }
+
+  fetchDeviceInfo ():void {
+    console.log('fetching')
+    // if (this.sm.isAdminMode) {
+    const dt = this.device?.lastTimeModified.getTime() - this.lastAsked.getTime()
+    this.sm.sendDeviceEvent(this.device.uuid, { type: 'rssi' })
+    const now = new Date()
+    this.lastAsked = now
+
+    console.log(dt)
+    this.connected = dt >= 0 && dt < this.updateP + 3000
+    // }
+    this._fetchDev = setTimeout(this.fetchDeviceInfo.bind(this), this.updateP)
   }
 
   // setName ():void {

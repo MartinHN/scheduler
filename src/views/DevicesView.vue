@@ -53,13 +53,11 @@ import { ServerModel } from '@/API/ServerModel'
 export default class DeviceViewComp extends Vue {
   // availableGroups = [] as Groups
 
-  updateP = 2000
-
   selectedDeviceUUID=''
-  _fetchDev =undefined as any
+
   mounted ():void {
-    this._fetchDev = setTimeout(this.fetchDeviceInfo.bind(this), this.updateP)
     this.sm.requestServerInfo()
+    this.sm.setDNSActive(true)
   }
 
   get sm ():ServerModel { return (this.$root as any).sm }
@@ -71,17 +69,7 @@ export default class DeviceViewComp extends Vue {
   }
 
   destroyed ():void {
-    if (this._fetchDev) { clearTimeout(this._fetchDev) }
-  }
-
-  fetchDeviceInfo ():void {
-    for (const d of Object.values(this.connectedDeviceList)) {
-      if (this.sm.isAdminMode) {
-        this.sendDeviceEvent(d.uuid, { type: 'rssi' })
-      }
-    }
-
-    this._fetchDev = setTimeout(this.fetchDeviceInfo.bind(this), this.updateP)
+    this.sm.setDNSActive(false)
   }
 
   get unregisteredDevice ():Device[] {

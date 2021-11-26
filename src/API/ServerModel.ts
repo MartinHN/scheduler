@@ -79,9 +79,10 @@ export class ServerModel {
           const prop = msg.address.substr(1)
           const value = msg.args[0]
           const availableProps = Object.keys(dev) // ['rssi']
-          //   console.log('new resp', prop, value)
+          console.log('new resp', prop, value)
           if (availableProps.includes(prop)) {
             (dev as any)[prop] = value
+            dev.lastTimeModified = new Date()
           } else {
             console.error('[ServerModel] unknown prop', prop, availableProps, msg)
           }
@@ -107,6 +108,10 @@ export class ServerModel {
     setInaugurationMode (b):void {
       this.isInaugurationMode = b
       ws.send('server', { type: 'isInaugurationMode', value: b ? 1 : 0 })
+    }
+
+    setDNSActive (b):void {
+      ws.send('server', { type: 'isDNSActive', value: b ? 1 : 0 })
     }
 
     isDeviceConnected (uuid:string):boolean {
