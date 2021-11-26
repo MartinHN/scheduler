@@ -9,21 +9,21 @@
 </div>
 <div class=col>
   <div>
-onMessages
-<div class=row>
-<button @click=addMsg(true) >+</button><button v-if="conf.onMessages && conf.onMessages.length" @click=rmMsg(true) >-</button>
-</div>
-    <OSCMessageComp v-for="m,i of conf.onMessages" :value=m @input="msgChange(true,$event,i)" :key=m.id></OSCMessageComp>
-  </div>
+    onMessages
+    <div class=row>
+    <button @click=addMsg(true) >+</button><button v-if="conf.onMessages && conf.onMessages.length" @click=rmMsg(true) >-</button>
+    </div>
+        <OSCMessageComp v-for="m,i of conf.onMessages" :value=m @input="msgChange(true,$event,i)" :key=m.id></OSCMessageComp>
+      </div>
   <div>
-offMessages
-<div class=row>
-<button @click=addMsg(false) >+</button><button v-if="conf.offMessages && conf.offMessages.length" @click=rmMsg(false) >-</button>
+    offMessages
+    <div class=row>
+    <button @click=addMsg(false) >+</button><button v-if="conf.offMessages && conf.offMessages.length" @click=rmMsg(false) >-</button>
+    </div>
+        <OSCMessageComp v-for="m,i of conf.offMessages" :value=m @input="msgChange(false,$event,i)" :key=m.id></OSCMessageComp>
+    </div>
 </div>
-    <OSCMessageComp v-for="m,i of conf.offMessages" :value=m @input="msgChange(false,$event,i)" :key=m.id></OSCMessageComp>
 </div>
-</div>
-  </div>
 </template>
 
 <script lang="ts">
@@ -77,6 +77,11 @@ export default class OSCCapComp extends Vue {
     this.save()
   }
 
+  setLoopTime (ev) {
+    this.conf.loopTime = parseInt(ev.target.value)
+    this.save()
+  }
+
   msgChange (on:boolean, e, i) {
     console.log('msg is', e)
     const msgList = on ? this.conf.onMessages : this.conf.offMessages
@@ -100,6 +105,7 @@ export default class OSCCapComp extends Vue {
     if (this.isValid) { setCapForDevice(this.name, this.device, JSON.parse(JSON.stringify(this.conf))) } else { console.log('not saving osc not valid') }
   }
 }
+
 </script>
 
 <style scoped>

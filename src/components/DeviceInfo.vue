@@ -10,7 +10,7 @@
 <div  >{{device.ip + ":" +device.port}}</div>
 <div @click=setHostName> {{ device.deviceName}} </div>
 <button @click=reboot class=warn> reboot </button>
-<div>{{localTime}}</div>
+<div @click=askUpdateTime>{{localTime}}</div>
 </span>
 <div class=row>
   <button :class="{active:selectedCapName==c}" @click="selectedCapName=c" v-for="c of validCapNames"  :key=c.id>{{c}}</button>
@@ -59,6 +59,34 @@ export default class DeviceInfo extends Vue {
 
   async refreshTime () {
     this.deviceTimeInfo = await getTimeInfoForDevice(this.device).catch(e => console.error('time not avazilable on endpoint', e))
+  }
+
+  formatDate (dd:Date) {
+    const d = new Date(dd)
+    let month = '' + (d.getMonth() + 1)
+    const year = '' + d.getFullYear()
+    let day = '' + d.getDate()
+    let hours = '' + d.getHours()
+    const min = '' + d.getMinutes()
+    const sec = '' + d.getSeconds()
+    if (month.length < 2) { month = '0' + month }
+    if (day.length < 2) { day = '0' + day }
+    if (hours.length < 2) { hours = '0' + hours }
+
+    return day + '/' + month + '/' + year + ' ' + hours + ':' + min + ':' + sec
+  }
+
+  askUpdateTime () {
+    const ds = this.formatDate(new Date())
+    if (confirm('update time? to ' + ds)) {
+      this.updateFromLocal()
+    }
+  }
+
+  updateFromLocal () {
+    const ds = this.formatDate(new Date())
+    console.log('sending date', ds)
+    this.sm.setDeviceTimeStr(this.device, ds)
   }
 
   get localTime () {
