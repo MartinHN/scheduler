@@ -70,7 +70,7 @@ export class ServerModel {
 
     newMessageFromWS (v:any):void {
       // set specific device info
-      //   console.log('[ServerModel] new ws msg', v)
+      console.log('[ServerModel] new ws msg', v)
       if (v.type && v.type === 'resp') {
         const { uuid, deviceName, msg } = v
         let dev = this.knownDevices[uuid] as any
