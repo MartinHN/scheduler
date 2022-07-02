@@ -1,9 +1,19 @@
 <template>
-  <div class="config" >
-      <button class=flash @click=resetAgendas >effacer tout Agendas</button>
-          <button @click=resetAll> Reset All Devices And Group</button>
-          <button @click='sm.isAdminMode=!sm.isAdminMode' :class={active:sm.isAdminMode} >AdminMode</button>
-          <button @click=downloadState  >Save settings</button><a id=downloadState style=display:none /><input type=file name=load @change="uploadState"/>
+  <div class="config">
+    <button class="flash" @click="resetAgendas">effacer tout Agendas</button>
+    <button @click="resetAll">Reset All Devices And Group</button>
+    <button
+      @click="sm.isAdminMode = !sm.isAdminMode"
+      :class="{ active: sm.isAdminMode }"
+    >
+      AdminMode
+    </button>
+    <button @click="downloadState">Save settings</button
+    ><a id="downloadState" style="display: none" /><input
+      type="file"
+      name="load"
+      @change="uploadState"
+    />
   </div>
 </template>
 
@@ -19,18 +29,26 @@ import GroupList from '@/components/GroupList.vue'
 import DeviceRow from '@/components/DeviceRow.vue'
 import { ServerModel } from '@/API/ServerModel'
 @Component({
-  components: {
-
-  }
+  components: {}
 })
 export default class ConfigView extends Vue {
-  get sm ():ServerModel { return (this.$root as any).sm }
-  get connectedDeviceList () { return this.sm.connectedDeviceList }
-  get knownDeviceList () { return Object.values(this.sm.knownDevices) }
-  get groups () { return this.sm.groups }
+  get sm (): ServerModel {
+    return (this.$root as any).sm
+  }
 
-  mounted (): void{
+  get connectedDeviceList () {
+    return this.sm.connectedDeviceList
+  }
 
+  get knownDeviceList () {
+    return Object.values(this.sm.knownDevices)
+  }
+
+  get groups () {
+    return this.sm.groups
+  }
+
+  mounted (): void {
     //     if (!this.currentGroupName && Object.keys(this.groups).length > 0) {
     //   const firstName = Object.keys(this.groups)[0]
     //   console.log('forcing currentGroup to', firstName)
@@ -38,7 +56,7 @@ export default class ConfigView extends Vue {
     // }
   }
 
-  save () :void{
+  save (): void {
     ServerAPI.saveKnownDeviceDic(this.sm.knownDevices)
   }
 
@@ -48,14 +66,14 @@ export default class ConfigView extends Vue {
     return u
   }
 
-  async resetAgendas ():Promise<void> {
+  async resetAgendas (): Promise<void> {
     if (confirm('effacer tous les agendas?')) {
       await ServerAPI.resetDevicesAndGroups()
       document.location.reload()
     }
   }
 
-  async resetAll ():Promise<void> {
+  async resetAll (): Promise<void> {
     if (confirm('effacer tous les devices et groupes?')) {
       await ServerAPI.resetDevicesAndGroups()
       document.location.reload()
@@ -65,7 +83,9 @@ export default class ConfigView extends Vue {
   async downloadState () {
     const state = await ServerAPI.getState()
     console.log('got state', state)
-    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(state))
+    const dataStr =
+      'data:text/json;charset=utf-8,' +
+      encodeURIComponent(JSON.stringify(state))
     const dob = document.getElementById('downloadState')
     if (dob) {
       dob.setAttribute('href', dataStr)
@@ -90,18 +110,17 @@ export default class ConfigView extends Vue {
 
     <!--Add "scoped" attribute to limit CSS to this component only-->
 <style scoped>
- div.grouplist{
-     /* overflow-y: auto; */
-    max-height: 700px;
-    position: sticky;
-    align-self: flex-start;
-    top:calc(var(--nav-header-h) - var(--btn-h));
+div.grouplist {
+  /* overflow-y: auto; */
+  max-height: 700px;
+  position: sticky;
+  align-self: flex-start;
+  top: calc(var(--nav-header-h) - var(--btn-h));
 }
 
-.main{
-  display:grid;
-  grid-template-columns:1fr 3fr;
+.main {
+  display: grid;
+  grid-template-columns: 1fr 3fr;
   grid-gap: 15px;
 }
-
 </style>

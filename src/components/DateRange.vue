@@ -1,20 +1,24 @@
 <template>
-  <div >
-    <div class=row style=justify-content:space-evenly;>
-
-      <DatePicker  locale="fr" :value=startDate :attributes="getAttr('startInput')" @dayclick='dateClick("start",$event) ' >
-        <template  v-slot="{ inputValue,inputEvents }">
+  <div>
+    <div class="row" style="justify-content: space-evenly">
+      <DatePicker
+        locale="fr"
+        :value="startDate"
+        :attributes="getAttr('startInput')"
+        @dayclick="dateClick('start', $event)"
+      >
+        <template v-slot="{ inputValue, inputEvents }">
           de
-         <input
-              id="startInput"
-              style=font-size:1em
-              :value="inputValue"
-              v-on=inputEvents
-            />
+          <input
+            id="startInput"
+            style="font-size: 1em"
+            :value="inputValue"
+            v-on="inputEvents"
+          />
         </template>
       </DatePicker>
       <svg
-      style=max-width:50px
+        style="max-width: 50px"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
@@ -26,19 +30,24 @@
           d="M14 5l7 7m0 0l-7 7m7-7H3"
         />
       </svg>
-      <DatePicker   locale="fr" :min-date=startDate  :value=endDate :attributes="getAttr('endInput')" @dayclick='dateClick("end",$event)' >
-        <template  v-slot="{ inputValue,inputEvents }">
-      à
-         <input
-              id="endInput"
-              style=font-size:1em
-              :value="inputValue"
-              v-on=inputEvents
-            />
+      <DatePicker
+        locale="fr"
+        :min-date="startDate"
+        :value="endDate"
+        :attributes="getAttr('endInput')"
+        @dayclick="dateClick('end', $event)"
+      >
+        <template v-slot="{ inputValue, inputEvents }">
+          à
+          <input
+            id="endInput"
+            style="font-size: 1em"
+            :value="inputValue"
+            v-on="inputEvents"
+          />
         </template>
       </DatePicker>
     </div>
-
   </div>
 </template>
 
@@ -50,8 +59,8 @@ import { DatePicker } from 'v-calendar'
 import * as ServerAPI from '@/API/ServerAPI'
 
 interface DateRange {
-    start: string,
-    end: string
+  start: string;
+  end: string;
 }
 
 @Component({
@@ -61,14 +70,24 @@ interface DateRange {
 })
 export default class DateRangeComp extends Vue {
   @Prop({ required: true })
-  private value !:DateRange
+  private value!: DateRange;
 
   mounted () {
-    console.log(this.value, '>>>>', ServerAPI.dateDayFromString(this.value.start))
+    console.log(
+      this.value,
+      '>>>>',
+      ServerAPI.dateDayFromString(this.value.start)
+    )
   }
 
-  getAttr (hint:string):any {
-    return [{ key: hint, highlight: 'blue', dates: { start: this.startDate, end: this.endDate } }]
+  getAttr (hint: string): any {
+    return [
+      {
+        key: hint,
+        highlight: 'blue',
+        dates: { start: this.startDate, end: this.endDate }
+      }
+    ]
   }
 
   get startDate () {
@@ -79,7 +98,7 @@ export default class DateRangeComp extends Vue {
     return ServerAPI.dateDayFromString(this.value.end)
   }
 
-  private dateClick (id:any, e:any) {
+  private dateClick (id: any, e: any) {
     // const newD = this.value // JSON.parse(JSON.stringify(this.value))// { start: this.value.start, end: this.value.end }
     if (id === 'start') {
       if (e.date > this.endDate) {
@@ -99,9 +118,9 @@ export default class DateRangeComp extends Vue {
 
     this.$emit('input', this.value)
 
-  // const tmp = this.value.start
-  // this.value.start = this.value.end
-  // this.value.end = tmp
+    // const tmp = this.value.start
+    // this.value.start = this.value.end
+    // this.value.end = tmp
   }
 }
 </script>

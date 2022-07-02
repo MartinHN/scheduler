@@ -1,11 +1,20 @@
 <template>
-  <div class="oscCap"  >
+  <div class="oscCap">
     <!-- OSC : {{value}} -->
-<div class=row>
-    <input class=address v-model=value.address :class={invalid:!isValid} @input=save />
+    <div class="row">
+      <input
+        class="address"
+        v-model="value.address"
+        :class="{ invalid: !isValid }"
+        @input="save"
+      />
 
-<input class=args :value="value.args.join(' ')" @input=setFromText($event.target.value) />
-</div>
+      <input
+        class="args"
+        :value="value.args.join(' ')"
+        @input="setFromText($event.target.value)"
+      />
+    </div>
   </div>
 </template>
 
@@ -16,10 +25,13 @@ import { OSCTrigMessage } from '@/API/types/CapTypes'
 @Component({})
 export default class OSCMessageComp extends Vue {
   @Prop({ required: true })
-  value!:OSCTrigMessage
+  value!: OSCTrigMessage;
 
   get isValid () {
-    return this.value.address && (this.value.address.startsWith('/') || this.value.address.includes(':'))
+    return (
+      this.value.address &&
+      (this.value.address.startsWith('/') || this.value.address.includes(':'))
+    )
   }
 
   setFromText (t) {
@@ -29,20 +41,23 @@ export default class OSCMessageComp extends Vue {
   }
 
   save () {
-    if (this.isValid) { this.$emit('input', this.value) } else { console.log('invalid msg not saving') }
+    if (this.isValid) {
+      this.$emit('input', this.value)
+    } else {
+      console.log('invalid msg not saving')
+    }
   }
 }
 </script>
 
 <style scoped>
-
-.invalid{
-  background:red
+.invalid {
+  background: red;
 }
 /* .address{
   max-width: 100px
 } */
-.args{
-  max-width: 200px
+.args {
+  max-width: 200px;
 }
 </style>

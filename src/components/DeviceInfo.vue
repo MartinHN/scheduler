@@ -1,25 +1,34 @@
 <template>
-  <div class="deviceInfo"  >
-    <div v-if=!sm.isDeviceConnected(device.uuid)>
-   NotConnected
+  <div class="deviceInfo">
+    <div v-if="!sm.isDeviceConnected(device.uuid)">NotConnected</div>
+    <span class="row">
+      <button @click="setName">{{ device.niceName }} (edit)</button>
+
+      <div>{{ device.ip + ":" + device.port }}</div>
+      <div @click="setHostName">{{ device.deviceName }}</div>
+      <button @click="reboot" class="warn">reboot</button>
+      <div @click="askUpdateTime">{{ localTime }}</div>
+    </span>
+    <div class="row">
+      <button
+        :class="{ active: selectedCapName == c }"
+        @click="selectedCapName = c"
+        v-for="c of validCapNames"
+        :key="c.id"
+      >
+        {{ c }}
+      </button>
     </div>
-<span class=row>
-
-    <button @click=setName>{{device.niceName}} (edit) </button>
-
-<div  >{{device.ip + ":" +device.port}}</div>
-<div @click=setHostName> {{ device.deviceName}} </div>
-<button @click=reboot class=warn> reboot </button>
-<div @click=askUpdateTime>{{localTime}}</div>
-</span>
-<div class=row>
-  <button :class="{active:selectedCapName==c}" @click="selectedCapName=c" v-for="c of validCapNames"  :key=c.id>{{c}}</button>
-</div>
-  <div v-if=selectedCapName >
-    <component :is=selectedCapComponentName :name=selectedCapName :port=selectedCapPort :device=device> </component>
-  </div>
-<!-- <div>{{JSON.stringify(device)}}</div> -->
-
+    <div v-if="selectedCapName">
+      <component
+        :is="selectedCapComponentName"
+        :name="selectedCapName"
+        :port="selectedCapPort"
+        :device="device"
+      >
+      </component>
+    </div>
+    <!-- <div>{{JSON.stringify(device)}}</div> -->
   </div>
 </template>
 
@@ -34,17 +43,19 @@ import HTMLCap from './cap/HTMLCap.vue'
 @Component({ components: { OSCCap, HTMLCap } })
 export default class DeviceInfo extends Vue {
   @Prop({ required: true })
-  device!:Device;
+  device!: Device;
 
-  deviceTimeInfo= { localTime: '', utcTime: '' };
-  _fetchTime =undefined as any
+  deviceTimeInfo = { localTime: '', utcTime: '' };
+  _fetchTime = undefined as any;
   selectedCapName = '';
 
   mounted () {
     // ask actual state without args
     this.sm.sendDeviceEvent(this.device.uuid, { type: 'activate' })
     this.sm.sendDeviceEvent(this.device.uuid, { type: 'niceName' })
-    if (this._fetchTime) { clearTimeout(this._fetchTime) }
+    if (this._fetchTime) {
+      clearTimeout(this._fetchTime)
+    }
     // this._fetchTime = setInterval(async () => {
     //   await this.refreshTime()
     // }, 5000)
@@ -58,7 +69,9 @@ export default class DeviceInfo extends Vue {
   }
 
   async refreshTime () {
-    this.deviceTimeInfo = await getTimeInfoForDevice(this.device).catch(e => console.error('time not avazilable on endpoint', e))
+    this.deviceTimeInfo = await getTimeInfoForDevice(this.device).catch((e) =>
+      console.error('time not avazilable on endpoint', e)
+    )
   }
 
   askUpdateTime () {
@@ -76,16 +89,30 @@ export default class DeviceInfo extends Vue {
   }
 
   get localTime () {
-    if ((!this.deviceTimeInfo) || !this.deviceTimeInfo.localTime) { return 'no time' }
-    return (new Date(this.deviceTimeInfo.localTime)).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' })
+    if (!this.deviceTimeInfo || !this.deviceTimeInfo.localTime) {
+      return 'no time'
+    }
+    return new Date(this.deviceTimeInfo.localTime).toLocaleDateString('fr-FR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric'
+    })
   }
 
-  destroyed ():void {
-    if (this._fetchTime) { clearTimeout(this._fetchTime) }
+  destroyed (): void {
+    if (this._fetchTime) {
+      clearTimeout(this._fetchTime)
+    }
   }
 
-  get sm ():ServerModel { return (this.$root as any).sm }
-  get connected () :boolean {
+  get sm (): ServerModel {
+    return (this.$root as any).sm
+  }
+
+  get connected (): boolean {
     return this.sm.isDeviceConnected(this.getDevice().uuid)
   }
 
@@ -115,17 +142,17 @@ export default class DeviceInfo extends Vue {
     return Object.keys(this.sm.groups)
   }
 
-  getDevice ():Device {
+  getDevice (): Device {
     return this.device // return { deviceName: this.deviceName, ip: this.ip, niceName: this.niceName, rssi: this.rssi, uuid: this.uuid }
   }
 
-  emitChange (k:string, v:any) :void{
+  emitChange (k: string, v: any): void {
     const d = this.getDevice() as any
     d[k] = v
     this.$emit('input', d)
   }
 
-  setName ():void {
+  setName (): void {
     const gn = prompt('device name', this.getDevice().niceName)
     if (gn) {
       this.emitChange('niceName', gn)
@@ -133,8 +160,11 @@ export default class DeviceInfo extends Vue {
     }
   }
 
-  setHostName ():void {
-    const hn = prompt('set HostName ,\n !!!! Reboot after this !!!', this.device.deviceName)
+  setHostName (): void {
+    const hn = prompt(
+      'set HostName ,\n !!!! Reboot after this !!!',
+      this.device.deviceName
+    )
     if (hn) {
       this.sm.setDeviceHostName(this.device, hn)
     }
@@ -150,8 +180,8 @@ export default class DeviceInfo extends Vue {
 </script>
 
 <style scoped>
-.notConnected{
+.notConnected {
   background: red;
-  font-size:5em;
+  font-size: 5em;
 }
 </style>

@@ -1,11 +1,19 @@
 <template>
-  <div class=inauguration>
+  <div class="inauguration">
     <!-- <button @click='this.$router.push("Home")'> back </button> -->
 
-<div class=row >
-<img src="img/greenButton.png" :class="{inactive:!isActive}" @click=setLight(true) />
-<img src="img/redButton.png" :class="{inactive:isActive}" @click=setLight(false) />
-</div>
+    <div class="row">
+      <img
+        src="img/greenButton.png"
+        :class="{ inactive: !isActive }"
+        @click="setLight(true)"
+      />
+      <img
+        src="img/redButton.png"
+        :class="{ inactive: isActive }"
+        @click="setLight(false)"
+      />
+    </div>
   </div>
 </template>
 
@@ -15,11 +23,12 @@ import { ServerModel } from '@/API/ServerModel'
 import { Component, Prop, Vue } from 'vue-property-decorator'
 
 @Component({
-  components: {
-  }
+  components: {}
 })
 export default class InaugurationComp extends Vue {
-  get sm ():ServerModel { return (this.$root as any).sm }
+  get sm (): ServerModel {
+    return (this.$root as any).sm
+  }
 
   get isActive () {
     return this.sm.isInaugurationMode
@@ -33,11 +42,10 @@ export default class InaugurationComp extends Vue {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
-img{
-  max-width:45vw
+img {
+  max-width: 45vw;
 }
- .inactive{
+.inactive {
   filter: brightness(0.5);
 }
 </style>

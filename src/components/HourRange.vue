@@ -1,14 +1,9 @@
 <template>
   <div class="hours">
-    <div style='display:grid;grid-template:15px 1fr / 1fr 10px 1fr;'>
-    <div>
-      début
-</div>
-<div/>
-    <div >
-     fin {{ nextDayText
-      }}
-      </div>
+    <div style="display: grid; grid-template: 15px 1fr / 1fr 10px 1fr">
+      <div>début</div>
+      <div />
+      <div>fin {{ nextDayText }}</div>
       <vue-timepicker
         v-model="value.start"
         @change="timeChanged"
@@ -16,8 +11,8 @@
         hide-clear-button
       ></vue-timepicker>
 
-          <svg
-      style=width:30px
+      <svg
+        style="width: 30px"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
@@ -31,13 +26,12 @@
       </svg>
 
       <vue-timepicker
-
         v-model="value.end"
         @change="timeChanged"
         :minute-interval="15"
         hide-clear-button
       ></vue-timepicker>
-  </div>
+    </div>
   </div>
 </template>
 
@@ -45,7 +39,7 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import VueTimepicker from 'vue2-timepicker/src/vue-timepicker.vue'
 import { HourRange } from '@/API/ServerAPI'
-const isValidTimeString = (s: string):boolean => {
+const isValidTimeString = (s: string): boolean => {
   return s.length > 0 && !s.includes('HH') // && !s.includes('mm')
 }
 
@@ -63,16 +57,20 @@ export default class HourRangeComp extends Vue {
   @Prop({ required: true })
   public value!: HourRange;
 
-  timeChanged (e:any): void {
+  timeChanged (e: any): void {
     // console.log('>>>>>', this.isValid)
-    if (this.isValid) { this.$emit('input', { start: this.value.start, end: this.value.end }) }
+    if (this.isValid) {
+      this.$emit('input', { start: this.value.start, end: this.value.end })
+    }
   }
 
-  get isValid ():boolean {
-    return isValidTimeString(this.value.start) && isValidTimeString(this.value.end)
+  get isValid (): boolean {
+    return (
+      isValidTimeString(this.value.start) && isValidTimeString(this.value.end)
+    )
   }
 
-  get nextDay () :boolean {
+  get nextDay (): boolean {
     return (
       this.isValid &&
       getSeconds(this.value.start) > getSeconds(this.value.end) &&
@@ -80,7 +78,7 @@ export default class HourRangeComp extends Vue {
     )
   }
 
-  get nextDayText () :string {
+  get nextDayText (): string {
     return this.nextDay ? ' j+1' : ''
   }
 }
@@ -88,16 +86,16 @@ export default class HourRangeComp extends Vue {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-    .hours{
-      /* display: flex; */
-    /* flex-wrap: wrap; */
-    /* flex-direction: column; */
-    /* align-content: center; */
-    /* align-items: center; */
-        align-self: center;
-    }
-    .time-picker{
-      min-width: 50px;
-      width:inherit;
-    }
-    </style>
+.hours {
+  /* display: flex; */
+  /* flex-wrap: wrap; */
+  /* flex-direction: column; */
+  /* align-content: center; */
+  /* align-items: center; */
+  align-self: center;
+}
+.time-picker {
+  min-width: 50px;
+  width: inherit;
+}
+</style>

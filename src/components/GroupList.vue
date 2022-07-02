@@ -1,10 +1,21 @@
 <template>
   <div>
-   <div class=row > <button @click=addGroup> Ajout Groupe </button>
-    <button @click=removeGroup> Effacer Groupe </button>
-   </div>
-   <button @click=setSelected() :class="{active:!selected}" > Afficher tous </button>
-    <button v-for="v of groupList" :key=v.id @click=setSelected(v)  :class="{active:selectedGroupName===v.name}" class=tab >{{v.name}} ( {{devicesInGroup(v).length}} )</button>
+    <div class="row">
+      <button @click="addGroup">Ajout Groupe</button>
+      <button @click="removeGroup">Effacer Groupe</button>
+    </div>
+    <button @click="setSelected()" :class="{ active: !selected }">
+      Afficher tous
+    </button>
+    <button
+      v-for="v of groupList"
+      :key="v.id"
+      @click="setSelected(v)"
+      :class="{ active: selectedGroupName === v.name }"
+      class="tab"
+    >
+      {{ v.name }} ( {{ devicesInGroup(v).length }} )
+    </button>
   </div>
 </template>
 
@@ -19,16 +30,23 @@ import { ServerModel } from '@/API/ServerModel'
 @Component({})
 export default class GroupListComp extends Vue {
   @Prop({ required: true })
-  groups!:Groups
+  groups!: Groups;
 
-  get sm ():ServerModel { return (this.$root as any).sm }
-  selected:Group| null = null
-  mounted () :void{
+  get sm (): ServerModel {
+    return (this.$root as any).sm
+  }
+
+  selected: Group | null = null;
+  mounted (): void {
     this.setSelected(null)
   }
 
-  setSelected (g:Group|null) :void{
-    if (this.selected && (g === this.selected)) { this.selected = null } else { this.selected = g }
+  setSelected (g: Group | null): void {
+    if (this.selected && g === this.selected) {
+      this.selected = null
+    } else {
+      this.selected = g
+    }
     this.$emit('input', this.selected)
   }
 
@@ -36,15 +54,15 @@ export default class GroupListComp extends Vue {
     return this.selected?.name
   }
 
-  get groupList () :Group[] {
+  get groupList (): Group[] {
     return Array.from(Object.values(this.groups))
   }
 
-  devicesInGroup (g:Group):Device[] {
+  devicesInGroup (g: Group): Device[] {
     return this.sm.devicesInGroup(g)
   }
 
-  async addGroup ():Promise<void> {
+  async addGroup (): Promise<void> {
     const gn = prompt('group name', '')
     if (gn) {
       const group = ServerAPI.newEmptyGroup(gn)
@@ -54,7 +72,7 @@ export default class GroupListComp extends Vue {
     }
   }
 
-  async removeGroup (n:string):Promise<void> {
+  async removeGroup (n: string): Promise<void> {
     const gn = prompt('group name', this.selectedGroupName)
     if (gn) {
       await Vue.delete(this.groups, gn)
@@ -65,7 +83,9 @@ export default class GroupListComp extends Vue {
 
   async save () {
     // re format
-    Object.values(this.groups).forEach((g) => { this.groups[g.name] = ServerAPI.newEmptyGroup(g.name, g) })
+    Object.values(this.groups).forEach((g) => {
+      this.groups[g.name] = ServerAPI.newEmptyGroup(g.name, g)
+    })
     ServerAPI.saveGroups(this.groups)
   }
 }
@@ -73,5 +93,4 @@ export default class GroupListComp extends Vue {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
 </style>

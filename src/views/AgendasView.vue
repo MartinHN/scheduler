@@ -1,14 +1,17 @@
 <template>
-<div>
-  <br>
-<div class=row>
-   <div class=wmin> Liste des agendas </div><AgendasList  />
-</div>
-<br><br>
-    <AgendaEditor v-if=!!editedAgenda :agenda=editedAgenda @input=saveCurrent />
-
-</div>
-
+  <div>
+    <br />
+    <div class="row">
+      <div class="wmin">Liste des agendas</div>
+      <AgendasList />
+    </div>
+    <br /><br />
+    <AgendaEditor
+      v-if="!!editedAgenda"
+      :agenda="editedAgenda"
+      @input="saveCurrent"
+    />
+  </div>
 </template>
 
 <script lang="ts">
@@ -28,32 +31,45 @@ import * as ServerAPI from '@/API/ServerAPI'
   }
 })
 export default class AgendasView extends Vue {
-  get sm ():ServerModel { return (this.$root as any).sm }
-  get connectedDeviceList () { return this.sm.connectedDeviceList }
-  get knownDevices () { return this.sm.knownDevices }
-  get agendasNames () { return this.sm.agendaFileNames }
-  get editedAgenda ():Agenda|null{ return this.sm.loadedAgenda }
+  get sm (): ServerModel {
+    return (this.$root as any).sm
+  }
 
-  get editedAgendaName ():string {
+  get connectedDeviceList () {
+    return this.sm.connectedDeviceList
+  }
+
+  get knownDevices () {
+    return this.sm.knownDevices
+  }
+
+  get agendasNames () {
+    return this.sm.agendaFileNames
+  }
+
+  get editedAgenda (): Agenda | null {
+    return this.sm.loadedAgenda
+  }
+
+  get editedAgendaName (): string {
     return this.editedAgenda?.name || 'none'
   }
 
-  agendaFileNames :string[]=[]
+  agendaFileNames: string[] = [];
 
   // get agendaNameSorted ():string[] {
   //   if (!this.agendas) { return [] }
   //   return Object.keys(this.agendas).sort((a:string, b:string) => { return (this.agendas[a].dates.start.getTime && this.agendas[a].dates.start.getTime()) - (this.agendas[b].dates.start.getTime && this.agendas[b].dates.start.getTime()) })
   // }
 
-  removeAgenda ():void {
+  removeAgenda (): void {
     // this.agendas[this.editedAgenda] = (null as unknown as Agenda)
     // Vue.delete(this.agendas, this.editedAgenda)
     // this.editedAgenda = 'default'
   }
 
-  setAgendaName (n:string):void{
+  setAgendaName (n: string): void {
     // console.log(n)
-
     // console.log('setting agenda name', n)
     // Vue.set(this.agendas, n, this.agendas[this.editedAgenda])
     // Vue.delete(this.agendas, this.editedAgenda)
@@ -69,7 +85,10 @@ export default class AgendasView extends Vue {
       }
       if (this.editedAgenda) {
         console.log(this.editedAgenda)
-        ServerAPI.saveAgenda(this.editedAgenda.name + '.json', this.editedAgenda)
+        ServerAPI.saveAgenda(
+          this.editedAgenda.name + '.json',
+          this.editedAgenda
+        )
       } else {
         console.error('invalid agenda', this.editedAgenda)
       }
@@ -80,5 +99,4 @@ export default class AgendasView extends Vue {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
 </style>

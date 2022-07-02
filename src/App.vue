@@ -1,22 +1,22 @@
 <template>
-<div id=app>
-
-      <template >
-        <nav v-if=shouldDisplayNav  id=nav >
-          <router-link tag=button to="/">Home</router-link>
-            <template v-if="shouldDisplayAdvanced" >
-            <router-link tag=button class=customFont to="/AgendasView">Agendas</router-link>
-            <router-link tag=button to="/DevicesView">Devices</router-link>
-            <router-link tag=button to="/GroupView">Group</router-link>
-            <router-link tag=button to="/ConfigView" style=max-width:40px>Cfg</router-link>
-            </template>
-
-         </nav>
-      </template>
-  <router-view  ></router-view>
-
-      </div>
-
+  <div id="app">
+    <template>
+      <nav v-if="shouldDisplayNav" id="nav">
+        <router-link tag="button" to="/">Home</router-link>
+        <template v-if="shouldDisplayAdvanced">
+          <router-link tag="button" class="customFont" to="/AgendasView"
+            >Agendas</router-link
+          >
+          <router-link tag="button" to="/DevicesView">Devices</router-link>
+          <router-link tag="button" to="/GroupView">Group</router-link>
+          <router-link tag="button" to="/ConfigView" style="max-width: 40px"
+            >Cfg</router-link
+          >
+        </template>
+      </nav>
+    </template>
+    <router-view></router-view>
+  </div>
 </template>
 
 <script lang="ts">
@@ -25,13 +25,14 @@ import { Route } from 'vue-router'
 
 @Component({})
 export default class AppComp extends Vue {
-  shouldDisplayNav = true
-  shouldDisplayAdvanced = false
+  shouldDisplayNav = true;
+  shouldDisplayAdvanced = false;
 
   mounted () {
-    const fun = (to:Route, from:Route):any => {
-      this.shouldDisplayNav = (to.name !== 'Home')
-      this.shouldDisplayAdvanced = this.shouldDisplayNav && (to.name !== 'InaugurationView')
+    const fun = (to: Route, from: Route): any => {
+      this.shouldDisplayNav = to.name !== 'Home'
+      this.shouldDisplayAdvanced =
+        this.shouldDisplayNav && to.name !== 'InaugurationView'
     }
     this.$router.afterEach(fun.bind(this))
     fun(this.$router.currentRoute, this.$router.currentRoute)
@@ -40,9 +41,8 @@ export default class AppComp extends Vue {
 </script>
 
 <style>
-
 * {
-  --nav-header-h: calc( max( 10px,8vh));
+  --nav-header-h: calc(max(10px, 8vh));
   --btn-h: 50px;
 }
 
@@ -52,40 +52,38 @@ export default class AppComp extends Vue {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
 
-  display:flex;
+  display: flex;
   flex-direction: column;
 
   /* grid-auto-columns:auto; */
   min-height: 100vh;
-
 }
 
-body{
-background: rgb(44, 44, 44);
-color:white;
-margin:0;
+body {
+  background: rgb(44, 44, 44);
+  color: white;
+  margin: 0;
 }
-#app *:not(.customFont){
-  font-size:1em;
-  box-sizing:border-box;
-
+#app *:not(.customFont) {
+  font-size: 1em;
+  box-sizing: border-box;
 }
 
 #nav {
   transition-duration: 500ms;
-/* transition-property: margin-right; */
+  /* transition-property: margin-right; */
   /* padding: 5px; */
   position: sticky;
-  top :0px;
+  top: 0px;
   /* width:100vw; */
 
-  display:flex;
+  display: flex;
   flex-direction: row;
   justify-content: flex-start;
   text-align: center;
   background: black;
   z-index: 100;
-  max-height:var(--nav-header-h)
+  max-height: var(--nav-header-h);
 }
 
 /* #nav div {
@@ -101,58 +99,55 @@ margin:0;
 }
 */
 #nav .router-link-exact-active {
-
- background: green;/*  rgb(255, 102, 0); */
+  background: green; /*  rgb(255, 102, 0); */
 }
-#nav button{
+#nav button {
   background: black;
-  color:white;
-   min-height:var(--nav-header-h);
-   font-size: inherit;
+  color: white;
+  min-height: var(--nav-header-h);
+  font-size: inherit;
 }
-  /* globals APP */
-button:not(.active){
-background: white;
-opacity: 1.0;
+/* globals APP */
+button:not(.active) {
+  background: white;
+  opacity: 1;
   background: rgb(5, 5, 95);
   color: aliceblue;
   border: 1px solid rgb(0, 0, 0);
-
 }
 
-button.tab:not(.active){
-background: white;
-opacity: 1.0;
+button.tab:not(.active) {
+  background: white;
+  opacity: 1;
   background: rgb(0, 0, 0);
   color: aliceblue;
   border: 1px solid rgb(255, 255, 255);
-
 }
 
-button.active{
-background: green;/*  rgb(255, 102, 0); */
+button.active {
+  background: green; /*  rgb(255, 102, 0); */
 }
-button{
+button {
   font-size: 1em;
 
   border-radius: 5px;
-  min-height:var(--btn-h);
-  min-width:50px;
-  margin-bottom:5px;
-  width:100%
+  min-height: var(--btn-h);
+  min-width: 50px;
+  margin-bottom: 5px;
+  width: 100%;
 }
 
-#app select{
-  min-height:50px;
-  font-size:1em;
+#app select {
+  min-height: 50px;
+  font-size: 1em;
   border-radius: 5px;
-  margin-bottom:5px;
-  min-width:200px;
-  max-width:30vw;
+  margin-bottom: 5px;
+  min-width: 200px;
+  max-width: 30vw;
 }
 
-#app input{
-background: white;
+#app input {
+  background: white;
 }
 
 /* #app img{
@@ -161,36 +156,35 @@ background: white;
   margin:auto;
 } */
 
-div{
-  width:100%;
-
+div {
+  width: 100%;
 }
 
-input{
-  min-height:30px;
-  min-width:50px;
-  margin-bottom:5px;
-  width:inherit;
+input {
+  min-height: 30px;
+  min-width: 50px;
+  margin-bottom: 5px;
+  width: inherit;
 }
 
-.row{
-  display:flex;
-  flex-direction:row;
+.row {
+  display: flex;
+  flex-direction: row;
   justify-content: space-evenly;
-  align-items:center ;
+  align-items: center;
 }
 
-.col{
-  display:flex;
-  flex-direction:col;
+.col {
+  display: flex;
+  flex-direction: col;
   justify-content: space-evenly;
 }
 
-.wmin{
-  max-width:150px;
+.wmin {
+  max-width: 150px;
 }
 
-.warn{
+.warn {
   background: red;
 }
 </style>

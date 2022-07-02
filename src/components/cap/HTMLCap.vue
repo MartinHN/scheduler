@@ -1,7 +1,7 @@
 <template>
-  <div class="htmlCap"  >
+  <div class="htmlCap">
     HTML
-<a :href=capURL target=_blank > configuration </a>
+    <a :href="capURL" target="_blank"> configuration </a>
   </div>
 </template>
 
@@ -10,20 +10,25 @@ import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 import OSCMessageComp from './OSCMessageComp.vue'
 import { Device, getCapForDevice, setCapForDevice } from '@/API/ServerAPI'
 import { ServerModel } from '@/API/ServerModel'
-import { OSCCap, getDefaultOSCCap, getDefaultOSCMsg } from '@/API/types/CapTypes'
+import {
+  OSCCap,
+  getDefaultOSCCap,
+  getDefaultOSCMsg
+} from '@/API/types/CapTypes'
 
-const ipNumRegex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
+const ipNumRegex =
+  /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
 
 @Component({ components: { OSCMessageComp } })
 export default class HTMLCap extends Vue {
   @Prop({ required: true })
-  device!:Device;
+  device!: Device;
 
   @Prop({ required: true })
-  name!:string
+  name!: string;
 
   @Prop({ required: true })
-  port!:number
+  port!: number;
 
   get capURL () {
     return `http://${this.device.ip}:${this.port}`
@@ -32,12 +37,11 @@ export default class HTMLCap extends Vue {
 </script>
 
 <style scoped>
-
-.invalid{
-  background:red
+.invalid {
+  background: red;
 }
 
-.port{
+.port {
   max-width: 100px;
 }
 </style>
