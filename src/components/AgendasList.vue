@@ -4,6 +4,7 @@
       :class="{ active: sm.isAgendaDisabled }"
       :value="sm.isAgendaDisabled"
       @click="sm.setAgendaDisabled(!sm.isAgendaDisabled)"
+      :style="{ background: sm.isAgendaDisabled ? 'red' : '' }"
     >
       Agenda inactif
     </button>
