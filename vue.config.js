@@ -22,8 +22,8 @@ module.exports = {
   ,
 
   pluginOptions: {
-    compression:{
-      
+    compression: {
+
       brotli: {
         filename: '[file].br[query]',
         algorithm: 'brotliCompress',
@@ -35,18 +35,18 @@ module.exports = {
         },
         minRatio: .8,
       },
-      
+
       gzip: {
         filename: '[file].gz[query]',
         algorithm: 'gzip',
         compressionOptions: {
-         level:zlib.constants.Z_BEST_COMPRESSION
+          level: zlib.constants.Z_BEST_COMPRESSION
         },
-        include:  /\.(js|css|html|svg|json|png)(\?.*)?$/i,
+        include: /\.(js|css|html|svg|json|png)(\?.*)?$/i,
         minRatio: .8,
       }
     }
   }
 
-//   assetsDir: '../view-dist/assets/'
+  //   assetsDir: '../view-dist/assets/'
 }

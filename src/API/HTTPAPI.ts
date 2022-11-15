@@ -4,11 +4,11 @@ const serverURL = window.location.hostname
 const fromPort = window.location.port
 const serverPort = fromPort.startsWith('808') ? '3003' : fromPort
 
-export function getSrvResURL (path:string):string {
+export function getSrvResURL(path: string): string {
   return `http://${serverURL}:${serverPort}/${path}`
 }
 
-export async function getJSON (path:string, d?:Device):Promise<any> {
+export async function getJSON(path: string, d?: Device): Promise<any> {
   const requestOptions = {
     method: 'GET'
   }
@@ -27,7 +27,7 @@ export async function getJSON (path:string, d?:Device):Promise<any> {
   return data
 }
 
-export async function postJSON (path:string, data:any, d?:Device):Promise<Response> {
+export async function postJSON(path: string, data: any, d?: Device): Promise<Response> {
   const requestOptions = {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -43,7 +43,7 @@ export async function postJSON (path:string, data:any, d?:Device):Promise<Respon
   return await fetch(`http://${url}:${port}/${path}`, requestOptions)
 }
 
-export async function deleteJSON (path:string, d?:Device):Promise<Response> {
+export async function deleteJSON(path: string, d?: Device): Promise<Response> {
   const requestOptions = {
     method: 'DELETE'
   }

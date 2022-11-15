@@ -1,7 +1,7 @@
 
 let connection !: WebSocket
 
-function msg (m:string) {
+function msg(m: string) {
   connection.send(JSON.stringify({ i: m }))
 }
 setInterval(() => {
@@ -13,9 +13,9 @@ setInterval(() => {
 }, 3000)
 
 let isConnected = false
-let onConChangeCB!: (b:boolean)=>void
-let messageCB!: (b:any)=>void
-function setConnected (b:boolean) {
+let onConChangeCB!: (b: boolean) => void
+let messageCB!: (b: any) => void
+function setConnected(b: boolean) {
   if (b === isConnected) return
   isConnected = b
   if (onConChangeCB) {
@@ -24,25 +24,25 @@ function setConnected (b:boolean) {
 }
 
 const wrap = {
-  init (_messageCB:(m:any)=>void, _conChangeCB?:(b:boolean)=>void) :void{
+  init(_messageCB: (m: any) => void, _conChangeCB?: (b: boolean) => void): void {
     if (_conChangeCB) onConChangeCB = _conChangeCB
     messageCB = _messageCB
     this.start()
   },
-  isConnected ():boolean { return connection && (connection.readyState === WebSocket.OPEN) },
-  start () :void {
+  isConnected(): boolean { return connection && (connection.readyState === WebSocket.OPEN) },
+  start(): void {
     if (connection && (connection.readyState !== WebSocket.CLOSED)) { console.error('ws already strarted'); return }
     console.log('Starting connection to WebSocket Server')
     const wsAddr = 'ws://' + window.location.hostname + ':3003'
     console.log('tryConnelkjjct ws :', wsAddr)
     connection = new WebSocket(wsAddr)
 
-    connection.onmessage = function (event:MessageEvent) {
+    connection.onmessage = function (event: MessageEvent) {
       // console.log('new from serv', event.data)
-      if (messageCB)messageCB(JSON.parse(event.data))
+      if (messageCB) messageCB(JSON.parse(event.data))
     }
 
-    connection.onopen = function (event:Event) {
+    connection.onopen = function (event: Event) {
       setConnected(true)
       console.log(event)
       console.log('Successfully connected to the  websocket server...')
@@ -62,7 +62,7 @@ const wrap = {
     }
     // return connection
   },
-  send (addr:string, args:any):void{
+  send(addr: string, args: any): void {
     if (connection.readyState !== WebSocket.OPEN) {
       console.error('ws not opened')
     }
