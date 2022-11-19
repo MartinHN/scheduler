@@ -59,13 +59,17 @@ export default class DeviceRow extends Vue {
     // ask actual state without args
     this.sm.sendDeviceEvent(this.device.uuid, { type: 'activate' })
     this.sm.sendDeviceEvent(this.device.uuid, { type: 'niceName' })
-    this.fetchDeviceInfo()
-    this.connected = true
+    this._fetchDev = setTimeout(() => { this.fetchDeviceInfo() }, Math.random() * 500)
+    this.updateConState()
+    this.connected = false
   }
 
   destroyed (): void {
     if (this._fetchDev) {
       clearTimeout(this._fetchDev)
+    }
+    if (this._updateCon) {
+      clearTimeout(this._updateCon)
     }
   }
 
@@ -100,18 +104,27 @@ export default class DeviceRow extends Vue {
   }
 
   fetchDeviceInfo (): void {
-    console.log('fetching', this.device)
-    // if (this.sm.isAdminMode) {
-    const dt =
-      this.device?.lastTimeModified.getTime() - this.lastAsked.getTime()
+    console.log('fetching', this.device?.deviceName)
+    if (this._fetchDev)clearTimeout(this._fetchDev)
     this.sm.sendDeviceEvent(this.device.uuid, { type: 'rssi' })
     const now = new Date()
     this.lastAsked = now
+    this._fetchDev = setTimeout(this.fetchDeviceInfo.bind(this), this.updateP + Math.random() * 10)
+    if (this._updateCon)clearTimeout(this._updateCon)
+    this._updateCon = setTimeout(this.updateConState.bind(this), 400)
+  }
 
-    console.log(dt)
-    this.connected = dt >= 0 && dt < this.updateP + 3000
-    // }
-    this._fetchDev = setTimeout(this.fetchDeviceInfo.bind(this), this.updateP)
+  updateConState ():void{
+    const now = new Date()
+    if (this._updateCon)clearTimeout(this._updateCon)
+    this._updateCon = setTimeout(this.updateConState.bind(this), this.connected ? this.updateP : 1000)
+    const lt = this.device?.lastTimeModified.getTime()
+    const dt = now - lt
+    // console.log(dt, this.device?.lastTimeModified)
+    const newConState = !!this.device && (dt >= 0 && dt < this.updateP + 3000)
+    if (newConState === this.connected) return
+    console.log('was modified ', dt, 'ms ago')
+    this.connected = newConState
   }
 
   // setName ():void {
