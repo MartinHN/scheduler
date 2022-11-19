@@ -19,10 +19,14 @@ export class ServerModel {
   isInaugurationMode = false;
   isAgendaDisabled = false;
 
+  isDNSActive = false;
   constructor() {
     ws.init(this.newMessageFromWS.bind(this), (isCon) => {
       if (isCon) {
         this.requestServerInfo()
+        this.setDNSActive(this.isDNSActive)
+        // this.setInaugurationMode(this.isInaugurationMode)
+        // this.setAgendaDisabled(this.isAgendaDisabled)
       }
     })
     this.loadDevices()
@@ -109,16 +113,17 @@ export class ServerModel {
 
   setInaugurationMode(b): void {
     this.isInaugurationMode = b
-    ws.send('server', { type: 'isInaugurationMode', value: b ? 1 : 0 })
+    if (ws.isConnected()) { ws.send('server', { type: 'isInaugurationMode', value: b ? 1 : 0 }) }
   }
 
   setAgendaDisabled(b: boolean) {
     this.isAgendaDisabled = b
-    ws.send('server', { type: 'isAgendaDisabled', value: b ? 1 : 0 })
+    if (ws.isConnected()) ws.send('server', { type: 'isAgendaDisabled', value: b ? 1 : 0 })
   }
 
   setDNSActive(b): void {
-    ws.send('server', { type: 'isDNSActive', value: b ? 1 : 0 })
+    this.isDNSActive = b
+    if (ws.isConnected()) ws.send('server', { type: 'isDNSActive', value: b ? 1 : 0 })
   }
 
   isDeviceConnected(uuid: string): boolean {
