@@ -1,6 +1,12 @@
 <template>
   <div id="app">
     <template>
+
+    <div id="diconnectedOverlay" v-if="!sm.isConnectedToServer">
+    <div class=customFont>
+    Déconnécté
+    </div>
+    </div>
       <nav v-if="shouldDisplayNav" id="nav">
         <router-link tag="button" to="/">Home</router-link>
         <template v-if="shouldDisplayAdvanced">
@@ -22,6 +28,7 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { Route } from 'vue-router'
+import { ServerModel } from '@/API/ServerModel'
 
 @Component({})
 export default class AppComp extends Vue {
@@ -36,6 +43,10 @@ export default class AppComp extends Vue {
     }
     this.$router.afterEach(fun.bind(this))
     fun(this.$router.currentRoute, this.$router.currentRoute)
+  }
+
+  get sm (): ServerModel {
+    return (this.$root as any).sm
   }
 }
 </script>
@@ -155,6 +166,21 @@ button {
   min-height : 50%;
   margin:auto;
 } */
+
+#diconnectedOverlay{
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+  z-index: 10000;
+  color: red;
+  background: #000000db;
+}
+
+#diconnectedOverlay div{
+  text-align: center;
+  font-size: xxx-large;
+
+}
 
 div {
   width: 100%;

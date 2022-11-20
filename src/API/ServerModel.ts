@@ -12,6 +12,7 @@ export class ServerModel {
   agendaFileNames = [] as string[]
 
   isAdminMode = false;
+  isConnectedToServer = false;
 
   loadedAgenda = createDefaultAgenda();
   _hasLoadedFirst = false;
@@ -28,6 +29,7 @@ export class ServerModel {
         // this.setInaugurationMode(this.isInaugurationMode)
         // this.setAgendaDisabled(this.isAgendaDisabled)
       }
+      this.isConnectedToServer = isCon
     })
     this.loadDevices()
     this.loadGroups()
