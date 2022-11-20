@@ -115,17 +115,17 @@ export class ServerModel {
 
   setInaugurationMode(b): void {
     this.isInaugurationMode = b
-    if (ws.isConnected()) { ws.send('server', { type: 'isInaugurationMode', value: b ? 1 : 0 }) }
+    ws.send('server', { type: 'isInaugurationMode', value: b ? 1 : 0 })
   }
 
   setAgendaDisabled(b: boolean) {
     this.isAgendaDisabled = b
-    if (ws.isConnected()) ws.send('server', { type: 'isAgendaDisabled', value: b ? 1 : 0 })
+    ws.send('server', { type: 'isAgendaDisabled', value: b ? 1 : 0 })
   }
 
   setDNSActive(b): void {
     this.isDNSActive = b
-    if (ws.isConnected()) ws.send('server', { type: 'isDNSActive', value: b ? 1 : 0 })
+    ws.send('server', { type: 'isDNSActive', value: b ? 1 : 0 })
   }
 
   isDeviceConnected(uuid: string): boolean {
