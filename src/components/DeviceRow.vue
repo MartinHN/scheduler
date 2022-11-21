@@ -109,7 +109,7 @@ export default class DeviceRow extends Vue {
     this.sm.sendDeviceEvent(this.device.uuid, { type: 'rssi' })
     const now = new Date()
     this.lastAsked = now
-    this._fetchDev = setTimeout(this.fetchDeviceInfo.bind(this), this.updateP + Math.random() * 10)
+    this._fetchDev = setTimeout(this.fetchDeviceInfo.bind(this), this.updateP + Math.random() * 100)
     if (this._updateCon)clearTimeout(this._updateCon)
     this._updateCon = setTimeout(this.updateConState.bind(this), 400)
   }
@@ -117,7 +117,10 @@ export default class DeviceRow extends Vue {
   updateConState ():void{
     const now = new Date()
     if (this._updateCon)clearTimeout(this._updateCon)
-    this._updateCon = setTimeout(this.updateConState.bind(this), this.connected ? this.updateP : 1000)
+    const minCheckDelay = 1000
+    const justAsked = now - this.lastAsked.getTime() < minCheckDelay / 2
+    this._updateCon = setTimeout(this.updateConState.bind(this), justAsked ? minCheckDelay / 2 : (this.connected ? this.updateP : minCheckDelay))
+    if (justAsked) return
     const lt = this.device?.lastTimeModified.getTime()
     const dt = now - lt
     // console.log(dt, this.device?.lastTimeModified)
