@@ -51,7 +51,9 @@ export default class DeviceRow extends Vue {
   @Prop({ required: true })
   device!: Device;
 
-  updateP = 5000;
+  fechtP = 1000;
+  delayToBeDead = 5 * 1000;
+
   lastAsked = new Date();
   _fetchDev = undefined as any;
   connected = false;
@@ -59,7 +61,7 @@ export default class DeviceRow extends Vue {
     // ask actual state without args
     this.sm.sendDeviceEvent(this.device.uuid, { type: 'activate' })
     this.sm.sendDeviceEvent(this.device.uuid, { type: 'niceName' })
-    this._fetchDev = setTimeout(() => { this.fetchDeviceInfo() }, Math.random() * 1000)
+    this._fetchDev = setTimeout(() => { this.fetchDeviceInfo() }, Math.random() * this.fechtP)
     this.connected = false
   }
 
@@ -103,24 +105,19 @@ export default class DeviceRow extends Vue {
   }
 
   fetchDeviceInfo (): void {
-    console.log('fetching', this.device?.deviceName)
     if (this._fetchDev)clearTimeout(this._fetchDev)
+    this.updateConState()
+    console.log('fetching', this.device?.deviceName)
     this.sm.sendDeviceEvent(this.device.uuid, { type: 'rssi' })
-    const now = new Date()
-    this.lastAsked = now
-    this._fetchDev = setTimeout(this.fetchDeviceInfo.bind(this), this.updateP)
-    if (this._updateCon)clearTimeout(this._updateCon)
-    this._updateCon = setTimeout(this.updateConState.bind(this), 2000)
+    this.lastAsked = new Date()
+    this._fetchDev = setTimeout(this.fetchDeviceInfo.bind(this), this.fechtP)
   }
 
   updateConState ():void{
-    if (this._updateCon)clearTimeout(this._updateCon)
     const lt = this.device?.lastTimeModified.getTime()
     const now = new Date()
     const dt = now.getTime() - lt
-    // console.log(dt, this.device?.lastTimeModified)
-    const newConState = !!this.device && (dt >= 0 && dt < this.updateP + 3000)
-    if (!newConState) { this._updateCon = setTimeout(this.updateConState.bind(this), 800) }
+    const newConState = !!this.device && (dt >= 0 && dt < this.delayToBeDead)
     if (newConState) console.log(this.device?.deviceName + ' response took ', lt - this.lastAsked, 'ms')
     console.log(this.device?.deviceName + 'was modified ', dt, 'ms ago')
     if (newConState === this.connected) return
