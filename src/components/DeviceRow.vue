@@ -111,20 +111,17 @@ export default class DeviceRow extends Vue {
     this.lastAsked = now
     this._fetchDev = setTimeout(this.fetchDeviceInfo.bind(this), this.updateP + Math.random() * 100)
     if (this._updateCon)clearTimeout(this._updateCon)
-    this._updateCon = setTimeout(this.updateConState.bind(this), 400)
+    this._updateCon = setTimeout(this.updateConState.bind(this), 1500)
   }
 
   updateConState ():void{
     const now = new Date()
     if (this._updateCon)clearTimeout(this._updateCon)
-    const minCheckDelay = 1000
-    const justAsked = now - this.lastAsked.getTime() < minCheckDelay / 2
-    this._updateCon = setTimeout(this.updateConState.bind(this), justAsked ? minCheckDelay / 2 : (this.connected ? this.updateP : minCheckDelay))
-    if (justAsked) return
     const lt = this.device?.lastTimeModified.getTime()
     const dt = now - lt
     // console.log(dt, this.device?.lastTimeModified)
     const newConState = !!this.device && (dt >= 0 && dt < this.updateP + 3000)
+    if (!newConState) { this._updateCon = setTimeout(this.updateConState.bind(this), 1000) }
     if (newConState === this.connected) return
     console.log('was modified ', dt, 'ms ago')
     this.connected = newConState
