@@ -52,6 +52,9 @@ export default class DeviceRow extends Vue {
   device!: Device;
 
   fechtP = 1000;
+  slowFechtP = 5000;
+  fastFechtP = 1000;
+  numFastPing = 0;
   delayToBeDead = 5 * 1000;
 
   lastAsked = new Date();
@@ -118,6 +121,11 @@ export default class DeviceRow extends Vue {
     const now = new Date()
     const dt = now.getTime() - lt
     const newConState = !!this.device && (dt >= 0 && dt < this.delayToBeDead)
+    const pingT = lt - this.lastAsked
+    const wasFastPing = pingT >= 0 && (pingT < 200)
+    this.numFastPing = wasFastPing ? this.numFastPing + 1 : 0
+    this.numFastPing = Math.max(0, Math.min(5, this.numFastPing))
+    this.fechtP = this.numFastPing === 5 ? this.slowFechtP : this.fastFechtP
     if (newConState) console.log(this.device?.deviceName + ' response took ', lt - this.lastAsked, 'ms')
     console.log(this.device?.deviceName + 'was modified ', dt, 'ms ago')
     if (newConState === this.connected) return
