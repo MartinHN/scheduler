@@ -190,6 +190,18 @@ export class ServerModel {
     return Object.values(this.knownDevices).filter(e => e.group === g.name)
   }
 
+  async isAgendaSync(d: Device): Promise<boolean> {
+    const gname = d.group
+    const aname = this.groups[gname]?.agendaFileName
+    const savedAg = await ServerAPI.getAgenda(aname)
+    const trueAg = await ServerAPI.getAgendaInfoForDevice(d)
+    const inSync = JSON.stringify(savedAg) === JSON.stringify(trueAg)
+    if (!inSync) {
+      console.warn('ag out of sync ', savedAg, trueAg)
+    } else { console.log('ag in sync') }
+    return inSync
+  }
+
   async loadAgendaFromFile(n: string): Promise<void> {
     const newAg = await ServerAPI.getAgenda(n)
     if (newAg && newAg.defaultWeek) {

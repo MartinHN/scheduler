@@ -19,7 +19,7 @@ export async function getJSON(path: string, d?: Device): Promise<any> {
     port = '' + d.port
   }
 
-  console.log('http', requestOptions.method, path)
+  console.log('http', requestOptions.method, path, url, port)
   const response = await fetch(`http://${url}:${port}/${path}`, requestOptions)
   if (!response.ok) { return {} }
   const data = await response.json()

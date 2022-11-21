@@ -50,6 +50,10 @@ export async function getTimeInfoForDevice(d: Device): Promise<any> {
   return await getJSON('time', d)
 }
 
+export async function getAgendaInfoForDevice(d: Device): Promise<any> {
+  return await getJSON('agendaFile', d)
+}
+
 /// ///////////
 // groups
 

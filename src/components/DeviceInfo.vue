@@ -8,6 +8,7 @@
       <div @click="setHostName">{{ device.deviceName }}</div>
       <button @click="reboot" class="warn">reboot</button>
       <div @click="askUpdateTime">{{ localTime }}</div>
+      <div v-if=!isAgendaInSync > agenda not sync</div>
     </span>
     <div class="row">
       <button
@@ -35,7 +36,7 @@
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 
-import { Device, getTimeInfoForDevice } from '@/API/ServerAPI'
+import { Device, getTimeInfoForDevice, getAgendaInfoForDevice } from '@/API/ServerAPI'
 import { ServerModel } from '@/API/ServerModel'
 import OSCCap from './cap/OSCCap.vue'
 import HTMLCap from './cap/HTMLCap.vue'
@@ -49,6 +50,8 @@ export default class DeviceInfo extends Vue {
   _fetchTime = undefined as any;
   selectedCapName = '';
 
+  isAgendaInSync = false;
+
   mounted () {
     // ask actual state without args
     this.sm.sendDeviceEvent(this.device.uuid, { type: 'activate' })
@@ -56,9 +59,11 @@ export default class DeviceInfo extends Vue {
     if (this._fetchTime) {
       clearTimeout(this._fetchTime)
     }
-    // this._fetchTime = setInterval(async () => {
-    //   await this.refreshTime()
-    // }, 5000)
+    this._fetchTime = setInterval(async () => {
+      await this.refreshTime()
+      await this.refreshAgendaStatus()
+    }, 5000)
+
     this.refreshTime()
   }
 
@@ -66,12 +71,17 @@ export default class DeviceInfo extends Vue {
   deviceChCb () {
     this.selectedCapName = ''
     this.refreshTime()
+    this.refreshAgendaStatus()
   }
 
   async refreshTime () {
     this.deviceTimeInfo = await getTimeInfoForDevice(this.device).catch((e) =>
       console.error('time not avazilable on endpoint', e)
     )
+  }
+
+  async refreshAgendaStatus() {
+    this.isAgendaInSync = await this.sm.isAgendaSync(this.device)
   }
 
   askUpdateTime () {
