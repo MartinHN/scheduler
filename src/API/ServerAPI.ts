@@ -1,4 +1,4 @@
-import { getJSON, postJSON, deleteJSON } from '@/API/HTTPAPI'
+import { getJSON, getText, postJSON, deleteJSON } from '@/API/HTTPAPI'
 import * as ScheduleTypes from './types/ScheduleTypes'
 import { Agenda, WeekHours, HourRange } from './types/ScheduleTypes'
 import { Device, Group, Groups, DeviceDic } from './types/DeviceTypes'
@@ -52,6 +52,10 @@ export async function getTimeInfoForDevice(d: Device): Promise<any> {
 
 export async function getAgendaInfoForDevice(d: Device): Promise<any> {
   return await getJSON('agendaFile', d)
+}
+
+export async function getRSSIFromDevice(d: Device): Promise<any> {
+  return await getText('rssi', d)
 }
 
 /// ///////////

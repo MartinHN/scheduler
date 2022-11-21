@@ -27,6 +27,25 @@ export async function getJSON(path: string, d?: Device): Promise<any> {
   return data
 }
 
+export async function getText(path: string, d?: Device): Promise<any> {
+  const requestOptions = {
+    method: 'GET'
+  }
+  let url = serverURL
+  let port = serverPort
+  if (d !== undefined) {
+    url = d.ip
+    port = '' + d.port
+  }
+
+  console.log('http', requestOptions.method, path, url, port)
+  const response = await fetch(`http://${url}:${port}/${path}`, requestOptions)
+  if (!response.ok) { return {} }
+  const data = await response.text()
+  console.log('got', path, data)
+  return data
+}
+
 export async function postJSON(path: string, data: any, d?: Device): Promise<Response> {
   const requestOptions = {
     method: 'POST',

@@ -40,7 +40,7 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 
-import { Device } from '@/API/ServerAPI'
+import { Device, getRSSIFromDevice } from '@/API/ServerAPI'
 import { ServerModel } from '@/API/ServerModel'
 
 @Component({})
@@ -51,9 +51,9 @@ export default class DeviceRow extends Vue {
   @Prop({ required: true })
   device!: Device;
 
-  fechtP = 1000;
+  fechtP = 2500;
   slowFechtP = 5000;
-  fastFechtP = 1000;
+  fastFechtP = 2500;
   numFastPing = 0;
   delayToBeDead = 5 * 1000;
 
@@ -111,7 +111,15 @@ export default class DeviceRow extends Vue {
     if (this._fetchDev)clearTimeout(this._fetchDev)
     this.updateConState()
     console.log('fetching', this.device?.deviceName)
-    this.sm.sendDeviceEvent(this.device.uuid, { type: 'rssi' })
+    // this.sm.sendDeviceEvent(this.device.uuid, { type: 'rssi' })
+    getRSSIFromDevice(this.device).then(res => {
+      if (this.device) {
+        this.device.rssi = parseInt(res)
+        this.device.lastTimeModified = new Date()
+      } else console.error('no device but fetched rssi')
+    }).catch(e => {
+      console.error('failed getting rssi', e)
+    })
     this.lastAsked = new Date()
     this._fetchDev = setTimeout(this.fetchDeviceInfo.bind(this), this.fechtP)
   }
