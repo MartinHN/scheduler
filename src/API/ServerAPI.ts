@@ -54,8 +54,8 @@ export async function getAgendaInfoForDevice(d: Device): Promise<any> {
   return await getJSON('agendaFile', d)
 }
 
-export async function getRSSIFromDevice(d: Device): Promise<any> {
-  return await getText('rssi', d)
+export async function getRSSIFromDevice(d: Device, timeout = 1000): Promise<any> {
+  return await getText('rssi', d, timeout)
 }
 
 /// ///////////

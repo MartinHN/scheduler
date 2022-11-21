@@ -112,7 +112,7 @@ export default class DeviceRow extends Vue {
     this.updateConState()
     console.log('fetching', this.device?.deviceName)
     // this.sm.sendDeviceEvent(this.device.uuid, { type: 'rssi' })
-    getRSSIFromDevice(this.device).then(res => {
+    getRSSIFromDevice(this.device, this.fechtP - 500).then(res => {
       if (this.device) {
         this.device.rssi = parseInt(res)
         this.device.lastTimeModified = new Date()
