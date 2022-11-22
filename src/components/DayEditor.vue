@@ -13,8 +13,8 @@
       <div v-if="value.hourRangeList.length == 0" style="background: red">
         OFF
       </div>
-      <button @click="addRange">+</button>
-      <button v-if="value.hourRangeList.length > 0" @click="removeRange">
+      <button class=customFont @click="addRange">+</button>
+      <button class=customFont v-if="value.hourRangeList.length > 0" @click="removeRange">
         -
       </button>
     </div>
@@ -56,7 +56,9 @@ export default class DayEditor extends Vue {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 button {
-  max-width: 10px;
+  max-width: 66px;
+  font-size: 3rem;
+  font-weight: bold;
 }
 
 .hours {
