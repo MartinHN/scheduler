@@ -205,7 +205,7 @@ export class ServerModel {
   async loadAgendaFromFile(n: string): Promise<void> {
     const newAg = await ServerAPI.getAgenda(n)
     if (newAg && newAg.defaultWeek) {
-      console.log('dot agenda from server')
+      console.log('got agenda from server')
       this.loadedAgenda = newAg
       this.loadedAgenda.name = n.replace('.json', '')
     } else {
