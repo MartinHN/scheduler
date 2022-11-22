@@ -1,12 +1,12 @@
 <template>
   <div class="group chooser row">
-    <button
+    <button id=agendaBtn
       :class="{ active: sm.isAgendaDisabled }"
       :value="sm.isAgendaDisabled"
       @click="sm.setAgendaDisabled(!sm.isAgendaDisabled)"
       :style="{ background: sm.isAgendaDisabled ? 'red' : '' }"
     >
-      Agenda inactif
+      Agenda {{sm.isAgendaDisabled?"inactif":"actif"}}
     </button>
     <select
       style="width: 100%"
@@ -125,5 +125,8 @@ export default class AgendasList extends Vue {
 .group {
   justify-content: left;
   gap: 10px;
+}
+#agendaBtn:not(.active){
+  background:green;
 }
 </style>
