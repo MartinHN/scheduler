@@ -6,7 +6,10 @@
       :class="{ notconnected: !connected, active: selected }"
       @click="edit"
     >
-      {{ btnName }}
+<div style='display:flex'>
+     <div class="col textName" style='margin-right: 3px;max-width:33%'> {{shortDevName}}</div>
+       <div class="col textName" style='margin-left: 3px;'>{{ this.device.niceName }}</div>
+</div>
     </button>
     <button
       @click="setOnOff(!device.activate)"
@@ -32,7 +35,9 @@
         color: device.rssi < -75 ? 'orange' : 'inherit',
       }"
     >
-      {{ rssiTxt }}
+      {{ rssiTxt   }}
+
+    <div v-if="isAdminMode && connected" style="max-width:50px">{{isSynchronizing?"sync...":"agendOk"}}</div>
     </div>
   </div>
 </template>
@@ -60,6 +65,7 @@ export default class DeviceRow extends Vue {
   lastAsked = new Date();
   _fetchDev = undefined as any;
   connected = false;
+  isAgendaInSync = false;
   mounted () {
     // ask actual state without args
     this.sm.sendDeviceEvent(this.device.uuid, { type: 'activate' })
@@ -89,6 +95,10 @@ export default class DeviceRow extends Vue {
     return this.device // return { deviceName: this.deviceName, ip: this.ip, niceName: this.niceName, rssi: this.rssi, uuid: this.uuid }
   }
 
+  get isAdminMode() {
+    return this.sm.isAdminMode
+  }
+
   emitChange (k: string, v: any): void {
     const d = this.getDevice() as any
     d[k] = v
@@ -99,12 +109,16 @@ export default class DeviceRow extends Vue {
     this.$emit('edit', this.getDevice())
   }
 
-  get btnName (): string {
+  get shortDevName (): string {
     let dN = this.device.deviceName
     if (dN.endsWith('.local')) {
       dN = dN.split('.local')[0]
     }
-    return dN + ' / ' + this.device.niceName
+    return dN.replace('_', ' ').replace('lumestrio', 'L').replace('relay', 'R')
+  }
+
+  get isSynchronizing() {
+    return this.isAdminMode && this.connected && !this.isAgendaInSync
   }
 
   fetchDeviceInfo (): void {
@@ -124,6 +138,10 @@ export default class DeviceRow extends Vue {
     this._fetchDev = setTimeout(this.fetchDeviceInfo.bind(this), this.fechtP)
   }
 
+  async refreshAgendaStatus() {
+    if (this.isAdminMode && this.connected) { this.isAgendaInSync = await this.sm.isAgendaSync(this.device) } else { this.isAgendaInSync = false }
+  }
+
   updateConState ():void{
     const lt = this.device?.lastTimeModified.getTime()
     const now = new Date()
@@ -136,6 +154,11 @@ export default class DeviceRow extends Vue {
     this.fechtP = this.numFastPing === 5 ? this.slowFechtP : this.fastFechtP
     if (newConState) console.log(this.device?.deviceName + ' response took ', lt - this.lastAsked, 'ms')
     console.log(this.device?.deviceName + 'was modified ', dt, 'ms ago')
+
+    if (this.connected && !this.isAgendaInSync) {
+      this.refreshAgendaStatus()
+    }
+
     if (newConState === this.connected) return
     this.connected = newConState
   }
@@ -170,5 +193,11 @@ export default class DeviceRow extends Vue {
   width: 100%;
   background: black;
   display: flex;
+}
+
+.textName{
+  overflow-wrap: anywhere;
+  text-align: left;
+      justify-content: flex-start;
 }
 </style>
