@@ -20,7 +20,7 @@
       @click="sm.setAgendaDisabled(!sm.isAgendaDisabled)"
       :style="{ background: sm.isAgendaDisabled ? 'red' : '' }"
     >
-      Agenda {{sm.isAgendaDisabled?"inactif":"actif"}}
+      Agenda {{sm.isAgendaDisabled?"inactif":("actif - "+sm.nextSiteChange)}}
     </button>
     </div>
   </div>

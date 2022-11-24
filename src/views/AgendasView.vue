@@ -6,6 +6,7 @@
       <AgendasList />
     </div>
     <br /><br />
+    <div> {{sm.loadedAgendaNextChange}}</div>
     <AgendaEditor
       v-if="!!editedAgenda"
       :agenda="editedAgenda"
@@ -85,7 +86,7 @@ export default class AgendasView extends Vue {
       }
       if (this.editedAgenda) {
         console.log(this.editedAgenda)
-        ServerAPI.saveAgenda(
+        this.sm.saveAgenda(
           this.editedAgenda.name + '.json',
           this.editedAgenda
         )
