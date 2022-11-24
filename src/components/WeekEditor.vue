@@ -62,6 +62,7 @@ export default class WeekEditor extends Vue {
     if (ServerAPI.dayNames.includes(d)) {
       const dd = ServerAPI.createDefaultDayType()
       dd.dayName = d
+      dd.hourRangeList = []
       await this.value.exceptions.push(dd)
     } else {
       console.error('invalid day name', d)
