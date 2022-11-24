@@ -20,6 +20,7 @@ export class ServerModel {
   _hasLoadedFirst = false;
 
   isInaugurationMode = false;
+  inaugurationHasControl = false;
   isAgendaDisabled = false;
 
   isDNSActive = false;
@@ -117,11 +118,13 @@ export class ServerModel {
   /// ////////// Helpers
 
   setInaugurationMode(b): void {
+    this.inaugurationHasControl = true
     this.isInaugurationMode = b
     ws.send('server', { type: 'isInaugurationMode', value: b ? 1 : 0 })
   }
 
   setAgendaDisabled(b: boolean) {
+    if (!b) { this.inaugurationHasControl = false }
     this.isAgendaDisabled = b
     ws.send('server', { type: 'isAgendaDisabled', value: b ? 1 : 0 })
   }

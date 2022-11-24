@@ -5,12 +5,12 @@
     <div class="row">
       <img
         src="img/greenButton.png"
-        :class="{ inactive: !isActive || !sm.isAgendaDisabled }"
+        :class="{ inactive: !isActive || !btnAreActive }"
         @click="setLight(true)"
       />
       <img
         src="img/redButton.png"
-        :class="{ inactive: isActive ||  !sm.isAgendaDisabled }"
+        :class="{ inactive: isActive ||  !btnAreActive }"
         @click="setLight(false)"
       />
 </div>
@@ -37,6 +37,10 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 export default class InaugurationComp extends Vue {
   get sm (): ServerModel {
     return (this.$root as any).sm
+  }
+
+  get btnAreActive() {
+    return this.sm.inaugurationHasControl && this.sm.isAgendaDisabled
   }
 
   get isActive () {
