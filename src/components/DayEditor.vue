@@ -3,18 +3,32 @@
   <div>
     <div class="row">
       <div class="hours">
-        <HourRangeComp
+        <template
           v-for="v of value.hourRangeList"
-          :key="v.id"
-          :value="v"
-          @input="$emit('input', value)"
-        />
+        >
+          <HourRangeComp
+            :value="v"
+            @input="$emit('input', value)"
+          />
+        </template>
       </div>
-      <div v-if="value.hourRangeList.length == 0" style="background: red">
+      <div
+        v-if="value.hourRangeList.length == 0"
+        style="background: red"
+      >
         OFF
       </div>
-      <button class=customFont @click="addRange">+</button>
-      <button class=customFont v-if="value.hourRangeList.length > 0" @click="removeRange">
+      <button
+        class="customFont"
+        @click="addRange"
+      >
+        +
+      </button>
+      <button
+        v-if="value.hourRangeList.length > 0"
+        class="customFont"
+        @click="removeRange"
+      >
         -
       </button>
     </div>
@@ -41,12 +55,12 @@ export default class DayEditor extends Vue {
 
   // }
 
-  addRange () {
+  addRange(): void {
     this.value.hourRangeList.push(ServerAPI.defaultHourRange())
     this.$emit('input', this.value)
   }
 
-  removeRange () {
+  removeRange(): void {
     this.value.hourRangeList.splice(-1, 1)
     this.$emit('input', this.value)
   }

@@ -1,12 +1,14 @@
 <template>
   <div>
-    <br />
+    <br>
     <div class="row">
-      <div class="wmin">Liste des agendas</div>
+      <div class="wmin">
+        Liste des agendas
+      </div>
       <AgendasList />
     </div>
-    <br /><br />
-    <div> {{sm.loadedAgendaNextChange}}</div>
+    <br><br>
+    <div> {{ sm.loadedAgendaNextChange }}</div>
     <AgendaEditor
       v-if="!!editedAgenda"
       :agenda="editedAgenda"

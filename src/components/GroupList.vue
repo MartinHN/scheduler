@@ -1,18 +1,25 @@
 <template>
   <div>
     <div class="row">
-      <button @click="addGroup">Ajout Groupe</button>
-      <button @click="removeGroup">Effacer Groupe</button>
+      <button @click="addGroup">
+        Ajout Groupe
+      </button>
+      <button @click="removeGroup">
+        Effacer Groupe
+      </button>
     </div>
-    <button @click="setSelected()" :class="{ active: !selected }">
+    <button
+      :class="{ active: !selected }"
+      @click="setSelected()"
+    >
       Afficher tous
     </button>
     <button
       v-for="v of groupList"
-      :key="v.id"
-      @click="setSelected(v)"
+      :key="v.name"
       :class="{ active: selectedGroupName === v.name }"
       class="tab"
+      @click="setSelected(v)"
     >
       {{ v.name }} ( {{ devicesInGroup(v).length }} )
     </button>

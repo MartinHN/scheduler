@@ -197,10 +197,13 @@ export class ServerModel {
   }
 
   async isAgendaSync(d: Device): Promise<boolean> {
+    console.warn('check ag sync')
     const gname = d.group
     const aname = this.groups[gname]?.agendaFileName
     const savedAg = await ServerAPI.getAgenda(aname)
+    console.warn('got saved ag', d)
     const trueAg = await ServerAPI.getAgendaInfoForDevice(d)
+    console.warn('got true ag')
     const inSync = JSON.stringify(savedAg) === JSON.stringify(trueAg)
     if (!inSync) {
       console.warn('ag out of sync ', savedAg, trueAg)

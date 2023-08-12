@@ -3,17 +3,17 @@
     <!-- OSC : {{value}} -->
     <div class="row">
       <input
-        class="address"
         v-model="value.address"
+        class="address"
         :class="{ invalid: !isValid }"
         @input="save"
-      />
+      >
 
       <input
         class="args"
         :value="value.args.join(' ')"
         @input="setFromText($event.target.value)"
-      />
+      >
     </div>
   </div>
 </template>

@@ -1,27 +1,28 @@
 <template>
   <div class="inauguration">
     <!-- <button @click='this.$router.push("Home")'> back </button> -->
-<div>
-    <div class="row">
-      <img
-        src="img/greenButton.png"
-        :class="{ inactive: !isActive || !btnAreActive }"
-        @click="setLight(true)"
-      />
-      <img
-        src="img/redButton.png"
-        :class="{ inactive: isActive ||  !btnAreActive }"
-        @click="setLight(false)"
-      />
-</div>
-          <button id=agendaBtn
-      :class="{ active: sm.isAgendaDisabled }"
-      :value="sm.isAgendaDisabled"
-      @click="sm.setAgendaDisabled(!sm.isAgendaDisabled)"
-      :style="{ background: sm.isAgendaDisabled ? 'red' : '' }"
-    >
-      Agenda {{sm.isAgendaDisabled?"inactif":("actif - "+sm.nextSiteChange)}}
-    </button>
+    <div>
+      <div class="row">
+        <img
+          src="img/greenButton.png"
+          :class="{ inactive: !isActive || !btnAreActive }"
+          @click="setLight(true)"
+        >
+        <img
+          src="img/redButton.png"
+          :class="{ inactive: isActive || !btnAreActive }"
+          @click="setLight(false)"
+        >
+      </div>
+      <button
+        id="agendaBtn"
+        :class="{ active: sm.isAgendaDisabled }"
+        :value="sm.isAgendaDisabled"
+        :style="{ background: sm.isAgendaDisabled ? 'red' : '' }"
+        @click="sm.setAgendaDisabled(!sm.isAgendaDisabled)"
+      >
+        Agenda {{ sm.isAgendaDisabled?"inactif":("actif - "+sm.nextSiteChange) }}
+      </button>
     </div>
   </div>
 </template>

@@ -6,28 +6,29 @@
         v-model="conf.ip"
         :class="{ invalid: !hasValidIp }"
         @change="save"
-      />
+      >
       <input
         class="port"
         type="number"
         :value="conf.port"
         :class="{ invalid: !hasValidPort }"
         @change="setPort"
-      />
+      >
       loopTime
       <input
         class="port"
         type="number"
         :value="conf.loopTime"
         @change="setLoopTime"
-      />
+      >
     </div>
     <div class="col">
       <div>
         onMessages
         <div class="row">
-          <button @click="addMsg(true)">+</button
-          ><button
+          <button @click="addMsg(true)">
+            +
+          </button><button
             v-if="conf.onMessages && conf.onMessages.length"
             @click="rmMsg(true)"
           >
@@ -36,16 +37,17 @@
         </div>
         <OSCMessageComp
           v-for="(m, i) of conf.onMessages"
+          :key="m.address"
           :value="m"
           @input="msgChange(true, $event, i)"
-          :key="m.id"
-        ></OSCMessageComp>
+        />
       </div>
       <div>
         offMessages
         <div class="row">
-          <button @click="addMsg(false)">+</button
-          ><button
+          <button @click="addMsg(false)">
+            +
+          </button><button
             v-if="conf.offMessages && conf.offMessages.length"
             @click="rmMsg(false)"
           >
@@ -54,10 +56,10 @@
         </div>
         <OSCMessageComp
           v-for="(m, i) of conf.offMessages"
+          :key="m.address"
           :value="m"
           @input="msgChange(false, $event, i)"
-          :key="m.id"
-        ></OSCMessageComp>
+        />
       </div>
     </div>
   </div>

@@ -1,16 +1,30 @@
 <template>
   <div class="devLiust">
     <!-- <input type='number' v-model=updateP /> -->
-    <div class="row" v-if="sm.isAdminMode">
-      <button @click="addDevice">Add Device</button>
-      <button @click="removeDevice">Remove Device</button>
-      <button @click="syncAllDeviceTimes">Sync horloges</button>
-      <br />
+    <div
+      v-if="sm.isAdminMode"
+      class="row"
+    >
+      <button @click="addDevice">
+        Add Device
+      </button>
+      <button @click="removeDevice">
+        Remove Device
+      </button>
+      <button @click="syncAllDeviceTimes">
+        Sync horloges
+      </button>
+      <br>
     </div>
-    <div v-for="v of unregisteredDevice" :key="v.id">
-      {{ v }}<button @click="registerDevice(v.deviceName, v)">register</button>
+    <div
+      v-for="v of unregisteredDevice"
+      :key="v.uuid"
+    >
+      {{ v }}<button @click="registerDevice(v.deviceName, v)">
+        register
+      </button>
     </div>
-    <br />
+    <br>
     <div
       :style="{
         'max-height': selectedDeviceUUID && sm.isAdminMode ? '30vh' : '90vh',
@@ -18,9 +32,9 @@
       }"
     >
       <DeviceRow
-        style="width: 100%"
         v-for="v of sortedKnownDevices"
-        :key="v.id"
+        :key="v.uuid"
+        style="width: 100%"
         :device="v"
         :selected="selectedDeviceUUID === v.uuid && sm.isAdminMode"
         @edit="showInfo(v.uuid)"
@@ -28,10 +42,16 @@
         @deviceEvent="sendDeviceEvent(v.uuid, $event)"
       />
     </div>
-    <div class="devinfo" v-if="selectedDevice !== undefined && sm.isAdminMode">
+    <div
+      v-if="selectedDevice !== undefined && sm.isAdminMode"
+      class="devinfo"
+    >
       <span class="row">
         <div @click="showInfo()">{{ selectedDevice.deviceName }}</div>
-        <div class="closeHeader" @click="showInfo()">X</div>
+        <div
+          class="closeHeader"
+          @click="showInfo()"
+        >X</div>
       </span>
       <DeviceInfo :device="selectedDevice" />
     </div>
@@ -88,7 +108,7 @@ export default class DeviceViewComp extends Vue {
   }
 
   syncAllDeviceTimes () {
-    if (confirm('synchronize tout horloge')) {
+    if (confirm('synchronize toute les horloges')) {
       this.sm.syncAllDeviceTimes()
     }
   }

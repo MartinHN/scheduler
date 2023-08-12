@@ -1,19 +1,30 @@
 <template>
   <div class="config">
-    <button class="flash" @click="resetAgendas">effacer tout Agendas</button>
-    <button @click="resetAll">Reset All Devices And Group</button>
     <button
-      @click="sm.isAdminMode = !sm.isAdminMode"
+      class="flash"
+      @click="resetAgendas"
+    >
+      effacer tout Agendas
+    </button>
+    <button @click="resetAll">
+      Reset All Devices And Group
+    </button>
+    <button
       :class="{ active: sm.isAdminMode }"
+      @click="sm.isAdminMode = !sm.isAdminMode"
     >
       AdminMode
     </button>
-    <button @click="downloadState">Save settings</button
-    ><a id="downloadState" style="display: none" /><input
+    <button @click="downloadState">
+      Save settings
+    </button><a
+      id="downloadState"
+      style="display: none"
+    /><input
       type="file"
       name="load"
       @change="uploadState"
-    />
+    >
   </div>
 </template>
 

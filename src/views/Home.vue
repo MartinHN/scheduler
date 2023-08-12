@@ -1,9 +1,15 @@
 <template>
   <div class="fullpage">
-    <button class="customFont" @click="navigateTo('InaugurationView')">
+    <button
+      class="customFont"
+      @click="navigateTo('InaugurationView')"
+    >
       J'inaugure
     </button>
-    <button class="customFont" @click="navigateTo('AgendasView')">
+    <button
+      class="customFont"
+      @click="navigateTo('AgendasView')"
+    >
       J'installe
     </button>
   </div>

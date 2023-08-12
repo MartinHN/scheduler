@@ -1,27 +1,55 @@
 <template>
   <div id="app">
     <template>
-
-    <div id="diconnectedOverlay" v-if="!sm.isConnectedToServer">
-    <div class=customFont>
-    Déconnécté
-    </div>
-    </div>
-      <nav v-if="shouldDisplayNav" id="nav">
-        <router-link tag="button" to="/">Home</router-link>
+      <div
+        v-if="!sm.isConnectedToServer"
+        id="diconnectedOverlay"
+      >
+        <div class="customFont">
+          Déconnécté
+        </div>
+      </div>
+      <nav
+        v-if="shouldDisplayNav"
+        id="nav"
+      >
+        <router-link
+          tag="button"
+          to="/"
+        >
+          Home
+        </router-link>
         <template v-if="shouldDisplayAdvanced">
-          <router-link tag="button" class="customFont" to="/AgendasView"
-            >Agendas</router-link
+          <router-link
+            tag="button"
+            class="customFont"
+            to="/AgendasView"
           >
-          <router-link tag="button" to="/DevicesView">Devices</router-link>
-          <router-link tag="button" to="/GroupView">Group</router-link>
-          <router-link tag="button" to="/ConfigView" style="max-width: 40px"
-            >Cfg</router-link
+            Agendas
+          </router-link>
+          <router-link
+            tag="button"
+            to="/DevicesView"
           >
+            Devices
+          </router-link>
+          <router-link
+            tag="button"
+            to="/GroupView"
+          >
+            Group
+          </router-link>
+          <router-link
+            tag="button"
+            to="/ConfigView"
+            style="max-width: 40px"
+          >
+            Cfg
+          </router-link>
         </template>
       </nav>
     </template>
-    <router-view></router-view>
+    <router-view />
   </div>
 </template>
 

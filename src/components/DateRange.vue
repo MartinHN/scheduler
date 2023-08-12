@@ -1,20 +1,23 @@
 <template>
   <div>
-    <div class="row" style="justify-content: space-evenly">
+    <div
+      class="row"
+      style="justify-content: space-evenly"
+    >
       <DatePicker
         locale="fr"
         :value="startDate"
         :attributes="getAttr('startInput')"
         @dayclick="dateClick('start', $event)"
       >
-        <template v-slot="{ inputValue, inputEvents }">
+        <template #default="{ inputValue, inputEvents }">
           de
           <input
             id="startInput"
             style="font-size: 1em"
             :value="inputValue"
             v-on="inputEvents"
-          />
+          >
         </template>
       </DatePicker>
       <svg
@@ -37,14 +40,14 @@
         :attributes="getAttr('endInput')"
         @dayclick="dateClick('end', $event)"
       >
-        <template v-slot="{ inputValue, inputEvents }">
+        <template #default="{ inputValue, inputEvents }">
           à
           <input
             id="endInput"
             style="font-size: 1em"
             :value="inputValue"
             v-on="inputEvents"
-          />
+          >
         </template>
       </DatePicker>
     </div>
@@ -98,7 +101,7 @@ export default class DateRangeComp extends Vue {
     return ServerAPI.dateDayFromString(this.value.end)
   }
 
-  private dateClick (id: any, e: any) {
+  public dateClick(id: any, e: any) {
     // const newD = this.value // JSON.parse(JSON.stringify(this.value))// { start: this.value.start, end: this.value.end }
     if (id === 'start') {
       if (e.date > this.endDate) {

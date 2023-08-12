@@ -1,21 +1,26 @@
 <template>
   <div class="deviceInfo">
-    <div v-if="!sm.isDeviceConnected(device.uuid)">NotConnected</div>
+    <div v-if="!sm.isDeviceConnected(device.uuid)">
+      NotConnected
+    </div>
     <span class="row">
       <button @click="setName">{{ device.niceName }} (edit)</button>
 
       <div>{{ device.ip + ":" + device.port }}</div>
       <div @click="setHostName">{{ device.deviceName }}</div>
-      <button @click="reboot" class="warn">reboot</button>
+      <button
+        class="warn"
+        @click="reboot"
+      >reboot</button>
       <div @click="askUpdateTime">{{ localTime }}</div>
-      <div v-if=!isAgendaInSync > agenda not sync</div>
+      <div v-if="!isAgendaInSync"> agenda not sync</div>
     </span>
     <div class="row">
       <button
+        v-for="c of validCapNames"
+        :key="c"
         :class="{ active: selectedCapName == c }"
         @click="selectedCapName = c"
-        v-for="c of validCapNames"
-        :key="c.id"
       >
         {{ c }}
       </button>
@@ -26,8 +31,7 @@
         :name="selectedCapName"
         :port="selectedCapPort"
         :device="device"
-      >
-      </component>
+      />
     </div>
     <!-- <div>{{JSON.stringify(device)}}</div> -->
   </div>

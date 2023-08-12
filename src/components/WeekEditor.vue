@@ -3,21 +3,35 @@
   <div>
     <div>
       <DayEditor
-        style="background: gray"
         v-model="value.defaultDay"
+        style="background: gray"
         @input="$emit('input', value)"
       />
       <h1>Exceptions</h1>
       Ajout jour
       <select @change="addException($event.target.value)">
-        <option v-for="d of availableDays" :key="d.id">{{ d }}</option>
+        <option
+          v-for="d of availableDays"
+          :key="d"
+        >
+          {{ d }}
+        </option>
       </select>
-      <div v-for="v of exceptionList" :key="v.id">
+      <div
+        v-for="v of exceptionList"
+        :key="v.dayName"
+      >
         <div class="exceptionTable">
           <div>{{ v.dayName }}</div>
-          <DayEditor :value="v" @input="$emit('input', value)" />
-          <button @click="removeException(v.dayName)" style="background: red">
-            <img src="img/trash.svg" />
+          <DayEditor
+            :value="v"
+            @input="$emit('input', value)"
+          />
+          <button
+            style="background: red"
+            @click="removeException(v.dayName)"
+          >
+            <img src="img/trash.svg">
           </button>
         </div>
       </div>

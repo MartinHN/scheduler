@@ -1,12 +1,13 @@
 <template>
   <div class="group chooser row">
-    <button id=agendaBtn
+    <button
+      id="agendaBtn"
       :class="{ active: sm.isAgendaDisabled }"
       :value="sm.isAgendaDisabled"
-      @click="sm.setAgendaDisabled(!sm.isAgendaDisabled)"
       :style="{ background: sm.isAgendaDisabled ? 'red' : '' }"
+      @click="sm.setAgendaDisabled(!sm.isAgendaDisabled)"
     >
-      Agenda {{sm.isAgendaDisabled?"inactif":"actif"}}
+      Agenda {{ sm.isAgendaDisabled ? "inactif" : "actif" }}
     </button>
     <select
       style="width: 100%"
@@ -14,19 +15,27 @@
       @change="loadAgendaNamed($event.target.value)"
     >
       <option
-        style="width: 100%"
         v-for="v of agendaNames"
-        :key="v.id"
+        :key="v"
+        style="width: 100%"
         :value="v"
       >
         {{ v }}
       </option>
     </select>
 
-    <button class="flash wmin" @click="saveAgendaToFile">
+    <button
+      class="flash wmin"
+      @click="saveAgendaToFile"
+    >
       sauver ou ajouter Agenda
     </button>
-    <button class="flash wmin" @click="eraseAgendaFile">effacer Agenda</button>
+    <button
+      class="flash wmin"
+      @click="eraseAgendaFile"
+    >
+      effacer Agenda
+    </button>
 
     <!-- <button @click="loadFromFile">load from File</button> -->
     <!-- <button @click="saveToDevice">save To Device</button>

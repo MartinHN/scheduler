@@ -6,14 +6,24 @@
       :class="{ notconnected: !connected, active: selected }"
       @click="edit"
     >
-<div style='display:flex'>
-     <div class="col textName" style='margin-right: 3px;max-width:33%'> {{shortDevName}}</div>
-       <div class="col textName" style='margin-left: 3px;'>{{ this.device.niceName }}</div>
-</div>
+      <div style="display:flex">
+        <div
+          class="col textName"
+          style="margin-right: 3px;max-width:33%"
+        >
+          {{ shortDevName }}
+        </div>
+        <div
+          class="col textName"
+          style="margin-left: 3px;"
+        >
+          {{ device.niceName }}
+        </div>
+      </div>
     </button>
     <button
-      @click="setOnOff(!device.activate)"
       :style="{ background: device.activate ? 'green' : 'gray' }"
+      @click="setOnOff(!device.activate)"
     >
       Turn {{ device.activate ? "Off" : "On" }}
     </button>
@@ -25,19 +35,34 @@
       :value="device.group"
       @input="emitChange('group', $event.target.value)"
     >
-      <option v-for="g of groupNames" :key="g.id">{{ g }}</option>
+      <option
+        v-for="g of groupNames"
+        :key="g"
+      >
+        {{ g }}
+      </option>
     </select>
-    <div v-else style="background: red">add Group first</div>
+    <div
+      v-else
+      style="background: red"
+    >
+      add Group first
+    </div>
     <div
       :style="{
         maxWidth: '130px',
         background: !connected ? 'red' : 'inherit',
-        color: device.rssi < -75 ? 'orange' : 'inherit',
+        color: parseInt(device.rssi) < -75 ? 'orange' : 'inherit',
       }"
     >
-      {{ rssiTxt   }}
+      {{ rssiTxt }}
 
-    <div v-if="isAdminMode && connected" style="max-width:50px">{{isSynchronizing?"sync...":"agendOk"}}</div>
+      <div
+        v-if="isAdminMode && connected"
+        style="max-width:50px"
+      >
+        {{ isSynchronizing?"sync...":"agendOk" }}
+      </div>
     </div>
   </div>
 </template>

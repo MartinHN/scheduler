@@ -14,20 +14,28 @@
           <select
             v-if="Object.keys(currentGroup).length"
             v-model="currentGroup.agendaFileName"
-            @input="saveGroups"
             :class="{ warn: !currentGroup.agendaFileName }"
+            @input="saveGroups"
           >
-            <option v-for="d of availableAgendas" :key="d.id" :value="d">
+            <option
+              v-for="d of availableAgendas"
+              :key="d"
+              :value="d"
+            >
               {{ d }}
             </option>
           </select>
-          <button @click="setGroupValue(true)">On Group</button>
-          <button @click="setGroupValue(false)">Off Group</button>
+          <button @click="setGroupValue(true)">
+            On Group
+          </button>
+          <button @click="setGroupValue(false)">
+            Off Group
+          </button>
         </div>
-        <br />
+        <br>
         <DeviceRow
           v-for="v of displayedDevices"
-          :key="v.id"
+          :key="v.uuid"
           :device="v"
           @input="deviceChanged"
         />

@@ -2,21 +2,22 @@
   <div>
     <div class="row">
       <button
-        @click="showDefaultWeek = true"
         class="tab"
         :class="{ active: showDefaultWeek }"
+        @click="showDefaultWeek = true"
       >
         Semaine par defaut
       </button>
+
       <button
-        @click="showDefaultWeek = false"
         class="tab"
         :class="{ active: !showDefaultWeek }"
+        @click="showDefaultWeek = false"
       >
         Exceptions
       </button>
     </div>
-    <br />
+    <br>
     <div v-if="showDefaultWeek">
       <WeekEditor
         v-model="agenda.defaultWeek"
@@ -24,26 +25,33 @@
       />
     </div>
     <div v-else>
-      <button @click="addAgendaException">+</button>
+      <button @click="addAgendaException">
+        +
+      </button>
       <div class="exceptionTable">
         <template v-for="v of agenda.agendaExceptionList">
-          <button :key="v.id" @click="editName(v)">{{ v.name }} (edit)</button>
+          <button
+            :key="v.name"
+            @click="editName(v)"
+          >
+            {{ v.name }} (edit)
+          </button>
           <DateRangeComp
-            :key="v.id"
+            :key="v.name"
             v-model="v.dates"
             @input="$emit('input', agenda)"
           />
           <DayEditor
-            :key="v.id"
+            :key="v.name"
             v-model="v.dayValue"
             @input="$emit('input', agenda)"
           />
           <button
-            :key="v.id"
-            @click="removeAgendaException(v.name)"
+            :key="v.name"
             style="background: red"
+            @click="removeAgendaException(v.name)"
           >
-            <img src="img/trash.svg" />
+            <img src="img/trash.svg">
           </button>
         </template>
       </div>

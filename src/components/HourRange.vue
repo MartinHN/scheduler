@@ -6,10 +6,10 @@
       <div>fin {{ nextDayText }}</div>
       <vue-timepicker
         v-model="value.start"
-        @change="timeChanged"
         :minute-interval="15"
         hide-clear-button
-      ></vue-timepicker>
+        @change="timeChanged"
+      />
 
       <svg
         style="width: 30px"
@@ -27,10 +27,10 @@
 
       <vue-timepicker
         v-model="value.end"
-        @change="timeChanged"
         :minute-interval="15"
         hide-clear-button
-      ></vue-timepicker>
+        @change="timeChanged"
+      />
     </div>
   </div>
 </template>
