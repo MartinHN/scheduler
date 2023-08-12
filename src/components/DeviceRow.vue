@@ -70,16 +70,13 @@ export default class DeviceRow extends Vue {
     // ask actual state without args
     this.sm.sendDeviceEvent(this.device.uuid, { type: 'activate' })
     this.sm.sendDeviceEvent(this.device.uuid, { type: 'niceName' })
-    this._fetchDev = setTimeout(() => { this.fetchDeviceInfo() }, Math.random() * this.fechtP)
+    this._fetchDev = setTimeout(() => { this.fetchDeviceInfo() }, Math.random() * 500)
     this.connected = false
   }
 
   destroyed (): void {
     if (this._fetchDev) {
       clearTimeout(this._fetchDev)
-    }
-    if (this._updateCon) {
-      clearTimeout(this._updateCon)
     }
   }
 
@@ -123,17 +120,10 @@ export default class DeviceRow extends Vue {
 
   fetchDeviceInfo (): void {
     if (this._fetchDev)clearTimeout(this._fetchDev)
-    this.updateConState()
+
     console.log('fetching', this.device?.deviceName)
-    // this.sm.sendDeviceEvent(this.device.uuid, { type: 'rssi' })
-    getRSSIFromDevice(this.device, this.fechtP - 500).then(res => {
-      if (this.device) {
-        this.device.rssi = parseInt(res)
-        this.device.lastTimeModified = new Date()
-      } else console.error('no device but fetched rssi')
-    }).catch(e => {
-      console.error('failed getting rssi', e)
-    })
+    this.sm.sendDeviceEvent(this.device.uuid, { type: 'rssi' })
+    this.updateConState()
     this.lastAsked = new Date()
     this._fetchDev = setTimeout(this.fetchDeviceInfo.bind(this), this.fechtP)
   }
@@ -147,15 +137,15 @@ export default class DeviceRow extends Vue {
     const now = new Date()
     const dt = now.getTime() - lt
     const newConState = !!this.device && (dt >= 0 && dt < this.delayToBeDead)
-    const pingT = lt - this.lastAsked
+    const pingT = lt - this.lastAsked.getTime()
     const wasFastPing = pingT >= 0 && (pingT < 200)
     this.numFastPing = wasFastPing ? this.numFastPing + 1 : 0
     this.numFastPing = Math.max(0, Math.min(5, this.numFastPing))
     this.fechtP = this.numFastPing === 5 ? this.slowFechtP : this.fastFechtP
-    if (newConState) console.log(this.device?.deviceName + ' response took ', lt - this.lastAsked, 'ms')
+    if (newConState) console.log(this.device?.deviceName + ' last response took ~', lt - this.lastAsked.getTime(), 'ms')
     console.log(this.device?.deviceName + 'was modified ', dt, 'ms ago')
 
-    if (this.connected && !this.isAgendaInSync) {
+    if (newConState && !this.isAgendaInSync) {
       this.refreshAgendaStatus()
     }
 
