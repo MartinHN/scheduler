@@ -37,13 +37,13 @@ import { ServerModel } from '@/API/ServerModel'
 @Component({})
 export default class GroupListComp extends Vue {
   @Prop({ required: true })
-  groups!: Groups;
+    groups!: Groups
 
   get sm (): ServerModel {
     return (this.$root as any).sm
   }
 
-  selected: Group | null = null;
+  selected: Group | null = null
   mounted (): void {
     this.setSelected(null)
   }

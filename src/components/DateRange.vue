@@ -73,7 +73,7 @@ interface DateRange {
 })
 export default class DateRangeComp extends Vue {
   @Prop({ required: true })
-  private value!: DateRange;
+  private value!: DateRange
 
   mounted () {
     console.log(

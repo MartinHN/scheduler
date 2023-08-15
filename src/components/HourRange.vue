@@ -55,7 +55,7 @@ const getSeconds = (s: string) => {
 })
 export default class HourRangeComp extends Vue {
   @Prop({ required: true })
-  public value!: HourRange;
+  public value!: HourRange
 
   timeChanged (e: any): void {
     // console.log('>>>>>', this.isValid)

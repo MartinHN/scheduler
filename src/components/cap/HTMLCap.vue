@@ -25,13 +25,13 @@ const ipNumRegex =
 @Component({ components: { OSCMessageComp } })
 export default class HTMLCap extends Vue {
   @Prop({ required: true })
-  device!: Device;
+    device!: Device
 
   @Prop({ required: true })
-  name!: string;
+    name!: string
 
   @Prop({ required: true })
-  port!: number;
+    port!: number
 
   get capURL () {
     return `http://${this.device.ip}:${this.port}`

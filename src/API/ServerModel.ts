@@ -11,19 +11,19 @@ export class ServerModel {
 
   agendaFileNames = [] as string[]
 
-  isAdminMode = false;
-  isConnectedToServer = false;
+  isAdminMode = false
+  isConnectedToServer = false
 
-  loadedAgenda = createDefaultAgenda();
-  loadedAgendaNextChange = '';
-  nextSiteChange = '';
-  _hasLoadedFirst = false;
+  loadedAgenda = createDefaultAgenda()
+  loadedAgendaNextChange = ''
+  nextSiteChange = ''
+  _hasLoadedFirst = false
 
-  isInaugurationMode = false;
-  inaugurationHasControl = false;
-  isAgendaDisabled = false;
+  isInaugurationMode = false
+  inaugurationHasControl = false
+  isAgendaDisabled = false
 
-  isDNSActive = false;
+  isDNSActive = false
   constructor() {
     ws.init(this.newMessageFromWS.bind(this), (isCon) => {
       if (isCon) {

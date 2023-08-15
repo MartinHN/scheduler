@@ -1,4 +1,3 @@
-
 <template>
   <div>
     <div>
@@ -54,7 +53,7 @@ import * as ServerAPI from '@/API/ServerAPI'
 })
 export default class WeekEditor extends Vue {
   @Prop({ required: true })
-  value!: WeekHours;
+    value!: WeekHours
 
   // mounted ():void {
 

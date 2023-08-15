@@ -82,12 +82,12 @@ const ipNumRegex =
 @Component({ components: { OSCMessageComp } })
 export default class OSCCapComp extends Vue {
   @Prop({ required: true })
-  device!: Device;
+    device!: Device
 
   @Prop({ required: true })
-  name!: string;
+    name!: string
 
-  conf = getDefaultOSCCap();
+  conf = getDefaultOSCCap()
 
   @Watch('name')
   nameCh () {

@@ -60,8 +60,8 @@ import { ServerModel } from '@/API/ServerModel'
 
 @Component({})
 export default class AppComp extends Vue {
-  shouldDisplayNav = true;
-  shouldDisplayAdvanced = false;
+  shouldDisplayNav = true
+  shouldDisplayAdvanced = false
 
   mounted () {
     const fun = (to: Route, from: Route): any => {

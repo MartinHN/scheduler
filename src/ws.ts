@@ -1,4 +1,3 @@
-
 let connection !: WebSocket
 
 function msg(m: string) {

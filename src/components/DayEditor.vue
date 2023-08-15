@@ -1,4 +1,3 @@
-
 <template>
   <div>
     <div class="row">
@@ -7,6 +6,7 @@
           v-for="v of value.hourRangeList"
         >
           <HourRangeComp
+            :key="v.start + v.end"
             :value="v"
             @input="$emit('input', value)"
           />
@@ -49,7 +49,7 @@ import * as ServerAPI from '@/API/ServerAPI'
 })
 export default class DayEditor extends Vue {
   @Prop({ required: true })
-  value!: DayType;
+    value!: DayType
 
   // mounted ():void {
 

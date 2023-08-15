@@ -48,13 +48,13 @@ import HTMLCap from './cap/HTMLCap.vue'
 @Component({ components: { OSCCap, HTMLCap } })
 export default class DeviceInfo extends Vue {
   @Prop({ required: true })
-  device!: Device;
+    device!: Device
 
-  deviceTimeInfo = { localTime: '', utcTime: '' };
-  _fetchTime = undefined as any;
-  selectedCapName = '';
+  deviceTimeInfo = { localTime: '', utcTime: '' }
+  _fetchTime = undefined as any
+  selectedCapName = ''
 
-  isAgendaInSync = false;
+  isAgendaInSync = false
 
   mounted () {
     // ask actual state without args

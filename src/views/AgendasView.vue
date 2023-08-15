@@ -58,7 +58,7 @@ export default class AgendasView extends Vue {
     return this.editedAgenda?.name || 'none'
   }
 
-  agendaFileNames: string[] = [];
+  agendaFileNames: string[] = []
 
   // get agendaNameSorted ():string[] {
   //   if (!this.agendas) { return [] }

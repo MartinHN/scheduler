@@ -76,21 +76,21 @@ import { ServerModel } from '@/API/ServerModel'
 @Component({})
 export default class DeviceRow extends Vue {
   @Prop({ default: false })
-  selected!: boolean;
+    selected!: boolean
 
   @Prop({ required: true })
-  device!: Device;
+    device!: Device
 
-  fechtP = 2500;
-  slowFechtP = 5000;
-  fastFechtP = 2500;
-  numFastPing = 0;
-  delayToBeDead = 5 * 1000;
+  fechtP = 2500
+  slowFechtP = 5000
+  fastFechtP = 2500
+  numFastPing = 0
+  delayToBeDead = 5 * 1000
 
-  lastAsked = new Date();
-  _fetchDev = undefined as any;
-  connected = false;
-  isAgendaInSync = false;
+  lastAsked = new Date()
+  _fetchDev = undefined as any
+  connected = false
+  isAgendaInSync = false
   mounted () {
     // ask actual state without args
     this.sm.sendDeviceEvent(this.device.uuid, { type: 'activate' })
@@ -157,7 +157,7 @@ export default class DeviceRow extends Vue {
     if (this.isAdminMode && this.connected) { this.isAgendaInSync = await this.sm.isAgendaSync(this.device) } else { this.isAgendaInSync = false }
   }
 
-  updateConState ():void{
+  updateConState ():void {
     const lt = this.device?.lastTimeModified.getTime()
     const now = new Date()
     const dt = now.getTime() - lt

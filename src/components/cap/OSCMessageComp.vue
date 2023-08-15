@@ -25,7 +25,7 @@ import { OSCTrigMessage } from '@/API/types/CapTypes'
 @Component({})
 export default class OSCMessageComp extends Vue {
   @Prop({ required: true })
-  value!: OSCTrigMessage;
+    value!: OSCTrigMessage
 
   get isValid () {
     return (

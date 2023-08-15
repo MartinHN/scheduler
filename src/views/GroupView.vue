@@ -86,7 +86,7 @@ export default class GroupView extends Vue {
     return this.sm.groups
   }
 
-  currentGroupName = '';
+  currentGroupName = ''
   get displayedDevices () {
     if (!this.currentGroupName) {
       return this.sortedKnownDevices

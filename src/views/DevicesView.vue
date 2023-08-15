@@ -80,7 +80,7 @@ import { ServerModel } from '@/API/ServerModel'
 export default class DeviceViewComp extends Vue {
   // availableGroups = [] as Groups
 
-  selectedDeviceUUID = '';
+  selectedDeviceUUID = ''
 
   mounted (): void {
     this.sm.requestServerInfo()

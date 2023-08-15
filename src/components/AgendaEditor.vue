@@ -82,9 +82,9 @@ import {
 })
 export default class AgendaEditor extends Vue {
   @Prop({ required: true })
-  agenda!: Agenda;
+    agenda!: Agenda
 
-  showDefaultWeek = true;
+  showDefaultWeek = true
   // mounted ():void {
 
   // }
