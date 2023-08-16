@@ -2,6 +2,7 @@ import { getJSON, getText, postJSON, deleteJSON } from '@/API/HTTPAPI'
 import * as ScheduleTypes from './types/ScheduleTypes'
 import { Agenda, WeekHours, HourRange } from './types/ScheduleTypes'
 import { Device, Group, Groups, DeviceDic } from './types/DeviceTypes'
+import { LoraState } from './types/LoraState'
 export * from './types/ScheduleTypes'
 export * from './types/DeviceTypes'
 
@@ -76,4 +77,15 @@ export async function saveState(state: { knownDevices: any, agendas: any, groups
 
 export async function getState(): Promise<Groups> {
   return await getJSON('state')
+}
+
+/// ////////////////
+// Lora
+
+export async function saveLoraState(state: LoraState): Promise<void> {
+  await postJSON('lora/state', state)
+}
+
+export async function getLoraState(): Promise<LoraState> {
+  return await getJSON('lora/state')
 }

@@ -40,6 +40,13 @@
             Group
           </router-link>
           <router-link
+            v-if="sm.isAdminMode"
+            tag="button"
+            to="/LoraView"
+          >
+            Lora
+          </router-link>
+          <router-link
             tag="button"
             to="/ConfigView"
             style="max-width: 40px"

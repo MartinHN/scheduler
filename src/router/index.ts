@@ -6,6 +6,7 @@ import DevicesView from '../views/DevicesView.vue'
 import InaugurationView from '../views/InaugurationView.vue'
 import GroupView from '../views/GroupView.vue'
 import ConfigView from '../views/ConfigView.vue'
+import LoraView from '../views/LoraView.vue'
 
 Vue.use(VueRouter)
 
@@ -39,6 +40,11 @@ const routes: Array<RouteConfig> = [
     path: '/InaugurationView',
     name: 'InaugurationView',
     component: InaugurationView
+  },
+  {
+    path: '/LoraView',
+    name: 'LoraView',
+    component: LoraView
   }
   // {
   //   path: '/about',
