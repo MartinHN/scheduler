@@ -1,9 +1,7 @@
 <template>
   <div>
     <br>
-    <div class="row">
-      <AgendasList />
-    </div>
+    <AgendasList />
     <br><br>
     <div> {{ sm.loadedAgendaNextChange }}</div>
     <AgendaEditor

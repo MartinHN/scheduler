@@ -184,8 +184,8 @@ button {
   padding-right: 8px;
   border-radius: 5px;
   min-height: var(--btn-h);
-  min-width: calc(min(40px, 15vw));
-  flex: 1 0 15vw;
+  min-width: calc(min(40px, 10vw));
+  flex: 1 1 20vw;
 }
 @media screen and (width< 400px) {
    body{
@@ -218,6 +218,8 @@ button {
   z-index: 10000;
   color: red;
   background: #000000db;
+  width:100%
+
 }
 
 #diconnectedOverlay div{

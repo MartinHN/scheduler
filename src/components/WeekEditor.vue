@@ -7,8 +7,18 @@
         @input="$emit('input', value)"
       />
       <h1>Exceptions</h1>
-      Ajout jour
-      <select @change="addException($event.target.value)">
+      <select
+        id="newDaysSelect"
+        ref="newDaysSelect"
+        @input="addException($event.target.value)"
+      >
+        <option
+          selected
+          value
+          disabled
+        >
+          + ajouter un jour
+        </option>
         <option
           v-for="d of availableDays"
           :key="d"
@@ -80,6 +90,12 @@ export default class WeekEditor extends Vue {
     } else {
       console.error('invalid day name', d)
     }
+    const dob = this.$refs.newDaysSelect as HTMLSelectElement
+    dob.selectedIndex = 0
+    // for (const o of dob.options) {
+    //   o.selected = false
+    // }
+
     this.$emit('input', this.value)
   }
 

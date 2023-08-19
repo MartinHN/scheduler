@@ -19,6 +19,23 @@
     </div>
     <br>
     <div v-if="showDefaultWeek">
+      <div
+        v-if="sm.isAdminMode"
+        style="display: flex;background-color: black;"
+      >
+        <div style="flex: 1 1 30vw;">
+          Global loop time
+        </div>
+        <VueTimepicker
+
+          :value="loopTimeStr"
+          input-width="100%"
+          format="mm:ss"
+          hide-clear-button
+          style="margin-bottom: 10px;flex: auto;"
+          @change="setLoopTimeStr"
+        />
+      </div>
       <WeekEditor
         v-model="agenda.defaultWeek"
         @input="$emit('input', agenda)"
@@ -63,7 +80,7 @@
 // @ is an alias to /src
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import WeekEditor from '@/components/WeekEditor.vue'
-
+import VueTimepicker from 'vue2-timepicker/src/vue-timepicker.vue'
 import DayEditor from '@/components/DayEditor.vue'
 import DateRangeComp from '@/components/DateRange.vue'
 
@@ -72,12 +89,14 @@ import {
   Agenda,
   AgendaException
 } from '@/API/ServerAPI'
+import { ServerModel } from '@/API/ServerModel'
 
 @Component({
   components: {
     WeekEditor,
     DayEditor,
-    DateRangeComp
+    DateRangeComp,
+    VueTimepicker
   }
 })
 export default class AgendaEditor extends Vue {
@@ -88,6 +107,34 @@ export default class AgendaEditor extends Vue {
   // mounted ():void {
 
   // }
+
+  get sm(): ServerModel {
+    return (this.$root as any).sm
+  }
+
+  get loopTimeStr() {
+    let ts = this.agenda.loopTimeSec
+    if (ts === undefined) { return 'mm:ss' }
+    ts = Math.floor(ts)
+    const m = Math.floor(ts / 60)
+    const s = ts % 60
+    const twoDig = (n: number) => {
+      return ('0' + n).slice(-2)
+    }
+    return twoDig(m) + ':' + twoDig(s)
+  }
+
+  setLoopTimeStr(ev) {
+    const n = '' + ev?.displayTime
+    // if (!(n instanceof String)) { console.error('invalid loop str', n, ev); return }
+    const spl = n.replace('mm', '0').replace('ss', '0').split(':')
+    if (spl.length !== 2) return
+    const m = parseInt(spl[0]) * 60
+    const s = parseInt(spl[1])
+    console.log('setting loop', m + s, spl)
+    this.agenda.loopTimeSec = m + s
+    this.$emit('input', this.agenda)
+  }
 
   defaultAgendaExceptions () {
     return this.agenda.defaultWeek.exceptions
