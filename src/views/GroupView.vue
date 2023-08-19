@@ -6,11 +6,16 @@
         :groups="groups"
         @input="setSelectedGroup($event)"
       />
-      <div>
+      <div class="displayedGroup">
         <div class="row">
-          <div>
+          <!-- <div>
             <h1>{{ currentGroupName ? currentGroupName : "All" }}</h1>
-          </div>
+          </div> -->
+          <img
+            v-if="Object.keys(currentGroup).length"
+            src="img/calendar.svg"
+            style="    max-width: 3em;"
+          >
           <select
             v-if="Object.keys(currentGroup).length"
             v-model="currentGroup.agendaFileName"
@@ -33,12 +38,14 @@
           </button>
         </div>
         <br>
-        <DeviceRow
-          v-for="v of displayedDevices"
-          :key="v.uuid"
-          :device="v"
-          @input="deviceChanged"
-        />
+        <div class="displayedDevices">
+          <DeviceRow
+            v-for="v of displayedDevices"
+            :key="v.uuid"
+            :device="v"
+            @input="deviceChanged"
+          />
+        </div>
       </div>
     </div>
     <!--
@@ -164,14 +171,26 @@ export default class GroupView extends Vue {
 div.grouplist {
   /* overflow-y: auto; */
   max-height: 700px;
+  display:grid;
+  max-width:260px;
+  flex:auto;
   position: sticky;
   align-self: flex-start;
   top: calc(var(--nav-header-h) - var(--btn-h));
 }
 
 .main {
-  display: grid;
+  display: flex;
   grid-template-columns: 1fr 3fr;
   grid-gap: 15px;
+}
+
+.displayedGroup{
+  flex:auto
+}
+.displayedDevices{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
 }
 </style>

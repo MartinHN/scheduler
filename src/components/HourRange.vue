@@ -1,11 +1,13 @@
 <template>
   <div class="hours">
-    <div style="display: grid; grid-template: 15px 1fr / 1fr 10px 1fr">
+    <div style="display: grid; grid-template: 1.2em 1fr / 1fr 30px 1fr">
       <div>début</div>
       <div />
       <div>fin {{ nextDayText }}</div>
       <vue-timepicker
         v-model="value.start"
+
+        input-width="100%"
         :minute-interval="15"
         hide-clear-button
         @change="timeChanged"
@@ -27,6 +29,7 @@
 
       <vue-timepicker
         v-model="value.end"
+        input-width="100%"
         :minute-interval="15"
         hide-clear-button
         @change="timeChanged"
@@ -94,8 +97,5 @@ export default class HourRangeComp extends Vue {
   /* align-items: center; */
   align-self: center;
 }
-.time-picker {
-  min-width: 50px;
-  width: inherit;
-}
+
 </style>

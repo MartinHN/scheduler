@@ -18,7 +18,7 @@
         id="agendaBtn"
         :class="{ active: sm.isAgendaDisabled }"
         :value="sm.isAgendaDisabled"
-        :style="{ background: sm.isAgendaDisabled ? 'red' : '' }"
+        :style="{ width: '100%', background: sm.isAgendaDisabled ? 'red' : '' }"
         @click="sm.setAgendaDisabled(!sm.isAgendaDisabled)"
       >
         Agenda {{ sm.isAgendaDisabled?"inactif":("actif - "+sm.nextSiteChange) }}

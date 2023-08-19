@@ -5,9 +5,9 @@
       v-if="sm.isAdminMode"
       class="row"
     >
-      <button @click="addDevice">
+      <!-- <button @click="addDevice">
         Add Device
-      </button>
+      </button> -->
       <button @click="removeDevice">
         Remove Device
       </button>
@@ -30,6 +30,7 @@
         'max-height': selectedDeviceUUID && sm.isAdminMode ? '30vh' : '90vh',
         'overflow-y': 'auto',
       }"
+      class="devices"
     >
       <DeviceRow
         v-for="v of sortedKnownDevices"
@@ -84,7 +85,8 @@ export default class DeviceViewComp extends Vue {
 
   mounted (): void {
     this.sm.requestServerInfo()
-    this.sm.setDNSActive(true)
+    console.log('mounted', this.sm.isAdminMode)
+    if (this.sm.isAdminMode) { this.sm.setDNSActive(true) }
   }
 
   get sm (): ServerModel {
@@ -191,11 +193,18 @@ export default class DeviceViewComp extends Vue {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+
+.devices{
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
 .devinfo {
   background: black;
   position: fixed;
   bottom: 0px;
   min-height: 50vh;
+  width: 100%;
 }
 .devinfo .closeHeader {
   min-height: 50px;

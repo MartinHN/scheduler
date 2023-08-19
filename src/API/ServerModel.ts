@@ -149,7 +149,7 @@ export class ServerModel {
   setDeviceNiceName(d: Device, nname: string): void {
     d.niceName = nname
     this.sendDeviceEvent(d.uuid, { type: 'niceName', value: nname })
-    ServerAPI.saveKnownDeviceDic(this.knownDevices)
+    ServerAPI.saveKnownDeviceDic(this.knownDevices).catch(console.error)
   }
 
   dateToStr(dd: Date): string {

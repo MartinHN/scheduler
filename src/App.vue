@@ -5,9 +5,7 @@
         v-if="!sm.isConnectedToServer"
         id="diconnectedOverlay"
       >
-        <div class="customFont">
-          Déconnécté
-        </div>
+        Déconnécté
       </div>
       <nav
         v-if="shouldDisplayNav"
@@ -22,7 +20,6 @@
         <template v-if="shouldDisplayAdvanced">
           <router-link
             tag="button"
-            class="customFont"
             to="/AgendasView"
           >
             Agendas
@@ -62,7 +59,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import { Route } from 'vue-router'
+import { NavigationGuardNext, Route } from 'vue-router'
 import { ServerModel } from '@/API/ServerModel'
 
 @Component({})
@@ -71,13 +68,18 @@ export default class AppComp extends Vue {
   shouldDisplayAdvanced = false
 
   mounted () {
-    const fun = (to: Route, from: Route): any => {
-      this.shouldDisplayNav = to.name !== 'Home'
-      this.shouldDisplayAdvanced =
-        this.shouldDisplayNav && to.name !== 'InaugurationView'
+    this.$router.afterEach(this.postRouteHook.bind(this))
+
+    this.postRouteHook(this.$router.currentRoute, this.$router.currentRoute)
+    if (localStorage) {
+      this.sm.isAdminMode = localStorage.getItem('admin') === '1'
     }
-    this.$router.afterEach(fun.bind(this))
-    fun(this.$router.currentRoute, this.$router.currentRoute)
+  }
+
+  postRouteHook(to: Route, from: Route) {
+    this.shouldDisplayNav = to.name !== 'Home'
+    this.shouldDisplayAdvanced =
+      this.shouldDisplayNav && to.name !== 'InaugurationView'
   }
 
   get sm (): ServerModel {
@@ -103,6 +105,7 @@ export default class AppComp extends Vue {
 
   /* grid-auto-columns:auto; */
   min-height: 100vh;
+  min-width: 100vw;
 }
 
 body {
@@ -110,7 +113,8 @@ body {
   color: white;
   margin: 0;
 }
-#app *:not(.customFont) {
+
+ *{
   font-size: 1em;
   box-sizing: border-box;
 }
@@ -152,6 +156,7 @@ body {
   color: white;
   min-height: var(--nav-header-h);
   font-size: inherit;
+  flex: 1 0 10vw;
 }
 /* globals APP */
 button:not(.active) {
@@ -175,21 +180,25 @@ button.active {
 }
 button {
   font-size: 1em;
-
+  padding-left: 8px;
+  padding-right: 8px;
   border-radius: 5px;
   min-height: var(--btn-h);
-  min-width: 50px;
-  margin-bottom: 5px;
-  width: 100%;
+  min-width: calc(min(40px, 15vw));
+  flex: 1 0 15vw;
 }
+@media screen and (width< 400px) {
+   body{
+    font-size: 10px;
+  }
 
+}
 #app select {
   min-height: 50px;
   font-size: 1em;
   border-radius: 5px;
-  margin-bottom: 5px;
-  min-width: 200px;
-  max-width: 30vw;
+  min-width: calc(min(100px, 15vw));
+  /* max-width: calc(min(300px, 25vw)); */
 }
 
 #app input {
@@ -217,14 +226,13 @@ button {
 
 }
 
-div {
+/* div {
   width: 100%;
-}
+} */
 
 input {
   min-height: 30px;
   min-width: 50px;
-  margin-bottom: 5px;
   width: inherit;
 }
 
@@ -248,4 +256,5 @@ input {
 .warn {
   background: red;
 }
+
 </style>

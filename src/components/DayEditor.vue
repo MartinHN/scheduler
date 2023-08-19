@@ -3,10 +3,10 @@
     <div class="row">
       <div class="hours">
         <template
-          v-for="v of value.hourRangeList"
+          v-for="(v, i) of value.hourRangeList"
         >
           <HourRangeComp
-            :key="v.start + v.end"
+            :key="i"
             :value="v"
             @input="$emit('input', value)"
           />
@@ -14,7 +14,7 @@
       </div>
       <div
         v-if="value.hourRangeList.length == 0"
-        style="background: red"
+        style="background: red;width:100%"
       >
         OFF
       </div>
@@ -76,6 +76,7 @@ button {
 }
 
 .hours {
+  flex: 1 1 auto;
   flex-wrap: wrap;
 }
 </style>

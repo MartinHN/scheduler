@@ -10,7 +10,7 @@
     </div>
     <button
       :class="{ active: !selected }"
-      @click="setSelected()"
+      @click="setSelected(null)"
     >
       Afficher tous
     </button>
@@ -100,4 +100,5 @@ export default class GroupListComp extends Vue {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+
 </style>

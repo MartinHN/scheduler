@@ -78,14 +78,19 @@ export default class DeviceInfo extends Vue {
     this.refreshAgendaStatus()
   }
 
+  dbgConError(...e) {
+    if (this.connected) { console.error(e) } else console.log(e)
+  }
+
   async refreshTime () {
     this.deviceTimeInfo = await getTimeInfoForDevice(this.device).catch((e) =>
-      console.error('time not avazilable on endpoint', e)
+      this.dbgConError('time not avazilable on endpoint', e)
     )
   }
 
   async refreshAgendaStatus() {
-    this.isAgendaInSync = await this.sm.isAgendaSync(this.device)
+    this.isAgendaInSync = !!await this.sm.isAgendaSync(this.device).catch((e) =>
+      this.dbgConError('cant get agenda on endpoint', e))
   }
 
   askUpdateTime () {

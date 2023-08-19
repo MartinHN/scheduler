@@ -39,6 +39,6 @@ export default class HomeComp extends Vue {
 }
 
 .fullpage button {
-  font-size: 4em;
+  font-size: 4rem;
 }
 </style>

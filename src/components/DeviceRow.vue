@@ -1,37 +1,49 @@
 <template>
   <div class="deviceRow">
     <button
-      style="width: 100%"
-      class="tab"
+      class="tab defaultItem"
       :class="{ notconnected: !connected, active: selected }"
       @click="edit"
     >
-      <div style="display:flex">
+      <div
+        class="nameContainer"
+        style="margin-right:10px; "
+      >
         <div
           class="col textName"
-          style="margin-right: 3px;max-width:33%"
         >
+          <img
+            v-if="shortDevName.startsWith('L')"
+            class="minIcon"
+            src="img/bulbNSpeakH.svg"
+          >
+          <img
+            v-if="shortDevName.startsWith('R')"
+            class="minIcon"
+            src="img/relay.svg"
+          >
           {{ shortDevName }}
         </div>
         <div
           class="col textName"
-          style="margin-left: 3px;"
         >
           {{ device.niceName }}
         </div>
       </div>
     </button>
     <button
-      :style="{ background: device.activate ? 'green' : 'gray' }"
+      class="defaultItem"
+      :style="{ minWidth: '15vw', background: device.activate ? 'green' : 'gray' }"
       @click="setOnOff(!device.activate)"
     >
-      Turn {{ device.activate ? "Off" : "On" }}
+      {{ sm.isAgendaDisabled ? "Turn " : "" }}{{ device.activate ? "Off" : "On" }}
     </button>
     <!-- <button @click=setOnOff(true)> On </button>
           <button @click=setOnOff(false)> Off </button> -->
 
     <select
       v-if="groupNames && groupNames.length"
+      class="groupSelect"
       :value="device.group"
       @input="emitChange('group', $event.target.value)"
     >
@@ -44,13 +56,15 @@
     </select>
     <div
       v-else
+      class="groupSelect"
       style="background: red"
     >
       add Group first
     </div>
     <div
       :style="{
-        maxWidth: '130px',
+        flex: '0.001 1 5em',
+        borderRadius: '5px',
         background: !connected ? 'red' : 'inherit',
         color: parseInt(device.rssi) < -75 ? 'orange' : 'inherit',
       }"
@@ -157,6 +171,18 @@ export default class DeviceRow extends Vue {
     if (this.isAdminMode && this.connected) { this.isAgendaInSync = await this.sm.isAgendaSync(this.device) } else { this.isAgendaInSync = false }
   }
 
+  niceDebugMs(ms: number) {
+    if (ms < 1000) { return ms + 'ms' }
+    ms = Math.floor(ms / 1000)
+    if (ms < 60) { return ms + 's' }
+    ms = Math.floor(ms / 60)
+    if (ms < 60) { return ms + 'm' }
+    ms = Math.floor(ms / 60)
+    if (ms < 24) { return ms + 'h' }
+    ms = Math.floor(ms / 24)
+    return ms + 'days'
+  }
+
   updateConState ():void {
     const lt = this.device?.lastTimeModified.getTime()
     const now = new Date()
@@ -168,7 +194,7 @@ export default class DeviceRow extends Vue {
     this.numFastPing = Math.max(0, Math.min(5, this.numFastPing))
     this.fechtP = this.numFastPing === 5 ? this.slowFechtP : this.fastFechtP
     if (newConState) console.log(this.device?.deviceName + ' last response took ~', lt - this.lastAsked.getTime(), 'ms')
-    console.log(this.device?.deviceName + 'was modified ', dt, 'ms ago')
+    console.log(this.device?.deviceName + 'was modified ', this.niceDebugMs(dt), ' ago')
 
     if (newConState && !this.isAgendaInSync) {
       this.refreshAgendaStatus()
@@ -187,6 +213,10 @@ export default class DeviceRow extends Vue {
   // }
 
   setOnOff (b: boolean): void {
+    if (!this.sm.isAgendaDisabled) {
+      const msg = "L'agenda est encore actif et ne prendra pas en compte la commande\n voulez vous désactiver l'agenda?"
+      if (confirm(msg)) { this.sm.isAgendaDisabled = true } else return
+    }
     this.sm.activateDevice(this.device, b)
   }
 
@@ -204,15 +234,53 @@ export default class DeviceRow extends Vue {
 </script>
 
 <style scoped>
+
+.defaultItem{
+  flex:1 1 30%;
+}
+
+#app .groupSelect{
+  max-width: 25vw;
+  min-width: 10vw;
+  flex:1 0 10vw;
+}
+
+div {
+  width: 100%;
+  white-space: nowrap;
+}
+
 .deviceRow {
   width: 100%;
   background: black;
+  border-radius: 5px;
   display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  filter: drop-shadow(2px 3px 3px black);
 }
 
+.minIcon{
+  max-height: 20px;
+  margin: 0 5px 0 0;
+  align-self: center;
+}
 .textName{
   overflow-wrap: anywhere;
   text-align: left;
-      justify-content: flex-start;
+  justify-content: flex-start;
+  align-items: center;
+  white-space: nowrap;
 }
+
+.tab{
+  flex-shrink: 0;
+}
+
+.nameContainer{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
 </style>

@@ -103,7 +103,7 @@ export default class WeekEditor extends Vue {
   background: black;
   border: 1px solid black;
   display: grid;
-  grid-template-columns: 1fr 7fr 1fr;
+  grid-template-columns: 5em 7fr 1fr;
   grid-gap: 1px 1px;
 }
 .exceptionTable > * {

@@ -2,9 +2,6 @@
   <div>
     <br>
     <div class="row">
-      <div class="wmin">
-        Liste des agendas
-      </div>
       <AgendasList />
     </div>
     <br><br>

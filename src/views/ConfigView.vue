@@ -1,5 +1,5 @@
 <template>
-  <div class="config">
+  <div class="main">
     <button
       class="flash"
       @click="resetAgendas"
@@ -11,7 +11,7 @@
     </button>
     <button
       :class="{ active: sm.isAdminMode }"
-      @click="sm.isAdminMode = !sm.isAdminMode"
+      @click="setAdminMode(!sm.isAdminMode)"
     >
       AdminMode
     </button>
@@ -39,6 +39,7 @@ import { Group, Groups, Device } from '@/API/ServerAPI'
 import GroupList from '@/components/GroupList.vue'
 import DeviceRow from '@/components/DeviceRow.vue'
 import { ServerModel } from '@/API/ServerModel'
+
 @Component({
   components: {}
 })
@@ -116,6 +117,11 @@ export default class ConfigView extends Vue {
     fileReader.readAsText(file)
     // await ServerAPI.setState(a)
   }
+
+  setAdminMode(b) {
+    this.sm.isAdminMode = !!b
+    if (localStorage) { localStorage.setItem('admin', b ? '1' : '0') }
+  }
 }
 </script>
 
@@ -131,7 +137,7 @@ div.grouplist {
 
 .main {
   display: grid;
-  grid-template-columns: 1fr 3fr;
-  grid-gap: 15px;
+
+  grid-gap: 5px;
 }
 </style>

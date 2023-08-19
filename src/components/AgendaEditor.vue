@@ -26,7 +26,7 @@
     </div>
     <div v-else>
       <button @click="addAgendaException">
-        +
+        + Ajout d'une exception
       </button>
       <div class="exceptionTable">
         <template v-for="v of agenda.agendaExceptionList">

@@ -14,7 +14,7 @@
           de
           <input
             id="startInput"
-            style="font-size: 1em"
+            style="font-size: 1em;width: 15vw;"
             :value="inputValue"
             v-on="inputEvents"
           >
@@ -44,7 +44,7 @@
           à
           <input
             id="endInput"
-            style="font-size: 1em"
+            style="font-size: 1em;width: 15vw;"
             :value="inputValue"
             v-on="inputEvents"
           >

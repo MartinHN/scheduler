@@ -1,5 +1,5 @@
 <template>
-  <div class="config">
+  <div class="main">
     <button
       :class="{ active: state.isActive }"
       @click="state.isActive = !state.isActive; doSave()"
@@ -12,62 +12,67 @@
     >
       isMasterClock
     </button>
-    <div>
-      Lora unique address
-      <select
-        :value="state.uuid"
-        @change="state.uuid = $event.target.value"
-      >
-        <option
-          v-for="(uuid) of loraUuids"
-          :key="uuid"
-          :value="uuid"
+    <div class="loraChannelCtls">
+      <div class="loraCtl">
+        <div>Lora unique address</div>
+
+        <select
+          :value="state.uuid"
+          @change="state.uuid = $event.target.value"
         >
-          {{ uuid }}
-        </option>
-      </select>
-    </div>
-    <div>
-      Channel
-      <select
-        :value="state.channel"
-        @change="state.channel = $event.target.value"
-      >
-        <option
-          v-for="(hz, i) of chanToHzTable"
-          :key="i"
-          :value="i"
+          <option
+            v-for="(uuid) of loraUuids"
+            :key="uuid"
+            :value="uuid"
+          >
+            {{ uuid }}
+          </option>
+        </select>
+      </div>
+      <div class="loraCtl">
+        <div>Channel</div>
+        <select
+          :value="state.channel"
+          @change="state.channel = $event.target.value"
         >
-          {{ "" + i + ": " + hz }}MHz
-        </option>
-      </select>
-    </div>
-    <div>
-      speed
-      <select
-        :value="state.speed"
-        @change="state.speed = $event.target.value"
-      >
-        <option
-          v-for="(r, i) of airDataRates"
-          :key="i"
-          :value="i"
+          <option
+            v-for="(hz, i) of chanToHzTable"
+            :key="i"
+            :value="i"
+          >
+            {{ "" + i + ": " + hz }}MHz
+          </option>
+        </select>
+      </div>
+      <div class="loraCtl">
+        <div>speed</div>
+
+        <select
+          :value="state.speed"
+          @change="state.speed = $event.target.value"
         >
-          {{ "" + i + ": " + r }}kbps
-        </option>
-      </select>
+          <option
+            v-for="(r, i) of airDataRates"
+            :key="i"
+            :value="i"
+          >
+            {{ "" + i + ": " + r }}kbps
+          </option>
+        </select>
+      </div>
       <button
+        class="loraCtl"
         :class="{ active: state.fec }"
         @click="state.fec = !state.fec;"
       >
         fec
       </button>
-      <button
-        @click=" doSave()"
-      >
-        Apply Changes
-      </button>
     </div>
+    <button
+      @click=" doSave()"
+    >
+      Apply Changes
+    </button>
   </div>
 </template>
 
@@ -114,9 +119,26 @@ div.grouplist {
   top: calc(var(--nav-header-h) - var(--btn-h));
 }
 
+.loraChannelCtls{
+  display: flex;
+  flex-wrap:wrap;
+}
+.loraChannelCtls *{
+  flex:1 1 50%;
+  flex-wrap: wrap;
+}
+
+.loraCtl{
+  flex: 1 0 25vw;
+  display: flex;
+  align-content: center;
+  justify-content: center;
+}
+
 .main {
   display: grid;
-  grid-template-columns: 1fr 3fr;
+  margin-top:15px;
+  grid-template: 1fr/100%;
   grid-gap: 15px;
 }
 </style>

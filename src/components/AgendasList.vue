@@ -9,6 +9,10 @@
     >
       Agenda {{ sm.isAgendaDisabled ? "inactif" : "actif" }}
     </button>
+    <img
+      src="img/calendar.svg"
+      style="    max-width: 3em;"
+    >
     <select
       style="width: 100%"
       :value="currentAgendaName"
