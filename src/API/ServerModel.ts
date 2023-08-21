@@ -2,7 +2,7 @@ import { Device, DeviceDic, Groups, newEmptyDevice, Group, createDefaultAgenda }
 import * as ServerAPI from '@/API/ServerAPI'
 import ws from '../ws'
 
-const allowedWSData = ['isInaugurationMode', 'isAgendaDisabled'] as string[]
+const allowedWSData = ['isInaugurationMode', 'isAgendaDisabled', 'loraIsSendingTest', 'lastLoraRoundTrip'] as string[]
 
 export class ServerModel {
   connectedDeviceList = [] as Device[]
@@ -22,6 +22,8 @@ export class ServerModel {
   isInaugurationMode = false
   inaugurationHasControl = false
   isAgendaDisabled = false
+  loraIsSendingTest = false
+  lastLoraRoundTrip = 0
 
   isDNSActive = false
   constructor() {
@@ -47,6 +49,7 @@ export class ServerModel {
       ws.send('server', { type: 'req', value: 'connectedDeviceList' })
       ws.send('server', { type: 'req', value: 'isInaugurationMode' })
       ws.send('server', { type: 'req', value: 'isAgendaDisabled' })
+      ws.send('lora', { type: 'req', value: 'loraIsSendingTest' })
     }
   }
 
@@ -134,6 +137,11 @@ export class ServerModel {
     ws.send('server', { type: 'isDNSActive', value: b ? 1 : 0 })
   }
 
+  setLoraTestEnabled(b) {
+    this.loraIsSendingTest = b
+    ws.send('lora', { type: 'loraIsSendingTest', value: b ? 1 : 0 })
+  }
+
   isDeviceConnected(uuid: string): boolean {
     for (const d of Object.values(this.connectedDeviceList)) {
       if (d.uuid === uuid) { return true }
@@ -152,23 +160,6 @@ export class ServerModel {
     ServerAPI.saveKnownDeviceDic(this.knownDevices).catch(console.error)
   }
 
-  dateToStr(dd: Date): string {
-    const d = new Date(dd)
-    let month = '' + (d.getMonth() + 1)
-    const year = '' + d.getFullYear()
-    let day = '' + d.getDate()
-    let hours = '' + d.getHours()
-    let min = '' + d.getMinutes()
-    let sec = '' + d.getSeconds()
-    if (month.length < 2) { month = '0' + month }
-    if (day.length < 2) { day = '0' + day }
-    if (hours.length < 2) { hours = '0' + hours }
-    if (min.length < 2) { min = '0' + min }
-    if (sec.length < 2) { sec = '0' + sec }
-
-    return day + '/' + month + '/' + year + ' ' + hours + ':' + min + ':' + sec
-  }
-
   syncAllDeviceTimes() {
     for (const d of Object.values(this.knownDevices)) {
       this.setDeviceTimeStr(d, new Date())
@@ -176,7 +167,7 @@ export class ServerModel {
   }
 
   setDeviceTimeStr(d: Device, dat: Date): void {
-    this.sendDeviceEvent(d.uuid, { type: 'setTimeStr', value: this.dateToStr(dat) })
+    this.sendDeviceEvent(d.uuid, { type: 'setTimeStr', value: ServerAPI.dateToStr(dat) })
   }
 
   setDeviceHostName(d: Device, nname: string): void {

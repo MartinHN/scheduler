@@ -44,7 +44,7 @@ import { Device, getTimeInfoForDevice, getAgendaInfoForDevice } from '@/API/Serv
 import { ServerModel } from '@/API/ServerModel'
 import OSCCap from './cap/OSCCap.vue'
 import HTMLCap from './cap/HTMLCap.vue'
-
+import { dateToStr } from '@/API/types/ScheduleTypes'
 @Component({ components: { OSCCap, HTMLCap } })
 export default class DeviceInfo extends Vue {
   @Prop({ required: true })
@@ -94,14 +94,14 @@ export default class DeviceInfo extends Vue {
   }
 
   askUpdateTime () {
-    const ds = this.sm.dateToStr(new Date())
+    const ds = dateToStr(new Date())
     if (confirm('update time? to ' + ds)) {
       this.updateFromLocal()
     }
   }
 
   updateFromLocal () {
-    const ds = this.sm.dateToStr(new Date())
+    const ds = dateToStr(new Date())
     console.log('sending date', ds)
     this.sm.setDeviceTimeStr(this.device, new Date())
     this.refreshTime()

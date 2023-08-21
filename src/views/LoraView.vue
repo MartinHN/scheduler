@@ -6,12 +6,26 @@
     >
       isActive
     </button>
-    <button
-      :class="{ active: state.isMasterClock }"
-      @click="state.isMasterClock = !state.isMasterClock; doSave()"
-    >
-      isMasterClock
-    </button>
+    <div style="display: flex;">
+      <button
+        :class="{ active: state.isMasterClock }"
+        @click="state.isMasterClock = !state.isMasterClock; doSave()"
+      >
+        isMasterClock
+      </button>
+      <input
+        v-if="state.isMasterClock"
+        :value="state.clockUpdateIntervalSec"
+        @change="setClockInterval($event.target.value)"
+      >
+      <button
+        v-if="state.isMasterClock"
+        :class="{ active: sm.loraIsSendingTest }"
+        @click="setIsSendingTest(!sm.loraIsSendingTest)"
+      >
+        Test : {{ sm.lastLoraRoundTrip }}
+      </button>
+    </div>
     <div class="loraChannelCtls">
       <div class="loraCtl">
         <div>Lora unique address</div>
@@ -94,13 +108,25 @@ export default class LoraView extends Vue {
   public get chanToHzTable() { return chanToHzTable }
   public get airDataRates() { return airDataRates }
   public get loraUuids() { return loraUuids }
-
   get sm(): ServerModel {
     return (this.$root as any).sm
   }
 
   async mounted(): Promise<void> {
     Object.assign(this.state, await ServerAPI.getLoraState())
+  }
+
+  setClockInterval(e) {
+    let ci = e >>> 0
+    if (ci < 5) {
+      console.error('can not set small times', ci, e)
+      ci = 5
+    }
+    this.state.clockUpdateIntervalSec = ci
+  }
+
+  setIsSendingTest(b) {
+    this.sm.setLoraTestEnabled(b)
   }
 
   doSave(): void {
@@ -131,6 +157,8 @@ div.grouplist {
 .loraCtl{
   flex: 1 0 25vw;
   display: flex;
+  flex-wrap: nowrap;
+  flex-direction: column;
   align-content: center;
   justify-content: center;
 }
