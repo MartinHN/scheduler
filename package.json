@@ -6,7 +6,7 @@
     "serve": "vue-cli-service serve --port 8080",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "deploy": "pnpm run build && rsync -r -e ssh -avz --delete-after  ../view-dist/ pi@lumestrio21.local:raspestrio/view-dist"
+    "deploy": "pnpm run build && rsync -r -e ssh -avz --delete-after  ../view-dist/ pi@lumestrio1.local:raspestrio/view-dist"
   },
   "dependencies": {
     "@popperjs/core": "^2.4.0",

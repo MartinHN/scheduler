@@ -23,26 +23,10 @@
         :class="{ active: sm.loraIsSendingTest }"
         @click="setIsSendingTest(!sm.loraIsSendingTest)"
       >
-        Test : {{ sm.lastLoraRoundTrip }}
+        Test
       </button>
     </div>
     <div class="loraChannelCtls">
-      <div class="loraCtl">
-        <div>Lora unique address</div>
-
-        <select
-          :value="state.uuid"
-          @change="state.uuid = $event.target.value"
-        >
-          <option
-            v-for="(uuid) of loraUuids"
-            :key="uuid"
-            :value="uuid"
-          >
-            {{ uuid }}
-          </option>
-        </select>
-      </div>
       <div class="loraCtl">
         <div>Channel</div>
         <select
@@ -87,6 +71,19 @@
     >
       Apply Changes
     </button>
+
+    <button @click="addLoraDevice">
+      + Add device
+    </button>
+    <LoraDeviceRow
+      v-for="v, i of loraDevices"
+      :key="i"
+      :lora-state="state"
+      :device="v"
+      @change="saveDevices"
+    >
+      {{ i }}
+    </LoraDeviceRow>
   </div>
 </template>
 
@@ -97,28 +94,38 @@ import * as HTTPAPI from '@/API/HTTPAPI'
 import * as ServerAPI from '@/API/ServerAPI'
 
 import { ServerModel } from '@/API/ServerModel'
-import { DefaultLoraState, chanToHzTable, airDataRates, loraUuids } from '@/API/types/LoraState'
+import { DefaultLoraState, chanToHzTable, airDataRates, minClockUpdateInterval } from '@/API/types/LoraState'
+import LoraDeviceRow from '@/components/LoraDeviceRow.vue'
+import { LoraDevice, LoraDeviceInstance } from '@/API/types/LoraDevice'
 
 @Component({
-  components: {}
+  components: { LoraDeviceRow }
 })
 export default class LoraView extends Vue {
   public state = new DefaultLoraState()
 
   public get chanToHzTable() { return chanToHzTable }
   public get airDataRates() { return airDataRates }
-  public get loraUuids() { return loraUuids }
   get sm(): ServerModel {
     return (this.$root as any).sm
   }
 
+  get loraDevices() {
+    return this.sm.knownLoraDevices
+  }
+
   async mounted(): Promise<void> {
     Object.assign(this.state, await ServerAPI.getLoraState())
+    await ServerAPI.getKnownLoraDevices().then(dl => {
+      this.sm.knownLoraDevices.length = 0
+      if (dl) { Object.values(dl).map(e => this.sm.knownLoraDevices.push(LoraDeviceInstance.create(e))) }
+      console.log('got known lora devices', this.sm.knownLoraDevices)
+    })
   }
 
   setClockInterval(e) {
     let ci = e >>> 0
-    if (ci < 5) {
+    if (ci < minClockUpdateInterval) {
       console.error('can not set small times', ci, e)
       ci = 5
     }
@@ -131,6 +138,16 @@ export default class LoraView extends Vue {
 
   doSave(): void {
     ServerAPI.saveLoraState(this.state)
+  }
+
+  addLoraDevice() {
+    this.sm.knownLoraDevices.push(new LoraDeviceInstance())
+    this.saveDevices()
+  }
+
+  saveDevices() {
+    console.log('saving ', this.loraDevices)
+    ServerAPI.setKnownLoraDevices(this.loraDevices)
   }
 }
 </script>

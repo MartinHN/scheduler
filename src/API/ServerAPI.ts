@@ -3,6 +3,7 @@ import * as ScheduleTypes from './types/ScheduleTypes'
 import { Agenda, WeekHours, HourRange } from './types/ScheduleTypes'
 import { Device, Group, Groups, DeviceDic } from './types/DeviceTypes'
 import { LoraState } from './types/LoraState'
+import { LoraDevice, LoraDeviceArray } from './types/LoraDevice'
 export * from './types/ScheduleTypes'
 export * from './types/DeviceTypes'
 
@@ -88,4 +89,12 @@ export async function saveLoraState(state: LoraState): Promise<void> {
 
 export async function getLoraState(): Promise<LoraState> {
   return await getJSON('lora/state')
+}
+
+export async function getKnownLoraDevices(): Promise<LoraDeviceArray> {
+  return await getJSON('lora/knownDevices')
+}
+
+export async function setKnownLoraDevices(dl: LoraDeviceArray): Promise<void> {
+  await postJSON('lora/knownDevices', dl)
 }

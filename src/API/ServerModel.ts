@@ -1,8 +1,10 @@
 import { Device, DeviceDic, Groups, newEmptyDevice, Group, createDefaultAgenda } from './ServerAPI'
 import * as ServerAPI from '@/API/ServerAPI'
+import { LoraDevice, LoraDeviceArray, LoraDeviceFile, LoraDeviceInstance } from '@/API/types/LoraDevice'
+
 import ws from '../ws'
 
-const allowedWSData = ['isInaugurationMode', 'isAgendaDisabled', 'loraIsSendingTest', 'lastLoraRoundTrip'] as string[]
+const allowedWSData = ['isInaugurationMode', 'isAgendaDisabled', 'loraIsSendingTest', 'knownLoraDevices'] as string[]
 
 export class ServerModel {
   connectedDeviceList = [] as Device[]
@@ -22,8 +24,10 @@ export class ServerModel {
   isInaugurationMode = false
   inaugurationHasControl = false
   isAgendaDisabled = false
+
+  // lora
+  knownLoraDevices = new Array<LoraDeviceInstance>()
   loraIsSendingTest = false
-  lastLoraRoundTrip = 0
 
   isDNSActive = false
   constructor() {
@@ -49,7 +53,9 @@ export class ServerModel {
       ws.send('server', { type: 'req', value: 'connectedDeviceList' })
       ws.send('server', { type: 'req', value: 'isInaugurationMode' })
       ws.send('server', { type: 'req', value: 'isAgendaDisabled' })
+      // lora
       ws.send('lora', { type: 'req', value: 'loraIsSendingTest' })
+      ws.send('lora', { type: 'req', value: 'knownLoraDevices' })
     }
   }
 
@@ -110,6 +116,20 @@ export class ServerModel {
       const filled = v.data.map((d: Device) => newEmptyDevice(d.deviceName, d))
       this.connectedDeviceList = filled
       // this.loadDevices()
+    } else if (v.type === 'loraPong') {
+      const uuid = v.data.uuid
+      const loraDev = this.knownLoraDevices.find(e => LoraDeviceInstance.getUuid(e) === uuid)
+      if (!loraDev) {
+        console.error('lora device not found for roundtrip', uuid)
+        return
+      }
+
+      const time = v.data.time
+      const data = v.data.data
+      console.warn('got lora roundtrip', time, uuid)
+      loraDev._lastSeen = new Date()
+      loraDev._lastRoundtrip = time
+      loraDev._isActive = data > 0
     } else if (allowedWSData.includes(v.type)) {
       console.log('[ServerModel] new allowed param', v);
       (this as any)[v.type] = v.data
@@ -140,6 +160,10 @@ export class ServerModel {
   setLoraTestEnabled(b) {
     this.loraIsSendingTest = b
     ws.send('lora', { type: 'loraIsSendingTest', value: b ? 1 : 0 })
+  }
+
+  activateLoraDevice(d: LoraDevice, isActive: boolean) {
+    ws.send('lora', { type: 'activate', value: { device: d, isActive } })
   }
 
   isDeviceConnected(uuid: string): boolean {
