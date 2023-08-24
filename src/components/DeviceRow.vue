@@ -215,7 +215,7 @@ export default class DeviceRow extends Vue {
   setOnOff (b: boolean): void {
     if (!this.sm.isAgendaDisabled) {
       const msg = "L'agenda est encore actif et ne prendra pas en compte la commande\n voulez vous désactiver l'agenda?"
-      if (confirm(msg)) { this.sm.isAgendaDisabled = true } else return
+      if (confirm(msg)) { this.sm.setAgendaDisabled(true) } else return
     }
     this.sm.activateDevice(this.device, b)
   }

@@ -75,6 +75,9 @@
     <button @click="addLoraDevice">
       + Add device
     </button>
+    <button @click="removeAllLora">
+      removeAll
+    </button>
     <LoraDeviceRow
       v-for="v, i of loraDevices"
       :key="i"
@@ -148,6 +151,11 @@ export default class LoraView extends Vue {
   saveDevices() {
     console.log('saving ', this.loraDevices)
     ServerAPI.setKnownLoraDevices(this.loraDevices)
+  }
+
+  async removeAllLora() {
+    this.sm.knownLoraDevices.length = 0
+    this.saveDevices()
   }
 }
 </script>
