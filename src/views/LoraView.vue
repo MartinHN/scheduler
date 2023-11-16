@@ -19,12 +19,16 @@
         @change="setClockInterval($event.target.value)"
       >
       <button
-        v-if="state.isMasterClock"
-        :class="{ active: sm.loraIsSendingTest }"
-        @click="setIsSendingTest(!sm.loraIsSendingTest)"
+        :class="{ active: sm.loraIsSendingPing }"
+        @click="setIsSendingTest(!sm.loraIsSendingPing, true)"
       >
         Test
       </button>
+      <input
+        v-if="sm.loraIsSendingPing"
+        :value="state.pingUpdateIntervalSec"
+        @change="setPingInterval($event.target.value)"
+      >
     </div>
     <div class="loraChannelCtls">
       <div class="loraCtl">
@@ -97,7 +101,7 @@ import * as HTTPAPI from '@/API/HTTPAPI'
 import * as ServerAPI from '@/API/ServerAPI'
 
 import { ServerModel } from '@/API/ServerModel'
-import { DefaultLoraState, chanToHzTable, airDataRates, minClockUpdateInterval } from '@/API/types/LoraState'
+import { DefaultLoraState, chanToHzTable, airDataRates, minClockUpdateInterval, minPingUpdateInterval } from '@/API/types/LoraState'
 import LoraDeviceRow from '@/components/LoraDeviceRow.vue'
 import { LoraDevice, LoraDeviceInstance } from '@/API/types/LoraDevice'
 
@@ -123,20 +127,41 @@ export default class LoraView extends Vue {
       this.sm.knownLoraDevices.length = 0
       if (dl) { Object.values(dl).map(e => this.sm.knownLoraDevices.push(LoraDeviceInstance.create(e))) }
       console.log('got known lora devices', this.sm.knownLoraDevices)
+      if (localStorage) {
+        this.setIsSendingTest(localStorage.getItem('isSengdingLoraPing') === '1')
+      }
     })
   }
 
-  setClockInterval(e) {
-    let ci = e >>> 0
-    if (ci < minClockUpdateInterval) {
-      console.error('can not set small times', ci, e)
-      ci = 5
-    }
-    this.state.clockUpdateIntervalSec = ci
+  destroyed(): void {
+    this.setIsSendingTest(false, false)
   }
 
-  setIsSendingTest(b) {
+  setClockInterval(e) {
+    console.log('got', e)
+    let ci = parseFloat(e)
+    if (ci < minClockUpdateInterval) {
+      console.error('can not set small times', ci, e)
+      ci = minClockUpdateInterval
+    }
+    this.state.clockUpdateIntervalSec = ci
+    ServerAPI.saveLoraState(this.state)
+  }
+
+  setPingInterval(e) {
+    console.log('got', e)
+    let ci = parseFloat(e)
+    if (ci < minPingUpdateInterval) {
+      console.error('can not set small times', ci, e)
+      ci = minClockUpdateInterval
+    }
+    this.state.pingUpdateIntervalSec = ci
+    ServerAPI.saveLoraState(this.state)
+  }
+
+  setIsSendingTest(b, save = true) {
     this.sm.setLoraTestEnabled(b)
+    if (save && localStorage) { localStorage.setItem('isSengdingLoraPing', b ? '1' : '0') }
   }
 
   doSave(): void {

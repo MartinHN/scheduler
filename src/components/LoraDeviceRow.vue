@@ -44,11 +44,13 @@
     </button>
 
     <button
+      ref="onoff"
       class="defaultItem"
-      :style="{ minWidth: '15vw', background: device.activate ? 'green' : 'gray' }"
-      @click="setOnOff(!device.activate)"
+      :style="{ minWidth: '15vw', background: device._isActive ? 'green' : 'gray' }"
+      :disabled="!!(btnDisableTimeout != null)"
+      @click="setOnOff(!device._isActive)"
     >
-      {{ sm.isAgendaDisabled ? "Turn " : "" }}{{ device.activate ? "Off" : "On" }}
+      {{ sm.isAgendaDisabled ? "Turn " : "" }}{{ device._isActive ? "Off" : "On" }}
     </button>
     <!-- <button @click=setOnOff(true)> On </button>
           <button @click=setOnOff(false)> Off </button> -->
@@ -95,7 +97,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 import { Device, getRSSIFromDevice } from '@/API/ServerAPI'
 import { ServerModel } from '@/API/ServerModel'
 import { LoraDevice, LoraTypeNames, LoraDeviceInstance, maxDevicePerType } from '@/API/types/LoraDevice'
-import { LoraState, DefaultLoraState } from '@/API/types/LoraState'
+import { LoraState, DefaultLoraState, getTotalPingTimeRoundTrip } from '@/API/types/LoraState'
 @Component({})
 export default class LoraDeviceRow extends Vue {
   @Prop({ default: false }) selected!: boolean
@@ -104,7 +106,7 @@ export default class LoraDeviceRow extends Vue {
 
   @Prop({ default: new DefaultLoraState() }) loraState!: DefaultLoraState
 
-  fechtP = 2500
+  updateDevInterval = 500
   // slowFechtP = 5000
   // fastFechtP = 2500
   // numFastPing = 0
@@ -114,12 +116,13 @@ export default class LoraDeviceRow extends Vue {
   _fetchDev = undefined as any
   connected = true
   lastPingDtMs = 0
+  btnDisableTimeout = null as any
   // isAgendaInSync = false
   mounted() {
     // ask actual state without args
     // this.sm.sendDeviceEvent(this.device.uuid, { type: 'activate' })
 
-    this._fetchDev = setTimeout(() => { this.fetchDeviceInfo() }, Math.random() * 500)
+    this._fetchDev = setTimeout(() => { this.updateDeviceInfo() }, Math.random() * 500)
     this.connected = false
   }
 
@@ -170,7 +173,8 @@ export default class LoraDeviceRow extends Vue {
   }
 
   async removeMe() {
-    const idx = this.sm.knownLoraDevices.findIndex(e => LoraDeviceInstance.getUuid(e))
+    const uuid = LoraDeviceInstance.getUuid(this.device)
+    const idx = this.sm.knownLoraDevices.findIndex(e => { return uuid === LoraDeviceInstance.getUuid(e) })
     if (idx < 0) { console.error('no lora device to remove'); return }
     // await Vue.delete(this.sm.knownLoraDevices, idx)
     this.sm.knownLoraDevices.splice(idx, 1)
@@ -186,19 +190,20 @@ export default class LoraDeviceRow extends Vue {
   // }
 
   get minIntervalForBeingConnected() {
-    return this.loraState.clockUpdateIntervalSec
+    return getTotalPingTimeRoundTrip(this.loraState.pingUpdateIntervalSec * 1000, this.sm.knownLoraDevices.length) + 300
   }
 
-  fetchDeviceInfo(): void {
+  updateDeviceInfo(): void {
     if (this._fetchDev) clearTimeout(this._fetchDev)
 
     // console.log('fetching', this.device)
-    const lastM = new Date(this.device._lastSeen).getTime()
-    const dt = new Date().getTime() - lastM
-    this.connected = dt < this.minIntervalForBeingConnected * 1000
+    const lastMsgFromDevTime = new Date(this.device._lastSeen).getTime()
+    const now = new Date().getTime()
+    const dt = now - lastMsgFromDevTime
+    this.connected = (dt <= this.minIntervalForBeingConnected)
 
     this.lastAsked = new Date()
-    this._fetchDev = setTimeout(this.fetchDeviceInfo.bind(this), this.fechtP)
+    this._fetchDev = setTimeout(this.updateDeviceInfo.bind(this), this.updateDevInterval)
   }
 
   // setName ():void {
@@ -214,6 +219,8 @@ export default class LoraDeviceRow extends Vue {
     //   const msg = "L'agenda est encore actif et ne prendra pas en compte la commande\n voulez vous désactiver l'agenda?"
     //   if (confirm(msg)) { this.sm.isAgendaDisabled = true } else return
     // }
+    if (this.btnDisableTimeout) { clearTimeout(this.btnDisableTimeout) }
+    this.btnDisableTimeout = setTimeout(() => { this.btnDisableTimeout = null }, 500)
     this.sm.activateLoraDevice(this.device, b)
   }
 }

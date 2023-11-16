@@ -4,7 +4,7 @@ import { LoraDevice, LoraDeviceArray, LoraDeviceFile, LoraDeviceInstance } from 
 
 import ws from '../ws'
 
-const allowedWSData = ['isInaugurationMode', 'isAgendaDisabled', 'loraIsSendingTest', 'knownLoraDevices'] as string[]
+const allowedWSData = ['isInaugurationMode', 'isAgendaDisabled', 'loraIsSendingPing', 'knownLoraDevices'] as string[]
 
 export class ServerModel {
   connectedDeviceList = [] as Device[]
@@ -27,7 +27,7 @@ export class ServerModel {
 
   // lora
   knownLoraDevices = new Array<LoraDeviceInstance>()
-  loraIsSendingTest = false
+  loraIsSendingPing = false
 
   isDNSActive = false
   constructor() {
@@ -54,7 +54,7 @@ export class ServerModel {
       ws.send('server', { type: 'req', value: 'isInaugurationMode' })
       ws.send('server', { type: 'req', value: 'isAgendaDisabled' })
       // lora
-      ws.send('lora', { type: 'req', value: 'loraIsSendingTest' })
+      ws.send('lora', { type: 'req', value: 'loraIsSendingPing' })
       ws.send('lora', { type: 'req', value: 'knownLoraDevices' })
     }
   }
@@ -158,8 +158,8 @@ export class ServerModel {
   }
 
   setLoraTestEnabled(b) {
-    this.loraIsSendingTest = b
-    ws.send('lora', { type: 'loraIsSendingTest', value: b ? 1 : 0 })
+    this.loraIsSendingPing = b
+    ws.send('lora', { type: 'loraIsSendingPing', value: b ? 1 : 0 })
   }
 
   activateLoraDevice(d: LoraDevice, isActive: boolean) {
@@ -194,9 +194,15 @@ export class ServerModel {
     this.sendDeviceEvent(d.uuid, { type: 'setTimeStr', value: ServerAPI.dateToStr(dat) })
   }
 
-  setDeviceHostName(d: Device, nname: string): void {
+  async setDeviceHostName(d: Device, nname: string): Promise<void> {
     d.deviceName = nname
     this.sendDeviceEvent(d.uuid, { type: 'hostName', value: nname })
+    const olduuid = d.uuid
+    if (!this.knownDevices[olduuid]) { console.error('did miss something here'); return }
+    delete this.knownDevices[olduuid]
+    d.uuid = nname.replace('.local', '')
+    this.knownDevices[d.uuid] = d
+    await ServerAPI.saveKnownDeviceDic(this.knownDevices).catch(console.error)
   }
 
   rebootDevice(d: Device): void {

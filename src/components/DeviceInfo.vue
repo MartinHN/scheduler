@@ -179,13 +179,17 @@ export default class DeviceInfo extends Vue {
     }
   }
 
-  setHostName (): void {
-    const hn = prompt(
+  async setHostName(): Promise<void> {
+    let hn = prompt(
       'set HostName ,\n !!!! Reboot after this !!!',
       this.device.deviceName
     )
     if (hn) {
-      this.sm.setDeviceHostName(this.device, hn)
+      if (this.device.deviceName.startsWith('relay_') && !hn.startsWith('relay_')) { hn = 'relay_' + hn }
+      if (this.device.deviceName.startsWith('lumestrio') && !hn.startsWith('lumestrio')) { hn = 'lumestrio' + hn }
+
+      await this.sm.setDeviceHostName(this.device, hn)
+      this.reboot()
     }
   }
 
