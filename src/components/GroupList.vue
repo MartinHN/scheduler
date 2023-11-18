@@ -33,6 +33,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 import { Device, DeviceDic, Groups, Group } from '@/API/ServerAPI'
 import * as ServerAPI from '@/API/ServerAPI'
 import { ServerModel } from '@/API/ServerModel'
+import { LoraDevice } from '@/API/types/LoraDevice'
 
 @Component({})
 export default class GroupListComp extends Vue {
@@ -65,7 +66,7 @@ export default class GroupListComp extends Vue {
     return Array.from(Object.values(this.groups))
   }
 
-  devicesInGroup (g: Group): Device[] {
+  devicesInGroup(g: Group): Array<Device | LoraDevice> {
     return this.sm.devicesInGroup(g)
   }
 

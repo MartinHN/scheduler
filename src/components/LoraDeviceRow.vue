@@ -8,45 +8,73 @@
         class="nameContainer"
         style="margin-right:10px; "
       >
-        <select
-          :value="device.deviceType"
-          name="type"
-          @change="setType($event.target.value)"
-        >
-          <option
-            v-for="v, k of LoraTypeNames"
-            :key="v"
-            :value="k"
+        <div v-if="editable">
+          <select
+            :value="device.deviceType"
+            name="type"
+            @change="setType($event.target.value)"
           >
-            {{ v }}
-          </option>
-        </select>
-        <select
-          :value="device.deviceNumber"
-          name="type"
-          @change="setNumber($event.target.value)"
-        >
-          <option
-            v-for="v, k of loraDeviceNumbers"
-            :key="v"
-            :value="k"
+            <option
+              v-for="v, k of LoraTypeNames"
+              :key="v"
+              :value="k"
+            >
+              {{ v }}
+            </option>
+          </select>
+          <select
+            :value="device.deviceNumber"
+            name="type"
+            @change="setNumber($event.target.value)"
           >
-            {{ k }}
-          </option>
-        </select>
-        <input
-          class="textName"
-          :value="device.deviceName"
-          @change="setName($event.target.value)"
-        >
-        {{ }}
+            <option
+              v-for="v, k of loraDeviceNumbers"
+              :key="v"
+              :value="k"
+            >
+              {{ k }}
+            </option>
+          </select>
+          <input
+            class="textName"
+            :value="device.deviceName"
+            @change="setName($event.target.value)"
+          >
+        </div>
+        <div v-else>
+          <div
+            class="nameContainer"
+            style="margin-right:10px; "
+          >
+            <div
+              class="col textName"
+            >
+              <img
+                v-if="shortDevName.startsWith('L')"
+                class="minIcon"
+                src="img/bulbNSpeakH.svg"
+              >
+              <img
+                v-if="shortDevName.startsWith('R')"
+                class="minIcon"
+                src="img/relay.svg"
+              >
+              {{ shortDevName }}
+            </div>
+            <div
+              class="col textName"
+            >
+              {{ device.deviceName }}
+            </div>
+          </div>
+        </div>
       </div>
     </button>
 
     <button
       ref="onoff"
       class="defaultItem"
-      :style="{ minWidth: '15vw', background: device._isActive ? 'green' : 'gray' }"
+      :style="{ minWidth: editable ? '5vw' : '15vw', flexBasis: editable ? '1vw' : '15vw', background: device._isActive ? 'green' : 'gray' }"
       :disabled="!!(btnDisableTimeout != null)"
       @click="setOnOff(!device._isActive)"
     >
@@ -86,7 +114,11 @@
       {{ device._lastRoundtrip }} <br>
       {{ isAgendaInSyncStr }}
     </div>
-    <button @click="removeMe">
+    <button
+      v-if="editable"
+      class="deleteBtn"
+      @click="removeMe"
+    >
       delete
     </button>
   </div>
@@ -97,15 +129,16 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 
 import { Device, getRSSIFromDevice } from '@/API/ServerAPI'
 import { ServerModel } from '@/API/ServerModel'
-import { LoraDevice, LoraTypeNames, LoraDeviceInstance, maxDevicePerType } from '@/API/types/LoraDevice'
+import { LoraDevice, LoraTypeNames, LoraDeviceInstance, maxDevicePerType, LoraDeviceType } from '@/API/types/LoraDevice'
 import { LoraState, DefaultLoraState, getTotalPingTimeRoundTrip } from '@/API/types/LoraState'
 @Component({})
 export default class LoraDeviceRow extends Vue {
   @Prop({ default: false }) selected!: boolean
+  @Prop({ default: true }) editable!: boolean
 
   @Prop({ required: true }) device!: LoraDeviceInstance
 
-  @Prop({ default: new DefaultLoraState() }) loraState!: DefaultLoraState
+  @Prop({ default: () => { return new DefaultLoraState() } }) loraState!: DefaultLoraState
 
   updateDevInterval = 500
   // slowFechtP = 5000
@@ -139,6 +172,16 @@ export default class LoraDeviceRow extends Vue {
 
   get groupNames() {
     return Object.keys(this.sm.groups)
+  }
+
+  get shortDevName() {
+    let res = ''
+    const t = this.device.deviceType
+    if (t === LoraDeviceType.Relaystrio) { res += 'R' }
+    if (t === LoraDeviceType.Lumestrio) { res += 'L' }
+
+    res += this.device.deviceNumber
+    return res
   }
 
   get LoraTypeNames() {
@@ -248,7 +291,10 @@ export default class LoraDeviceRow extends Vue {
 
 <style scoped>
 .defaultItem {
-  flex: 1 1 30%;
+  flex: 1 1 20%;
+}
+.deleteBtn {
+  flex: 1 1 10px;
 }
 
 div {

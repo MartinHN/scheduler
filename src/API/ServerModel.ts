@@ -1,11 +1,19 @@
 import { Device, DeviceDic, Groups, newEmptyDevice, Group, createDefaultAgenda } from './ServerAPI'
 import * as ServerAPI from '@/API/ServerAPI'
-import { LoraDevice, LoraDeviceArray, LoraDeviceFile, LoraDeviceInstance } from '@/API/types/LoraDevice'
+import { LoraDevice, LoraDeviceArray, LoraDeviceFile, LoraDeviceInstance, LoraDeviceType } from '@/API/types/LoraDevice'
 
 import ws from '../ws'
 
-const allowedWSData = ['isInaugurationMode', 'isAgendaDisabled', 'loraIsSendingPing', 'knownLoraDevices', 'loraIsCheckingAgendas'] as string[]
+const allowedWSData = ['isInaugurationMode', 'isAgendaDisabled', 'loraIsSendingPing', 'knownLoraDevices', 'loraIsCheckingAgendas', 'loraIsSyncingAgendas'] as string[]
 
+export function isLoraDevice(dev: LoraDevice | Device) {
+  return (dev as any).deviceType !== undefined
+}
+
+export function getUuidForAnyDevice(dev: LoraDevice | Device) {
+  if (isLoraDevice(dev)) { return LoraDeviceInstance.getUuid(dev as LoraDevice) }
+  return (dev as Device).uuid
+}
 export class ServerModel {
   connectedDeviceList = [] as Device[]
   knownDevices = {} as DeviceDic
@@ -76,6 +84,17 @@ export class ServerModel {
       devs[v.uuid] = newEmptyDevice(v.deviceName, v)
     }
     this.knownDevices = devs
+    const savedLoraKnownDevices = await ServerAPI.getKnownLoraDevices()
+    const loraDevs = [] as Array<LoraDeviceInstance>
+    for (const [k, v] of Object.entries(savedLoraKnownDevices)) {
+      // const f = JSON.parse(JSON.stringify(v))
+      // // ignore live
+      // const liveP = ['activate', 'rssi']
+      // liveP.map(e => { if (f[e] !== undefined) delete f[e] })
+
+      loraDevs.push(LoraDeviceInstance.create(v))
+    }
+    this.knownLoraDevices = loraDevs
   }
 
   async loadGroups(): Promise<void> {
@@ -234,8 +253,12 @@ export class ServerModel {
     if (event.type) { ws.send('deviceEvent', { uuid, event }) } else { console.error('[ServerModel] invalid event', event) }
   }
 
-  devicesInGroup(g: Group): Device[] {
-    return Object.values(this.knownDevices).filter(e => e.group === g.name)
+  getAllDevicesList(): Array<Device | LoraDevice> {
+    return [...Object.values(this.knownDevices), ...Object.values(this.knownLoraDevices)]
+  }
+
+  devicesInGroup(g: Group): Array<Device | LoraDevice> {
+    return this.getAllDevicesList().filter(e => e.group === g.name)
   }
 
   async isAgendaSync(d: Device): Promise<boolean> {

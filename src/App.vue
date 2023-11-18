@@ -25,16 +25,11 @@
             Agendas
           </router-link>
           <router-link
+            v-if="sm.isAdminMode"
             tag="button"
             to="/DevicesView"
           >
-            Devices
-          </router-link>
-          <router-link
-            tag="button"
-            to="/GroupView"
-          >
-            Group
+            Wifi
           </router-link>
           <router-link
             v-if="sm.isAdminMode"
@@ -43,6 +38,13 @@
           >
             Lora
           </router-link>
+          <router-link
+            tag="button"
+            to="/GroupView"
+          >
+            Groups
+          </router-link>
+
           <router-link
             tag="button"
             to="/ConfigView"

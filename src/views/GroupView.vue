@@ -39,11 +39,12 @@
         </div>
         <br>
         <div class="displayedDevices">
-          <DeviceRow
+          <DeviceOrLoraRow
             v-for="v of displayedDevices"
-            :key="v.uuid"
+            :key="devUuid(v)"
             :device="v"
-            @input="deviceChanged"
+            @change="save"
+            @loraChange="saveLora"
           />
         </div>
       </div>
@@ -69,11 +70,16 @@ import { Group, Groups, Device } from '@/API/ServerAPI'
 
 import GroupList from '@/components/GroupList.vue'
 import DeviceRow from '@/components/DeviceRow.vue'
-import { ServerModel } from '@/API/ServerModel'
+import { ServerModel, getUuidForAnyDevice, isLoraDevice } from '@/API/ServerModel'
+import LoraDeviceRow from '@/components/LoraDeviceRow.vue'
+import DeviceOrLoraRow from '@/components/DeviceOrLoraRow.vue'
+import { LoraDevice } from '@/API/types/LoraDevice'
 @Component({
   components: {
     GroupList,
-    DeviceRow
+    DeviceRow,
+    LoraDeviceRow,
+    DeviceOrLoraRow
   }
 })
 export default class GroupView extends Vue {
@@ -85,8 +91,8 @@ export default class GroupView extends Vue {
     return this.sm.connectedDeviceList
   }
 
-  get knownDeviceList () {
-    return Object.values(this.sm.knownDevices)
+  get knownDeviceList(): Array<LoraDevice | Device> {
+    return this.sm.getAllDevicesList()
   }
 
   get groups () {
@@ -119,6 +125,12 @@ export default class GroupView extends Vue {
     this.save()
   }
 
+  saveLora() {
+    setTimeout(() => {
+      ServerAPI.setKnownLoraDevices(this.sm.knownLoraDevices)
+    }, 0)
+  }
+
   save (): void {
     setTimeout(() => {
       ServerAPI.saveKnownDeviceDic(this.sm.knownDevices)
@@ -127,6 +139,10 @@ export default class GroupView extends Vue {
 
   get currentGroup (): Group {
     return this.groups[this.currentGroupName] || {}
+  }
+
+  devUuid(d) {
+    return getUuidForAnyDevice(d)
   }
 
   findInDevList (arr: Device[], el: Device): boolean {
@@ -141,9 +157,13 @@ export default class GroupView extends Vue {
     this.currentGroupName = g?.name || ''
   }
 
+  // get loraOrWifiDevs() {
+  //   return [...Object.values(this.knownDeviceList)]
+  // }
+
   get sortedKnownDevices () {
-    const getS = (a: Device): string => {
-      return (a.group ? a.group : 'aaaa') + a.niceName
+    const getS = (a: Device | LoraDevice): string => {
+      return (a.group ? a.group : 'aaaa') + ((a as Device).niceName || (a as LoraDevice).deviceName)
     }
     return Object.values(this.knownDeviceList).sort((a, b) => {
       return getS(a).localeCompare(getS(b))
@@ -153,7 +173,7 @@ export default class GroupView extends Vue {
   setGroupValue (b: boolean): void {
     console.log('settting group', b)
     this.displayedDevices.forEach((e) => {
-      this.sm.activateDevice(e, b)
+      if (isLoraDevice(e)) { this.sm.activateLoraDevice(e as LoraDevice, b) } else { this.sm.activateDevice(e as Device, b) }
     })
   }
 
