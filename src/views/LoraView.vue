@@ -29,6 +29,24 @@
         :value="state.pingUpdateIntervalSec"
         @change="setPingInterval($event.target.value)"
       >
+      <button
+        :class="{ active: sm.loraIsSyncingAgendas }"
+        @click="setIsSyncingAgendas(!sm.loraIsSyncingAgendas)"
+      >
+        Sync Ag
+      </button>
+      <button
+        :class="{ active: sm.loraIsCheckingAgendas }"
+        @click="setIsCheckingAgendas(!sm.loraIsCheckingAgendas)"
+      >
+        Check Ag
+      </button>
+      <button
+        :class="{ active: sm.loraIsDisablingWifi }"
+        @click="setDisablingWifi(!sm.loraIsDisablingWifi)"
+      >
+        DisableWifi
+      </button>
     </div>
     <div class="loraChannelCtls">
       <div class="loraCtl">
@@ -162,6 +180,18 @@ export default class LoraView extends Vue {
   setIsSendingTest(b, save = true) {
     this.sm.setLoraTestEnabled(b)
     if (save && localStorage) { localStorage.setItem('isSengdingLoraPing', b ? '1' : '0') }
+  }
+
+  setIsSyncingAgendas(b: boolean) {
+    this.sm.setLoraIsSyncingAgendas(!!b)
+  }
+
+  setIsCheckingAgendas(b: boolean) {
+    this.sm.setLoraIsCheckingAgendas(!!b)
+  }
+
+  setDisablingWifi(b: boolean) {
+    this.sm.setLoraIsDisablingWifi(!!b)
   }
 
   doSave(): void {

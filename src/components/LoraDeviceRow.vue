@@ -55,7 +55,7 @@
     <!-- <button @click=setOnOff(true)> On </button>
           <button @click=setOnOff(false)> Off </button> -->
 
-    <!-- <select
+    <select
       v-if="groupNames && groupNames.length"
       class="groupSelect"
       :value="device.group"
@@ -74,7 +74,7 @@
       style="background: red"
     >
       add Group first
-    </div> -->
+    </div>
     <div
       :style="{
         flex: '0.001 1 5em',
@@ -83,7 +83,8 @@
         color: parseInt(device.rssi) < -75 ? 'orange' : 'inherit',
       }"
     >
-      {{ device._lastRoundtrip }}
+      {{ device._lastRoundtrip }} <br>
+      {{ isAgendaInSyncStr }}
     </div>
     <button @click="removeMe">
       delete
@@ -136,6 +137,10 @@ export default class LoraDeviceRow extends Vue {
     return (this.$root as any).sm
   }
 
+  get groupNames() {
+    return Object.keys(this.sm.groups)
+  }
+
   get LoraTypeNames() {
     return LoraTypeNames
   }
@@ -150,6 +155,14 @@ export default class LoraDeviceRow extends Vue {
 
   get niceName() {
     return LoraTypeNames[this.device.deviceType] + '' + this.device.deviceNumber
+  }
+
+  get isAgendaInSync() {
+    return this.device._isAgendaInSync
+  }
+
+  get isAgendaInSyncStr() {
+    return this.isAgendaInSync ? 'agendOk' : '?'
   }
   // emitChange(k: string, v: any): void {
   //   const d = this.device as any
@@ -168,8 +181,9 @@ export default class LoraDeviceRow extends Vue {
   }
 
   setName(n) {
-    this.device.deviceName = n
-    this.$emit('change', this.device)
+    this.emitChange('deviceName', n)
+    // this.device.deviceName = n
+    // this.$emit('change', this.device)
   }
 
   async removeMe() {
@@ -179,6 +193,12 @@ export default class LoraDeviceRow extends Vue {
     // await Vue.delete(this.sm.knownLoraDevices, idx)
     this.sm.knownLoraDevices.splice(idx, 1)
     this.$emit('change', this.device)
+  }
+
+  emitChange(k, v): void {
+    const d = this.device
+    d[k] = v
+    this.$emit('change', d)
   }
 
   // edit(): void {

@@ -4,7 +4,7 @@ import { LoraDevice, LoraDeviceArray, LoraDeviceFile, LoraDeviceInstance } from 
 
 import ws from '../ws'
 
-const allowedWSData = ['isInaugurationMode', 'isAgendaDisabled', 'loraIsSendingPing', 'knownLoraDevices'] as string[]
+const allowedWSData = ['isInaugurationMode', 'isAgendaDisabled', 'loraIsSendingPing', 'knownLoraDevices', 'loraIsCheckingAgendas'] as string[]
 
 export class ServerModel {
   connectedDeviceList = [] as Device[]
@@ -28,6 +28,9 @@ export class ServerModel {
   // lora
   knownLoraDevices = new Array<LoraDeviceInstance>()
   loraIsSendingPing = false
+  loraIsSyncingAgendas = false
+  loraIsCheckingAgendas = false
+  loraIsDisablingWifi = true
 
   isDNSActive = false
   constructor() {
@@ -55,6 +58,8 @@ export class ServerModel {
       ws.send('server', { type: 'req', value: 'isAgendaDisabled' })
       // lora
       ws.send('lora', { type: 'req', value: 'loraIsSendingPing' })
+      ws.send('lora', { type: 'req', value: 'loraIsSyncingAgendas' })
+      ws.send('lora', { type: 'req', value: 'loraIsCheckingAgendas' })
       ws.send('lora', { type: 'req', value: 'knownLoraDevices' })
     }
   }
@@ -125,11 +130,12 @@ export class ServerModel {
       }
 
       const time = v.data.time
-      const data = v.data.data
+      const activeState = v.data.activeState
       console.warn('got lora roundtrip', time, uuid)
       loraDev._lastSeen = new Date()
       loraDev._lastRoundtrip = time
-      loraDev._isActive = data > 0
+      loraDev._isAgendaInSync = !!v.data.isAgendaInSync
+      loraDev._isActive = activeState > 0
     } else if (allowedWSData.includes(v.type)) {
       console.log('[ServerModel] new allowed param', v);
       (this as any)[v.type] = v.data
@@ -160,6 +166,21 @@ export class ServerModel {
   setLoraTestEnabled(b) {
     this.loraIsSendingPing = b
     ws.send('lora', { type: 'loraIsSendingPing', value: b ? 1 : 0 })
+  }
+
+  setLoraIsSyncingAgendas(b) {
+    this.loraIsSyncingAgendas = b
+    ws.send('lora', { type: 'loraIsSyncingAgendas', value: b ? 1 : 0 })
+  }
+
+  setLoraIsCheckingAgendas(b) {
+    this.loraIsCheckingAgendas = b
+    ws.send('lora', { type: 'loraIsCheckingAgendas', value: b ? 1 : 0 })
+  }
+
+  setLoraIsDisablingWifi(b) {
+    this.loraIsDisablingWifi = b
+    ws.send('lora', { type: 'loraIsDisablingWifi', value: b ? 1 : 0 })
   }
 
   activateLoraDevice(d: LoraDevice, isActive: boolean) {
@@ -221,13 +242,17 @@ export class ServerModel {
     console.warn('check ag sync')
     const gname = d.group
     const aname = this.groups[gname]?.agendaFileName
-    const savedAg = await ServerAPI.getAgenda(aname)
+    // const savedAg = await ServerAPI.getAgendaMd5(aname)
+    // const minSaved = JSON.stringify(savedAg, null, 0)
+    // const savedMd5 = createHash('md5').update(minSaved).digest('hex').trim()
+    const savedMd5 = await ServerAPI.getAgendaMd5(aname)
     console.warn('got saved ag', d)
-    const trueAg = await ServerAPI.getAgendaInfoForDevice(d)
+    // const trueAg = await ServerAPI.getAgendaInfoForDevice(d)
+    const trueMd5 = await ServerAPI.getAgendaMd5ForDevice(d)
     console.warn('got true ag')
-    const inSync = JSON.stringify(savedAg) === JSON.stringify(trueAg)
+    const inSync = savedMd5 === trueMd5
     if (!inSync) {
-      console.warn('ag out of sync ', savedAg, trueAg)
+      console.warn('ag out of sync ', savedMd5, trueMd5)
     } else { console.log('ag in sync') }
     return inSync
   }
@@ -271,7 +296,8 @@ export class ServerModel {
       const agName = g.agendaFileName
       if (!Object.keys(res).includes(agName)) {
         try {
-          res[agName] = await ServerAPI.getAgenda(agName)
+          const ag = await ServerAPI.getAgenda(agName)
+          res[agName] = ag
         } catch (e) {
           console.error("can't get used agenda for ", agName, e)
         }

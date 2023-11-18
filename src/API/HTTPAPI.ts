@@ -57,7 +57,7 @@ export async function getText(path: string, d?: Device, timeout = 2000): Promise
   if (!response.ok) { return {} }
   const data = await response.text()
   console.log('got', path, data)
-  return data
+  return data.trim()
 }
 
 export async function postJSON(path: string, data: any, d?: Device): Promise<Response> {

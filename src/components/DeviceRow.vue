@@ -109,7 +109,7 @@ export default class DeviceRow extends Vue {
     // ask actual state without args
     this.sm.sendDeviceEvent(this.device.uuid, { type: 'activate' })
     this.sm.sendDeviceEvent(this.device.uuid, { type: 'niceName' })
-    this._fetchDev = setTimeout(() => { this.fetchDeviceInfo() }, Math.random() * 500)
+    this._fetchDev = setTimeout(() => { this.fetchDeviceInfo() }, Math.random() * 100)
     this.connected = false
   }
 
@@ -196,12 +196,12 @@ export default class DeviceRow extends Vue {
     if (newConState) console.log(this.device?.deviceName + ' last response took ~', lt - this.lastAsked.getTime(), 'ms')
     console.log(this.device?.deviceName + 'was modified ', this.niceDebugMs(dt), ' ago')
 
+    if (newConState === this.connected) return
+    this.connected = newConState
+
     if (newConState && !this.isAgendaInSync) {
       this.refreshAgendaStatus()
     }
-
-    if (newConState === this.connected) return
-    this.connected = newConState
   }
 
   // setName ():void {

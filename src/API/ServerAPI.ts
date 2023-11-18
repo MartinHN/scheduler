@@ -14,6 +14,9 @@ export async function getAgendaNames(): Promise<any> {
 export async function getAgenda(name: string): Promise<any> {
   return await getJSON(`agendas?n=${name}`)
 }
+export async function getAgendaMd5(name: string): Promise<any> {
+  return await getText(`md5?n=${name}`)
+}
 
 export async function saveAgenda(name: string, agendaFile: Agenda): Promise<void> {
   await postJSON(`agendas?n=${name}`, agendaFile)
@@ -54,6 +57,10 @@ export async function getTimeInfoForDevice(d: Device): Promise<any> {
 
 export async function getAgendaInfoForDevice(d: Device): Promise<any> {
   return await getJSON('agendaFile', d)
+}
+
+export async function getAgendaMd5ForDevice(d: Device): Promise<any> {
+  return await getText('agendaFile.md5', d)
 }
 
 export async function getRSSIFromDevice(d: Device, timeout = 1000): Promise<any> {
