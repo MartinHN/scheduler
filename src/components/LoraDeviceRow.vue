@@ -174,13 +174,17 @@ export default class LoraDeviceRow extends Vue {
     return Object.keys(this.sm.groups)
   }
 
+  get devNumReadable() {
+    return (this.device.deviceNumber >> 0) > 0 ? this.device.deviceNumber : '?'
+  }
+
   get shortDevName() {
     let res = ''
     const t = this.device.deviceType
     if (t === LoraDeviceType.Relaystrio) { res += 'R' }
     if (t === LoraDeviceType.Lumestrio) { res += 'L' }
 
-    res += this.device.deviceNumber
+    res += this.devNumReadable
     return res
   }
 
@@ -230,6 +234,7 @@ export default class LoraDeviceRow extends Vue {
   }
 
   async removeMe() {
+    if (!confirm('sur de vouloir supprimer cet appareils Lora??\n' + this.device.deviceName + '\n' + this.shortDevName)) return
     const uuid = LoraDeviceInstance.getUuid(this.device)
     const idx = this.sm.knownLoraDevices.findIndex(e => { return uuid === LoraDeviceInstance.getUuid(e) })
     if (idx < 0) { console.error('no lora device to remove'); return }

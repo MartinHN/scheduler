@@ -52,6 +52,7 @@ export class ServerModel {
       this.isConnectedToServer = isCon
     })
     this.loadDevices()
+    this.loadLoraDevices()
     this.loadGroups()
     this.loadAgendaNames()
     this.requestServerInfo()
@@ -84,6 +85,9 @@ export class ServerModel {
       devs[v.uuid] = newEmptyDevice(v.deviceName, v)
     }
     this.knownDevices = devs
+  }
+
+  async loadLoraDevices() {
     const savedLoraKnownDevices = await ServerAPI.getKnownLoraDevices()
     const loraDevs = [] as Array<LoraDeviceInstance>
     for (const [k, v] of Object.entries(savedLoraKnownDevices)) {
