@@ -4,16 +4,25 @@ const serverURL = window.location.hostname
 const fromPort = window.location.port
 const serverPort = fromPort.startsWith('808') ? '3003' : fromPort
 
+// export function catchEm(promise) {
+//   return promise.then(data => [null, data])
+//     .catch(err => [err])
+// }
 async function fetchWithTimeout(resource, options = {} as any) {
   const timeout = options?.timeout ? options.timeout : 8000
   const controller = new AbortController()
   const id = setTimeout(() => controller.abort(), timeout)
-  const response = await fetch(resource, {
-    ...options,
-    signal: controller.signal
-  })
-  clearTimeout(id)
-  return response
+  let response
+  try {
+    response = await fetch(resource, {
+      ...options,
+      signal: controller.signal
+    })
+    clearTimeout(id)
+    return response
+  } catch (e) {
+    console.error('fetch with timeout error')
+  }
 }
 
 export function getSrvResURL(path: string): string {
@@ -32,9 +41,19 @@ export async function getJSON(path: string, d?: Device): Promise<any> {
   }
 
   console.log('http', requestOptions.method, path, url, port)
-  const response = await fetch(`http://${url}:${port}/${path}`, requestOptions)
-  if (!response.ok) { return {} }
-  const data = await response.json()
+  let response
+  try {
+    response = await fetch(`http://${url}:${port}/${path}`, requestOptions)
+  } catch (e) {
+    console.error('!!!!!!! can not fetch json ', path, e)
+  }
+  if (!response || !response.ok) { return {} }
+  let data
+  try {
+    data = await response.json()
+  } catch (e) {
+    console.error('!!!!!!! invalid json ', path, e)
+  }
   console.log('got', path, data)
   return data
 }
@@ -42,8 +61,8 @@ export async function getJSON(path: string, d?: Device): Promise<any> {
 export async function getText(path: string, d?: Device, timeout = 2000): Promise<any> {
   const requestOptions = {
     method: 'GET',
-    cache: 'no-cache',
-    timeout
+    cache: 'no-cache' as RequestCache
+    // timeout
   }
   let url = serverURL
   let port = serverPort
@@ -53,8 +72,13 @@ export async function getText(path: string, d?: Device, timeout = 2000): Promise
   }
 
   console.log('http', requestOptions.method, path, url, port)
-  const response = await fetchWithTimeout(`http://${url}:${port}/${path}`, requestOptions)
-  if (!response.ok) { return {} }
+  let response
+  try {
+    response = await fetch(`http://${url}:${port}/${path}`, requestOptions)// fetchWithTimeout(`http://${url}:${port}/${path}`, requestOptions)
+  } catch (e) {
+    console.error('!!!!!!! can not fetch json ', e)
+  }
+  if (!response || !response.ok) { return {} }
   const data = await response.text()
   console.log('got', path, data)
   return data.trim()

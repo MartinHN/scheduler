@@ -210,6 +210,10 @@ export class ServerModel {
     ws.send('lora', { type: 'activate', value: { device: d, isActive } })
   }
 
+  sendKeepPingingDevice(device: LoraDevice, shouldPing: boolean) {
+    ws.send('lora', { type: 'keepPingingDevice', value: { device, shouldPing: shouldPing ? 1 : 0 } })
+  }
+
   isDeviceConnected(uuid: string): boolean {
     for (const d of Object.values(this.connectedDeviceList)) {
       if (d.uuid === uuid) { return true }
@@ -273,13 +277,23 @@ export class ServerModel {
     // const minSaved = JSON.stringify(savedAg, null, 0)
     // const savedMd5 = createHash('md5').update(minSaved).digest('hex').trim()
     const savedMd5 = await ServerAPI.getAgendaMd5(aname)
-    console.warn('got saved ag', d)
-    // const trueAg = await ServerAPI.getAgendaInfoForDevice(d)
+    // console.warn('got saved ag md5')
+
     const trueMd5 = await ServerAPI.getAgendaMd5ForDevice(d)
-    console.warn('got true ag')
+    console.warn('got both ag md5')
     const inSync = savedMd5 === trueMd5
     if (!inSync) {
       console.warn('ag out of sync ', savedMd5, trueMd5)
+      let trueAg
+      try {
+        trueAg = await ServerAPI.getAgenda(aname)
+      } catch (e) {
+        console.error('could not fetch agenda', aname, ' for ', d.deviceName, e)
+      }
+      if (trueAg) {
+        console.warn('updating agenda for ', d.deviceName)
+        await ServerAPI.saveAgenda(aname, trueAg)
+      }
     } else { console.log('ag in sync') }
     return inSync
   }

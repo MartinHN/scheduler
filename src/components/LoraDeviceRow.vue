@@ -148,6 +148,7 @@ export default class LoraDeviceRow extends Vue {
 
   lastAsked = new Date()
   _fetchDev = undefined as any
+  _keepPingAlive = undefined as any
   connected = true
   lastPingDtMs = 0
   btnDisableTimeout = null as any
@@ -157,13 +158,14 @@ export default class LoraDeviceRow extends Vue {
     // this.sm.sendDeviceEvent(this.device.uuid, { type: 'activate' })
 
     this._fetchDev = setTimeout(() => { this.updateDeviceInfo() }, Math.random() * 500)
+    this._keepPingAlive = setInterval(() => { this.sm.sendKeepPingingDevice(this.device, true) }, 3000 + Math.random() * 500)
     this.connected = false
   }
 
   destroyed(): void {
-    if (this._fetchDev) {
-      clearTimeout(this._fetchDev)
-    }
+    if (this._fetchDev) { clearTimeout(this._fetchDev) }
+    if (this._keepPingAlive) { clearInterval(this._keepPingAlive) }
+    this.sm.sendKeepPingingDevice(this.device, false)
   }
 
   get sm(): ServerModel {
@@ -258,7 +260,7 @@ export default class LoraDeviceRow extends Vue {
   // }
 
   get minIntervalForBeingConnected() {
-    return getTotalPingTimeRoundTrip(this.loraState.pingUpdateIntervalSec * 1000, this.sm.knownLoraDevices.length) + 300
+    return 2 * getTotalPingTimeRoundTrip(this.loraState.pingUpdateIntervalSec * 1000, this.sm.knownLoraDevices.length)
   }
 
   updateDeviceInfo(): void {

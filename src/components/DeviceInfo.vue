@@ -61,7 +61,7 @@ export default class DeviceInfo extends Vue {
     this.sm.sendDeviceEvent(this.device.uuid, { type: 'activate' })
     this.sm.sendDeviceEvent(this.device.uuid, { type: 'niceName' })
     if (this._fetchTime) {
-      clearTimeout(this._fetchTime)
+      clearInterval(this._fetchTime)
     }
     this._fetchTime = setInterval(async () => {
       await this.refreshTime()
@@ -124,7 +124,7 @@ export default class DeviceInfo extends Vue {
 
   destroyed (): void {
     if (this._fetchTime) {
-      clearTimeout(this._fetchTime)
+      clearInterval(this._fetchTime)
     }
   }
 

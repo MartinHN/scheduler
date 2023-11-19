@@ -139,9 +139,12 @@ export default class DeviceRow extends Vue {
     const d = this.getDevice() as any
     d[k] = v
     this.$emit('input', d)
+    this.isAgendaInSync = false
+    this.refreshAgendaStatus()
   }
 
   edit (): void {
+    this.isAgendaInSync = false
     this.$emit('edit', this.getDevice())
   }
 
@@ -167,8 +170,13 @@ export default class DeviceRow extends Vue {
     this._fetchDev = setTimeout(this.fetchDeviceInfo.bind(this), this.fechtP)
   }
 
+  isUpdatingAgenda = false
   async refreshAgendaStatus() {
-    if (this.isAdminMode && this.connected) { this.isAgendaInSync = await this.sm.isAgendaSync(this.device) } else { this.isAgendaInSync = false }
+    if (this.isAdminMode && this.connected && !this.isUpdatingAgenda) {
+      this.isUpdatingAgenda = true
+      this.isAgendaInSync = await this.sm.isAgendaSync(this.device)
+      this.isUpdatingAgenda = false
+    } else { this.isAgendaInSync = false }
   }
 
   niceDebugMs(ms: number) {
