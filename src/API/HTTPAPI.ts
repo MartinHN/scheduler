@@ -1,7 +1,11 @@
 import { Device } from './types'
 
-const serverURL = window.location.hostname
-const fromPort = window.location.port
+let serverURL = 'localhost'
+if (window.location.hostname) { serverURL = window.location.hostname }
+
+let fromPort = '3003'
+if (window.location.port) { fromPort = window.location.port }
+
 const serverPort = fromPort.startsWith('808') ? '3003' : fromPort
 
 // export function catchEm(promise) {
@@ -74,7 +78,7 @@ export async function getText(path: string, d?: Device, timeout = 2000): Promise
   console.log('http', requestOptions.method, path, url, port)
   let response
   try {
-    response = await fetch(`http://${url}:${port}/${path}`, requestOptions)// fetchWithTimeout(`http://${url}:${port}/${path}`, requestOptions)
+    response = await fetchWithTimeout(`http://${url}:${port}/${path}`, requestOptions)
   } catch (e) {
     console.error('!!!!!!! can not fetch json ', e)
   }

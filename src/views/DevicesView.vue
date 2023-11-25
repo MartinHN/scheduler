@@ -19,6 +19,7 @@
     <div
       v-for="v of unregisteredDevice"
       :key="v.uuid"
+      class="unregistered"
     >
       {{ v }}<button @click="registerDevice(v.deviceName, v)">
         register

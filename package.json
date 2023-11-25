@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve --port 8080",
-    "build": "vue-cli-service build --mode debug",
+    "build": "vue-cli-service build",
+    "buildForAndroid": "export ANDROID=1; vue-cli-service build",
     "lint": "vue-cli-service lint",
     "deploy": "pnpm run build && rsync -r -e ssh -avz --delete-after  ../view-dist/ pi@lumestrio1.local:raspestrio/view-dist"
   },

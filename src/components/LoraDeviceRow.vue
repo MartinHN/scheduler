@@ -36,9 +36,10 @@
             </option>
           </select>
           <input
+            ref="nameInput"
             class="textName"
             :value="device.deviceName"
-            @change="setName($event.target.value)"
+            @input="setName($event.target.value)"
           >
         </div>
         <div v-else>
@@ -75,10 +76,10 @@
       ref="onoff"
       class="defaultItem"
       :style="{ minWidth: editable ? '5vw' : '15vw', flexBasis: editable ? '1vw' : '15vw', background: device._isActive ? 'green' : 'gray' }"
-      :disabled="!!(btnDisableTimeout != null)"
+      :disabled="!!(btnDisableTimeout)"
       @click="setOnOff(!device._isActive)"
     >
-      {{ sm.isAgendaDisabled ? "Turn " : "" }}{{ device._isActive ? "Off" : "On" }}
+      {{ sm.isAgendaDisabled ? "Turn " : "" }}{{ (device._targetActiveLoraValue !== null && device._isActive != device._targetActiveLoraValue) ? "..." : (device._isActive ? "Off" : "On") }}
     </button>
     <!-- <button @click=setOnOff(true)> On </button>
           <button @click=setOnOff(false)> Off </button> -->
@@ -108,7 +109,7 @@
         flex: '0.001 1 5em',
         borderRadius: '5px',
         background: !connected ? 'red' : 'inherit',
-        color: parseInt(device.rssi) < -75 ? 'orange' : 'inherit',
+        color: hasRecentMessage ? 'yellow' : 'inherit',
       }"
     >
       {{ device._lastRoundtrip }} <br>
@@ -125,9 +126,9 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator'
+import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 
-import { Device, getRSSIFromDevice } from '@/API/ServerAPI'
+// import { Device, getRSSIFromDevice } from '@/API/ServerAPI'
 import { ServerModel } from '@/API/ServerModel'
 import { LoraDevice, LoraTypeNames, LoraDeviceInstance, maxDevicePerType, LoraDeviceType } from '@/API/types/LoraDevice'
 import { LoraState, DefaultLoraState, getTotalPingTimeRoundTrip } from '@/API/types/LoraState'
@@ -146,20 +147,25 @@ export default class LoraDeviceRow extends Vue {
   // numFastPing = 0
   // delayToBeDead = 5 * 1000
 
-  lastAsked = new Date()
+  hasRecentMessage = false
   _fetchDev = undefined as any
   _keepPingAlive = undefined as any
   connected = true
   lastPingDtMs = 0
   btnDisableTimeout = null as any
+
+  isEditingName = false
+  editedDevName = ''
   // isAgendaInSync = false
   mounted() {
     // ask actual state without args
     // this.sm.sendDeviceEvent(this.device.uuid, { type: 'activate' })
 
     this._fetchDev = setTimeout(() => { this.updateDeviceInfo() }, Math.random() * 500)
+    this.sm.sendKeepPingingDevice(this.device, true)
     this._keepPingAlive = setInterval(() => { this.sm.sendKeepPingingDevice(this.device, true) }, 3000 + Math.random() * 500)
     this.connected = false
+    this.editedDevName = this.device.deviceName
   }
 
   destroyed(): void {
@@ -179,6 +185,16 @@ export default class LoraDeviceRow extends Vue {
   get devNumReadable() {
     return (this.device.deviceNumber >> 0) > 0 ? this.device.deviceNumber : '?'
   }
+
+  // setIsEditingName(b) {
+  //   console.warn('editing ev', b)
+  //   this.isEditingName = !!b
+  // }
+
+  // @Watch('device')
+  // setVisibleName() {
+  //   if (!this.isEditingName) { this.editedDevName = this.device.deviceName }
+  // }
 
   get shortDevName() {
     let res = ''
@@ -221,17 +237,20 @@ export default class LoraDeviceRow extends Vue {
 
   setType(t) {
     this.device.deviceType = t >>> 0
+    this.device._lastSeen = new Date(0)
     this.$emit('change', this.device)
   }
 
   setNumber(n) {
     this.device.deviceNumber = (n >>> 0)
+    this.device._lastSeen = new Date(0)
     this.$emit('change', this.device)
   }
 
   setName(n) {
+    // this.editedDevName = n
+    this.device.deviceName = n
     this.emitChange('deviceName', n)
-    // this.device.deviceName = n
     // this.$emit('change', this.device)
   }
 
@@ -267,12 +286,21 @@ export default class LoraDeviceRow extends Vue {
     if (this._fetchDev) clearTimeout(this._fetchDev)
 
     // console.log('fetching', this.device)
-    const lastMsgFromDevTime = new Date(this.device._lastSeen).getTime()
+    const lastSeenTime = new Date(this.device._lastSeen).getTime()
     const now = new Date().getTime()
-    const dt = now - lastMsgFromDevTime
+    const dt = now - lastSeenTime
+    this.hasRecentMessage = (dt < 800)
     this.connected = (dt <= this.minIntervalForBeingConnected)
-
-    this.lastAsked = new Date()
+    if (this.device._targetActiveLoraValue !== null) {
+      if ((this.device._isActive !== this.device._targetActiveLoraValue) && (this.btnDisableTimeout === null)) {
+        this.btnDisableTimeout = setTimeout(() => { this.btnDisableTimeout = undefined }, 3000)
+      } else if (this.btnDisableTimeout) {
+        if (this.device._isActive === this.device._targetActiveLoraValue) {
+          clearTimeout(this.btnDisableTimeout)
+          this.btnDisableTimeout = null
+        }
+      }
+    }
     this._fetchDev = setTimeout(this.updateDeviceInfo.bind(this), this.updateDevInterval)
   }
 
@@ -285,13 +313,12 @@ export default class LoraDeviceRow extends Vue {
   // }
 
   setOnOff(b: boolean): void {
-    // if (!this.sm.isAgendaDisabled) {
-    //   const msg = "L'agenda est encore actif et ne prendra pas en compte la commande\n voulez vous désactiver l'agenda?"
-    //   if (confirm(msg)) { this.sm.isAgendaDisabled = true } else return
-    // }
-    if (this.btnDisableTimeout) { clearTimeout(this.btnDisableTimeout) }
-    this.btnDisableTimeout = setTimeout(() => { this.btnDisableTimeout = null }, 500)
-    this.sm.activateLoraDevice(this.device, b)
+    if (!this.sm.isAgendaDisabled) {
+      const msg = "L'agenda est encore actif et ne prendra pas en compte la commande\n voulez vous désactiver l'agenda?"
+      if (confirm(msg)) { this.sm.setAgendaDisabled(true) } else return
+    }
+
+    this.sm.activateLoraDevices([this.device], b)
   }
 }
 </script>

@@ -13,12 +13,13 @@
           :value="state.clockUpdateIntervalSec"
           @change="setClockInterval($event.target.value)"
         >
-        <button
+        <!-- <button
           :class="{ active: sm.loraIsSendingPing }"
           @click="setIsSendingTest(!sm.loraIsSendingPing, true)"
         >
           Test
-        </button>
+        </button> -->
+
         <input
           v-if="sm.loraIsSendingPing"
           :value="state.pingUpdateIntervalSec"
@@ -101,18 +102,31 @@
         :style="{ display: 'flex' }"
         flexBasis="50%"
       >
-        <button @click="addLoraDevice">
+        <button
+          :class="{ active: sm.deviceAreSyncedFromWifi }"
+          @click="sm.setLoraDeviceAreSyncedFromWifi(!sm.deviceAreSyncedFromWifi)"
+        >
+          useWifi
+        </button>
+        <button
+          v-if="!sm.deviceAreSyncedFromWifi"
+          @click="addLoraDevice"
+        >
           + Add device
         </button>
-        <button @click="removeAllLora">
+        <button
+          v-if="!sm.deviceAreSyncedFromWifi"
+          @click="removeAllLora"
+        >
           removeAll
         </button>
       </div>
     </div>
     <div class="list">
       <LoraDeviceRow
-        v-for="v, i of loraDevices"
-        :key="i"
+        v-for="v, i of sortedLoraDevices"
+        :key="getSortedIdForDev(v)"
+        :editable="!sm.deviceAreSyncedFromWifi"
         :lora-state="state"
         :device="v"
         @change="saveDevices"
@@ -132,7 +146,7 @@ import * as ServerAPI from '@/API/ServerAPI'
 import { ServerModel } from '@/API/ServerModel'
 import { DefaultLoraState, chanToHzTable, airDataRates, minClockUpdateInterval, minPingUpdateInterval } from '@/API/types/LoraState'
 import LoraDeviceRow from '@/components/LoraDeviceRow.vue'
-import { LoraDevice, LoraDeviceInstance } from '@/API/types/LoraDevice'
+import { LoraDevice, LoraDeviceInstance, LoraDeviceType } from '@/API/types/LoraDevice'
 
 @Component({
   components: { LoraDeviceRow }
@@ -146,24 +160,51 @@ export default class LoraView extends Vue {
     return (this.$root as any).sm
   }
 
+  getDeviceFromWifi = true
   get loraDevices() {
     return this.sm.knownLoraDevices
   }
 
+  sortedIds = new Array<LoraDeviceInstance>()
+
+  getSortedIdForDev(d: LoraDeviceInstance) {
+    if (this.sortedIds === undefined) {
+      this.sortedIds = new Array<LoraDeviceInstance>()
+      console.error('generating sorted id for ', this)
+    }
+    if (this.sortedIds.indexOf(d) === -1) { this.sortedIds.push(d) }
+    const res = this.sortedIds.indexOf(d)
+    if (res === -1) { console.error('!!!!! id cache miss') }
+    console.warn('got id', res, ' for', d)
+    return res
+  }
+
+  get sortedLoraDevices() {
+    const getS = (a: LoraDevice): number => {
+      return (a.deviceNumber === undefined) ? 0 : a.deviceType * 32 + a.deviceNumber
+    }
+    return Object.values(this.loraDevices).sort((a, b) => {
+      return getS(a) - getS(b)
+    })
+  }
+
   async mounted(): Promise<void> {
-    Object.assign(this.state, await ServerAPI.getLoraState())
+    const savedLoraState = await ServerAPI.getLoraState()
+    if (savedLoraState !== undefined) { Object.assign(this.state, savedLoraState) } else { console.error("can't get lora state") }
     await ServerAPI.getKnownLoraDevices().then(dl => {
       this.sm.knownLoraDevices.length = 0
       if (dl) { Object.values(dl).map(e => this.sm.knownLoraDevices.push(LoraDeviceInstance.create(e))) }
       console.log('got known lora devices', this.sm.knownLoraDevices)
       if (localStorage) {
         this.setIsSendingTest(localStorage.getItem('isSengdingLoraPing') === '1')
+        this.setDisablingWifi(localStorage.getItem('isDisablingWifi') === '1')
       }
     })
   }
 
   destroyed(): void {
     this.setIsSendingTest(false, false)
+    this.sortedIds.length = 0
   }
 
   setClockInterval(e) {
@@ -203,6 +244,7 @@ export default class LoraView extends Vue {
 
   setDisablingWifi(b: boolean) {
     this.sm.setLoraIsDisablingWifi(!!b)
+    if (localStorage) { localStorage.setItem('isDisablingWifi', b ? '1' : '0') }
   }
 
   doSave(): void {
@@ -210,14 +252,17 @@ export default class LoraView extends Vue {
   }
 
   addLoraDevice() {
-    this.sm.knownLoraDevices.push(new LoraDeviceInstance())
+    const nd = new LoraDeviceInstance()
+    nd.deviceType = LoraDeviceType.Relaystrio// appear first in list
+    this.sm.knownLoraDevices.push(nd)
     this.saveDevices()
   }
 
   async saveDevices() {
+    // if (this.getDeviceFromWifi) return
     console.log('saving ', this.loraDevices)
     await ServerAPI.setKnownLoraDevices(this.loraDevices)
-    await this.sm.loadLoraDevices()
+    // await this.sm.loadLoraDevices(true)
   }
 
   async removeAllLora() {

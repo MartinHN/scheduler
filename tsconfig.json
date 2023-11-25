@@ -4,8 +4,8 @@
     "target": 2, // For Vue version <= 2.6.14
   },
   "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
+    "target": "ES5",
+    "module": "CommonJS",
     "strict": true,
     "jsx": "preserve",
     "importHelpers": true,
@@ -20,7 +20,7 @@
     "baseUrl": ".",
     "types": [
       "webpack-env",
-      "node",
+      "node"
     ],
     "paths": {
       "@/*": [

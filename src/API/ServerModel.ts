@@ -4,7 +4,7 @@ import { LoraDevice, LoraDeviceArray, LoraDeviceFile, LoraDeviceInstance, LoraDe
 
 import ws from '../ws'
 
-const allowedWSData = ['isInaugurationMode', 'isAgendaDisabled', 'loraIsSendingPing', 'knownLoraDevices', 'loraIsCheckingAgendas', 'loraIsSyncingAgendas'] as string[]
+const allowedWSData = ['isInaugurationMode', 'isAgendaDisabled', 'loraIsSendingPing', 'knownLoraDevices', 'deviceAreSyncedFromWifi', 'loraIsCheckingAgendas', 'loraIsSyncingAgendas', 'serverSyncStatus'] as string[]
 
 export function isLoraDevice(dev: LoraDevice | Device) {
   return (dev as any).deviceType !== undefined
@@ -33,11 +33,13 @@ export class ServerModel {
   inaugurationHasControl = false
   isAgendaDisabled = false
 
+  serverSyncStatus = ''
   // lora
   knownLoraDevices = new Array<LoraDeviceInstance>()
   loraIsSendingPing = false
   loraIsSyncingAgendas = false
-  loraIsCheckingAgendas = false
+  loraIsCheckingAgendas = true
+  deviceAreSyncedFromWifi = true
   loraIsDisablingWifi = true
 
   isDNSActive = false
@@ -69,6 +71,7 @@ export class ServerModel {
       ws.send('lora', { type: 'req', value: 'loraIsSendingPing' })
       ws.send('lora', { type: 'req', value: 'loraIsSyncingAgendas' })
       ws.send('lora', { type: 'req', value: 'loraIsCheckingAgendas' })
+      ws.send('lora', { type: 'req', value: 'deviceAreSyncedFromWifi' })
       ws.send('lora', { type: 'req', value: 'knownLoraDevices' })
     }
   }
@@ -87,7 +90,7 @@ export class ServerModel {
     this.knownDevices = devs
   }
 
-  async loadLoraDevices() {
+  async loadLoraDevices(keepMetaData = false) {
     const savedLoraKnownDevices = await ServerAPI.getKnownLoraDevices()
     const loraDevs = [] as Array<LoraDeviceInstance>
     for (const [k, v] of Object.entries(savedLoraKnownDevices)) {
@@ -96,7 +99,7 @@ export class ServerModel {
       // const liveP = ['activate', 'rssi']
       // liveP.map(e => { if (f[e] !== undefined) delete f[e] })
 
-      loraDevs.push(LoraDeviceInstance.create(v))
+      loraDevs.push(LoraDeviceInstance.create(v, keepMetaData))
     }
     this.knownLoraDevices = loraDevs
   }
@@ -113,6 +116,10 @@ export class ServerModel {
     } else {
       console.error('no agenda names')
     }
+  }
+
+  async startFullAgSync(b: boolean) {
+    ws.send('server', { type: 'startFullAgSync', value: b ? 1 : 0 })
   }
 
   newMessageFromWS(v: any): void {
@@ -201,13 +208,19 @@ export class ServerModel {
     ws.send('lora', { type: 'loraIsCheckingAgendas', value: b ? 1 : 0 })
   }
 
+  setLoraDeviceAreSyncedFromWifi(b) {
+    this.deviceAreSyncedFromWifi = b
+    ws.send('lora', { type: 'deviceAreSyncedFromWifi', value: b ? 1 : 0 })
+  }
+
   setLoraIsDisablingWifi(b) {
     this.loraIsDisablingWifi = b
     ws.send('lora', { type: 'loraIsDisablingWifi', value: b ? 1 : 0 })
   }
 
-  activateLoraDevice(d: LoraDevice, isActive: boolean) {
-    ws.send('lora', { type: 'activate', value: { device: d, isActive } })
+  activateLoraDevices(devices: Array<LoraDevice>, isActive: boolean) {
+    for (const d of devices) { d._targetActiveLoraValue = isActive }
+    ws.send('lora', { type: 'activate', value: { devices, isActive } })
   }
 
   sendKeepPingingDevice(device: LoraDevice, shouldPing: boolean) {
@@ -261,8 +274,9 @@ export class ServerModel {
     if (event.type) { ws.send('deviceEvent', { uuid, event }) } else { console.error('[ServerModel] invalid event', event) }
   }
 
+  showLora = false
   getAllDevicesList(): Array<Device | LoraDevice> {
-    return [...Object.values(this.knownDevices), ...Object.values(this.knownLoraDevices)]
+    if (!this.showLora) { return [...Object.values(this.knownDevices)] } else return [...Object.values(this.knownLoraDevices)]
   }
 
   devicesInGroup(g: Group): Array<Device | LoraDevice> {

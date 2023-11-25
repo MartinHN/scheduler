@@ -40,6 +40,11 @@
     >
       effacer Agenda
     </button>
+    <AgendasSync
+      class="flash wmin"
+    >
+      syncroniser Agenda
+    </AgendasSync>
 
     <!-- <button @click="loadFromFile">load from File</button> -->
     <!-- <button @click="saveToDevice">save To Device</button>
@@ -53,15 +58,9 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 import { Agenda } from '@/API/ServerAPI'
 import * as ServerAPI from '@/API/ServerAPI'
 import { ServerModel } from '@/API/ServerModel'
+import AgendasSync from './AgendasSync.vue'
 
-function replaceJSON (k: string, v: any): any {
-  if (v.type === 'default') {
-    return undefined
-  }
-  return v
-}
-
-@Component({})
+@Component({ components: { AgendasSync } })
 export default class AgendasList extends Vue {
   get currentAgendaName (): string {
     console.log('>>>> get', this.sm.loadedAgenda?.name)

@@ -32,12 +32,18 @@ const wrap = {
   start(): void {
     if (connection && (connection.readyState !== WebSocket.CLOSED)) { console.error('ws already strarted'); return }
     console.log('Starting connection to WebSocket Server')
-    const wsAddr = 'ws://' + window.location.hostname + ':3003'
+    let loc = 'localhost'
+    if (window.location.hostname) { loc = window.location.hostname }
+    const wsAddr = 'ws://' + loc + ':3003'
     console.log('tryConnelkjjct ws :', wsAddr)
     connection = new WebSocket(wsAddr)
 
     connection.onmessage = function (event: MessageEvent) {
       // console.log('new from serv', event.data)
+      //   let payload;
+      //   if(event.type==="text")
+      //   payload = JSON.parse(event.data)
+      // else if
       if (messageCB) messageCB(JSON.parse(event.data))
     }
 

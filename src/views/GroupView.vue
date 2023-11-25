@@ -30,6 +30,11 @@
               {{ d }}
             </option>
           </select>
+          <input
+            v-if="Object.keys(currentGroup).length"
+            :value="curLoopTimeTxt"
+            @change="setGroupLoopTime($event)"
+          >
           <button @click="setGroupValue(true)">
             On Group
           </button>
@@ -37,6 +42,13 @@
             Off Group
           </button>
         </div>
+        <button
+          :style="{ background: sm.showLora ? 'green' : 'gray' }"
+          @click="sm.showLora = !sm.showLora"
+        >
+          Show Lora
+        </button>
+
         <br>
         <div class="displayedDevices">
           <DeviceOrLoraRow
@@ -74,12 +86,14 @@ import { ServerModel, getUuidForAnyDevice, isLoraDevice } from '@/API/ServerMode
 import LoraDeviceRow from '@/components/LoraDeviceRow.vue'
 import DeviceOrLoraRow from '@/components/DeviceOrLoraRow.vue'
 import { LoraDevice } from '@/API/types/LoraDevice'
+
 @Component({
   components: {
     GroupList,
     DeviceRow,
     LoraDeviceRow,
     DeviceOrLoraRow
+
   }
 })
 export default class GroupView extends Vue {
@@ -107,6 +121,16 @@ export default class GroupView extends Vue {
     return this.sortedKnownDevices.filter((d) => {
       return d.group === this.currentGroupName
     })
+  }
+
+  get curLoopTimeTxt() {
+    return '' + (this.currentGroup.loopTime || 0)
+  }
+
+  setGroupLoopTime(txt) {
+    const t = parseInt(txt)
+    this.currentGroup.loopTime = t
+    this.saveGroups()
   }
 
   get availableAgendas () {
@@ -160,7 +184,7 @@ export default class GroupView extends Vue {
   // get loraOrWifiDevs() {
   //   return [...Object.values(this.knownDeviceList)]
   // }
-
+  showLora = false
   get sortedKnownDevices () {
     const getS = (a: Device | LoraDevice): string => {
       return (a.group ? a.group : 'aaaa') + ((a as Device).niceName || (a as LoraDevice).deviceName)
@@ -171,13 +195,19 @@ export default class GroupView extends Vue {
   }
 
   setGroupValue (b: boolean): void {
+    if (!this.sm.isAgendaDisabled) {
+      const msg = "L'agenda est encore actif et ne prendra pas en compte la commande\n voulez vous désactiver l'agenda?"
+      if (confirm(msg)) { this.sm.setAgendaDisabled(true) } else return
+    }
     console.log('settting group', b)
+    const loraToActivate = new Array<LoraDevice>()
     this.displayedDevices.forEach((e) => {
-      if (isLoraDevice(e)) { this.sm.activateLoraDevice(e as LoraDevice, b) } else { this.sm.activateDevice(e as Device, b) }
+      if (isLoraDevice(e)) { loraToActivate.push(e as LoraDevice) } else { this.sm.activateDevice(e as Device, b) }
     })
+    this.sm.activateLoraDevices(loraToActivate, b)
   }
 
-  saveGroups (e) {
+  saveGroups() {
     // deffer for vue to be up to date
     setTimeout(() => {
       ServerAPI.saveGroups(this.groups)
